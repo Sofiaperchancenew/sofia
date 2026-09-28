@@ -1,0 +1,26 @@
+name: contribution-auto
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: write
+  issues: write
+jobs:
+  accepter:
+    if: startsWith(github.event.issue.title, '[FICHE]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/accept-contribution.mjs
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_USER: ${{ github.event.issue.user.login }}
+      - run: git config user.name bot && git config user.email bot@bot && git add -A && git commit -m "contribution auto" || true && git push
+      - run: gh issue close ${{ github.event.issue.number }} --comment "Acceptee. Publication ce soir a 20h UTC."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
