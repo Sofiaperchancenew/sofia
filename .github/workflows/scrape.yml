@@ -15,4 +15,4 @@ jobs:
       - run: node scripts/scrape.mjs
       - run: node scripts/mirror-corpus.mjs
       - run: node scripts/merge-contributions.mjs
-      - run: git config user.name bot && git config user.email bot@bot && git add data/ src/ satellite/ && git commit -m "donnees du soir" || true && git push
+      - run: git config user.name bot && git config user.email bot@bot && git add -A && git commit -m "donnees du soir" || true && git push
