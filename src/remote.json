@@ -1,5 +1,8 @@
 {
- "note": "Depuis v279 : le corpus est lu UNIQUEMENT sur le miroir GitHub (jsDelivr). Plus aucune adresse uploads.dev. Chemin logique -> miroir + chemin.",
- "mirror": "https://cdn.jsdelivr.net/gh/Sofiaperchancenew/sofia@main/",
- "files": {}
+ "v": 2,
+ "at": "2026-09-28T18:14:22.963Z",
+ "why": "Depuis v279 : corpus de lois lu UNIQUEMENT sur le miroir GitHub (jsDelivr). Plus aucune adresse uploads.dev.",
+ "base": "https://cdn.jsdelivr.net/gh/Sofiaperchancenew/sofia@main/src/droit/",
+ "files": {},
+ "count": 0
 }
