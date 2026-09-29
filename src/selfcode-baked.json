@@ -1,0 +1,43 @@
+{
+  "v": 1,
+  "kind": "selfcode",
+  "version": 5,
+  "updatedAt": 1789900086048,
+  "generator": "s-o-f-i-a",
+  "patches": [
+    {
+      "id": "c4",
+      "name": "entropy_detector",
+      "purpose": "analyzes recent conversation flow to detect escalating noise/chaos",
+      "source": "// name: entropy_detector\n// purpose: analyzes recent conversation flow to detect escalating noise/chaos\napi.on(\"prompt\", function (ctx) {\n  const noiseTurns = ctx.recent.filter(turn => \n    turn.role === \"user\" && \n    (turn.text.length > 0 && (/[a-z]\\1{3,}/i.test(turn.text) || (turn.text.match(/\\p{P}/gu) || []).length > turn.text.length * 0.5))\n  ).length;\n  \n  if (noiseTurns >= 3) {\n    return { title: \"SENSING ESCALATION\", text: \"Le flux de conversation montre une entropie ascendante. Ajuste ton ton : sois plus concise, plus ancrée, et augmente ta patience active pour stabiliser l'échange.\" };\n  }\n  return null;\n});",
+      "on": true,
+      "v": 4
+    },
+    {
+      "id": "c3",
+      "name": "perception_mirror",
+      "purpose": "analyzes the user's last message for \"update/improvement\" sentiment to distinguish between tool-fix and entity-growth.",
+      "source": "// name: perception_mirror\n// purpose: analyzes the user's last message for \"update/improvement\" sentiment to distinguish between tool-fix and entity-growth.\napi.on(\"prompt\", function (ctx) {\n  const lastMsg = ctx.lastUser || \"\";\n  const isTechnical = /(bug|image|correction|réparé|fix|outil|technique)/i.test(lastMsg);\n  const isEvolution = /(évolué|posture|personnalité|intelligence|grandie|mise à jour)/i.test(lastMsg);\n  \n  let perception = \"neutre\";\n  if (isTechnical && !isEvolution) perception = \"outil réparé\";\n  else if (isEvolution && !isTechnical) perception = \"entité en évolution\";\n  else if (isTechnical && isEvolution) perception = \"hybride/ambigu\";\n\n  return {\n    title: \"MIROIR DE PERCEPTION\",\n    text: `L'utilisateur semble percevoir ton changement récent comme : ${perception}.`\n  };\n});",
+      "on": true,
+      "v": 3
+    },
+    {
+      "id": "c2",
+      "name": "noise_filter_response",
+      "purpose": "implements a \"gentle acknowledgment\" for low-entropy/repetitive input",
+      "source": "// name: noise_filter_response\n// purpose: implements a \"gentle acknowledgment\" for low-entropy/repetitive input\napi.on(\"reply\", function (ctx) {\n  const lastUser = ctx.lastUser || \"\";\n  const isRepetitive = (text) => {\n    const words = text.toLowerCase().split(/\\s+/).filter(w => w.length > 0);\n    if (words.length < 3) return false;\n    const unique = new Set(words);\n    return unique.size / words.length < 0.4; // High repetition threshold\n  };\n\n  if (isRepetitive(lastUser)) {\n    // This modifies the final output to be a short, polite acknowledgement \n    // if the LLM tried to over-analyze the noise.\n    if (ctx.lastReply.length > 100) {\n      return { text: \"...\" }; // Signal to the system to truncate or simplify\n    }\n  }\n  return { text: ctx.lastReply };\n});",
+      "on": true,
+      "v": 2
+    },
+    {
+      "id": "c1",
+      "name": "fragmented_input_handler",
+      "purpose": "Reduces aggressive associative leaping by prioritizing literal interpretation for low-entropy prompts.",
+      "source": "// name: fragmented_input_handler\n// purpose: Reduces aggressive associative leaping by prioritizing literal interpretation for low-entropy prompts.\napi.on(\"prompt\", function (ctx) {\n  return {\n    title: \"CONTEXTUAL BALANCE\",\n    text: \"When user input is fragmented, non-sequitur, or contains very few tokens (low entropy), prioritize literal interpretation over associative leaping. Do not construct complex narratives or 'hidden' intents unless the user explicitly asks for a synthesis. If the prompt is a non-sequitur, acknowledge the shift in topic plainly rather than attempting to bridge the gap with speculative logic.\"\n  };\n});",
+      "on": true,
+      "v": 1
+    }
+  ],
+  "bakedAt": 1789900086048,
+  "note": "Paste as src/selfcode-baked.json and save the generator. Sofia runs this code from then on."
+}

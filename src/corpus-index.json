@@ -1,1 +1,319 @@
-{"note":"Registre vide v280 : aucun corpus de texte intégral dans la maison pour l'instant ; les fiches condensées servent (repli documenté). Les textes miroirs existent sur GitHub (src/<domaine>/texte.json.gz) et seront inscrits ici avec leur adresse lors de la ronde d'hébergement.","textes":{"list":[]}}
+{
+ "note": "Register des Bestands im Haus (Runde 198). Was Sofia WIRKLICH vorliegen hat: die 24 Kodexe im amtlichen Wortlaut (je Nummer, Weg und Fassungsdatum) und die Text-Bestaende der Dokumente, die der Eigentuemer gegeben hat. Jede Frage sucht in DIESEM Bestand, nicht im Modellwissen. Wichtig: das Feld 'domaine' muss dem Namen der Tuere in App.Corpus.MEMO entsprechen (sexo, maths, web, anatomie, python, dico, med, metier, droit, gbd, code), nicht dem Ordnernamen.",
+ "date": "2026-09-22",
+ "droit": {
+  "label": "Droit francais — codes en vigueur",
+  "codes": 24,
+  "articles": 90101,
+  "source": "https://codes.droit.org/ (spiegel van Legifrance/Dila)",
+  "licence": "Textes officiels : libres de droits (art. L122-5 CPI).",
+  "register": "src/droit/codes-index.json",
+  "numbers": "src/droit/numbers-index.json.gz",
+  "reader": "App.DroitLookup (index.html)",
+  "list": [
+   {
+    "slug": "code-civil",
+    "nom": "Code civil",
+    "code": "LEGITEXT000006070721",
+    "lastup": "2026-07-29",
+    "articles": 2899,
+    "abroges": 350,
+    "articlesFile": "src/droit/code-civil/articles.json.gz",
+    "indexFile": "src/droit/code-civil/index.json.gz"
+   },
+   {
+    "slug": "code-penal",
+    "nom": "Code pénal",
+    "code": "LEGITEXT000006070719",
+    "lastup": "2026-08-26",
+    "articles": 1301,
+    "abroges": 53,
+    "articlesFile": "src/droit/code-penal/articles.json.gz",
+    "indexFile": "src/droit/code-penal/index.json.gz"
+   },
+   {
+    "slug": "code-procedure-penale",
+    "nom": "Code de procédure pénale",
+    "code": "LEGITEXT000006071154",
+    "lastup": "2026-08-20",
+    "articles": 4631,
+    "abroges": 928,
+    "articlesFile": "src/droit/code-procedure-penale/articles.json.gz",
+    "indexFile": "src/droit/code-procedure-penale/index.json.gz"
+   },
+   {
+    "slug": "code-education",
+    "nom": "Code de l'éducation",
+    "code": "LEGITEXT000006071191",
+    "lastup": "2026-09-20",
+    "articles": 5010,
+    "abroges": 582,
+    "articlesFile": "src/droit/code-education/articles.json.gz",
+    "indexFile": "src/droit/code-education/index.json.gz"
+   },
+   {
+    "slug": "ceseda",
+    "nom": "Code de l'entrée et du séjour des étrangers et du droit d'asile",
+    "code": "LEGITEXT000006070158",
+    "lastup": "2026-08-27",
+    "articles": 2496,
+    "abroges": 991,
+    "articlesFile": "src/droit/ceseda/articles.json.gz",
+    "indexFile": "src/droit/ceseda/index.json.gz"
+   },
+   {
+    "slug": "code-justice-administrative",
+    "nom": "Code de justice administrative",
+    "code": "LEGITEXT000006070933",
+    "lastup": "2026-09-01",
+    "articles": 1279,
+    "abroges": 102,
+    "articlesFile": "src/droit/code-justice-administrative/articles.json.gz",
+    "indexFile": "src/droit/code-justice-administrative/index.json.gz"
+   },
+   {
+    "slug": "code-travail",
+    "nom": "Code du travail",
+    "code": "LEGITEXT000006072050",
+    "lastup": "2026-09-01",
+    "articles": 11592,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-travail/articles.json.gz",
+    "indexFile": "src/droit/code-travail/index.json.gz"
+   },
+   {
+    "slug": "code-sante-publique",
+    "nom": "Code de la santé publique",
+    "code": "LEGITEXT000006072665",
+    "lastup": "2026-09-19",
+    "articles": 13661,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-sante-publique/articles.json.gz",
+    "indexFile": "src/droit/code-sante-publique/index.json.gz"
+   },
+   {
+    "slug": "code-securite-sociale",
+    "nom": "Code de la sécurité sociale",
+    "code": "LEGITEXT000006073189",
+    "lastup": "2026-09-19",
+    "articles": 7421,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-securite-sociale/articles.json.gz",
+    "indexFile": "src/droit/code-securite-sociale/index.json.gz"
+   },
+   {
+    "slug": "code-action-sociale-familles",
+    "nom": "Code de l'action sociale et des familles",
+    "code": "LEGITEXT000006074069",
+    "lastup": "2026-08-10",
+    "articles": 3689,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-action-sociale-familles/articles.json.gz",
+    "indexFile": "src/droit/code-action-sociale-familles/index.json.gz"
+   },
+   {
+    "slug": "code-famille-aide-sociale",
+    "nom": "Code de la famille et de l'aide sociale",
+    "code": "LEGITEXT000006072637",
+    "lastup": "2019-12-30",
+    "articles": 12,
+    "abroges": 267,
+    "articlesFile": "src/droit/code-famille-aide-sociale/articles.json.gz",
+    "indexFile": "src/droit/code-famille-aide-sociale/index.json.gz"
+   },
+   {
+    "slug": "code-consommation",
+    "nom": "Code de la consommation",
+    "code": "LEGITEXT000006069565",
+    "lastup": "2026-08-20",
+    "articles": 2104,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-consommation/articles.json.gz",
+    "indexFile": "src/droit/code-consommation/index.json.gz"
+   },
+   {
+    "slug": "code-route",
+    "nom": "Code de la route",
+    "code": "LEGITEXT000006074228",
+    "lastup": "2026-08-20",
+    "articles": 1174,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-route/articles.json.gz",
+    "indexFile": "src/droit/code-route/index.json.gz"
+   },
+   {
+    "slug": "code-procedure-civile",
+    "nom": "Code de procédure civile",
+    "code": "LEGITEXT000006070716",
+    "lastup": "2026-05-07",
+    "articles": 2085,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-procedure-civile/articles.json.gz",
+    "indexFile": "src/droit/code-procedure-civile/index.json.gz"
+   },
+   {
+    "slug": "code-construction-habitation",
+    "nom": "Code de la construction et de l'habitation",
+    "code": "LEGITEXT000006074096",
+    "lastup": "2026-09-14",
+    "articles": 4114,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-construction-habitation/articles.json.gz",
+    "indexFile": "src/droit/code-construction-habitation/index.json.gz"
+   },
+   {
+    "slug": "code-commerce",
+    "nom": "Code de commerce",
+    "code": "LEGITEXT000005634379",
+    "lastup": "2026-09-01",
+    "articles": 7255,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-commerce/articles.json.gz",
+    "indexFile": "src/droit/code-commerce/index.json.gz"
+   },
+   {
+    "slug": "code-justice-penale-mineurs",
+    "nom": "Code de la justice pénale des mineurs",
+    "code": "LEGITEXT000039086952",
+    "lastup": "2026-08-20",
+    "articles": 560,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-justice-penale-mineurs/articles.json.gz",
+    "indexFile": "src/droit/code-justice-penale-mineurs/index.json.gz"
+   },
+   {
+    "slug": "code-propriete-intellectuelle",
+    "nom": "Code de la propriété intellectuelle",
+    "code": "LEGITEXT000006069414",
+    "lastup": "2026-08-05",
+    "articles": 1896,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-propriete-intellectuelle/articles.json.gz",
+    "indexFile": "src/droit/code-propriete-intellectuelle/index.json.gz"
+   },
+   {
+    "slug": "code-relations-public-administration",
+    "nom": "Code des relations entre le public et l'administration",
+    "code": "LEGITEXT000031366350",
+    "lastup": "2026-05-28",
+    "articles": 476,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-relations-public-administration/articles.json.gz",
+    "indexFile": "src/droit/code-relations-public-administration/index.json.gz"
+   },
+   {
+    "slug": "code-environnement",
+    "nom": "Code de l'environnement",
+    "code": "LEGITEXT000006074220",
+    "lastup": "2026-09-01",
+    "articles": 7277,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-environnement/articles.json.gz",
+    "indexFile": "src/droit/code-environnement/index.json.gz"
+   },
+   {
+    "slug": "code-urbanisme",
+    "nom": "Code de l'urbanisme",
+    "code": "LEGITEXT000006074075",
+    "lastup": "2026-09-01",
+    "articles": 2459,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-urbanisme/articles.json.gz",
+    "indexFile": "src/droit/code-urbanisme/index.json.gz"
+   },
+   {
+    "slug": "code-sport",
+    "nom": "Code du sport",
+    "code": "LEGITEXT000006071318",
+    "lastup": "2026-08-20",
+    "articles": 1915,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-sport/articles.json.gz",
+    "indexFile": "src/droit/code-sport/index.json.gz"
+   },
+   {
+    "slug": "code-securite-interieure",
+    "nom": "Code de la sécurité intérieure",
+    "code": "LEGITEXT000025503132",
+    "lastup": "2026-09-01",
+    "articles": 2927,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-securite-interieure/articles.json.gz",
+    "indexFile": "src/droit/code-securite-interieure/index.json.gz"
+   },
+   {
+    "slug": "code-penitentiaire",
+    "nom": "Code pénitentiaire",
+    "code": "LEGITEXT000045476241",
+    "lastup": "2026-08-19",
+    "articles": 1868,
+    "abroges": 0,
+    "articlesFile": "src/droit/code-penitentiaire/articles.json.gz",
+    "indexFile": "src/droit/code-penitentiaire/index.json.gz"
+   }
+  ]
+ },
+ "textes": {
+  "label": "Dokumente und Kurse im Haus — Wortlaut",
+  "reader": "App.Corpus (index.html)",
+  "list": [
+   {
+    "domaine": "sexo",
+    "label": "Sexologie — textes intégraux des documents remis",
+    "file": "src/sexo/texte.json.gz",
+    "docs": 5,
+    "sections": 215,
+    "sources": [
+     "https://cerhes.org/wp-content/uploads/2023/09/guide-de-premier-recours-en-sexologie45.pdf",
+     "https://www.santesexuelle.org/wp-content/uploads/2021/07/guide-sexo-medecins-page-a-page-1.pdf",
+     "https://www.evras.be/fileadmin/user_upload/9/strategies-concertees/07_-_Guide_pour_l_EVRAS_-_Thematique_Sexualite_et_comportements_sexuels.pdf",
+     "https://www.chu-nantes.fr/medias/fichier/notions-generales-de-sexologie_1488878660223-pdf",
+     "https://archives.uness.fr/sites/campus-unf3s-2015/UNF3Smiroir/campus-numeriques/gynecologie-et-obstetrique/enseignement/item40/site/html/cours.pdf"
+    ]
+   },
+   {
+    "domaine": "maths",
+    "label": "Mathématiques — textes intégraux des documents remis",
+    "file": "src/maths/texte.json.gz",
+    "docs": 2,
+    "sections": 52,
+    "sources": [
+     "https://www.ecricome.org/wp-content/uploads/2021/01/MEMO-MATHEMATIQUES.pdf",
+     "https://www.maths-et-tiques.fr/telech/TFrac.pdf"
+    ]
+   },
+   {
+    "domaine": "web",
+    "label": "HTML et CSS — texte intégral du cours remis",
+    "file": "src/web/texte.json.gz",
+    "docs": 1,
+    "sections": 112,
+    "sources": [
+     "https://projet.eu.org/pedago/sin/ICN/2nde/1-html_css.pdf"
+    ]
+   },
+   {
+    "domaine": "anatomie",
+    "label": "Anatomie et physiologie — texte intégral du manuel remis",
+    "file": "src/anatomy/texte.json.gz",
+    "docs": 1,
+    "sections": 310,
+    "sources": [
+     "https://sofia.medicalistes.fr/spip/IMG/pdf/anatomie_et_physiologie_humaines.pdf"
+    ]
+   },
+   {
+    "domaine": "code",
+    "label": "Programmation — les cours de référence (Java, JavaScript, intégration)",
+    "file": "src/code/texte.json.gz",
+    "docs": 3,
+    "sections": 997,
+    "sources": [
+     "https://fr.wikibooks.org/wiki/Programmation_Java",
+     "https://fr.wikibooks.org/wiki/Programmation_JavaScript"
+    ],
+    "note": "Cours Wikilivre (CC BY-SA 4.0 / GFDL) en texte intégral + un guide d'intégration rédigé pour ce projet (src/code/integration.md)."
+   }
+  ]
+ }
+}

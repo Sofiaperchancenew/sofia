@@ -1315,3 +1315,10 @@ alles andere unverändert, `SelfUpdate.verify()` 48 Dateien / 0 verändert, `bui
 **Ehrliche Einschränkung.** `raw.githubusercontent.com` ist kein CDN (manche Netze blocken es),
 jsDelivr begrenzt auf 20 MB pro Datei; ein öffentliches Repo macht die Korpora für jeden lesbar
 (sie sind es ohnehin schon). Der Spiegel bleibt deshalb **Reserve**, nicht Hauptadresse.
+
+**Nachtrag Runde 276 (2026-09-28, Bann wegen zu vieler Anfragen).** Der Eigentümer wurde wegen der
+Anfragen gesperrt: der ganze Korpus soll auf GitHub (`Sofiaperchancenew/sofia`, fast leer vorgefunden),
+die Tagesdaten abends gehen. `src/remote.json` trägt jetzt die Spiegel-Basis
+(`https://cdn.jsdelivr.net/gh/Sofiaperchancenew/sofia@main/`), `App.GitHubData` liest raw dann jsDelivr
+mit 12-h-Deckel, und `scratch/sofia-github/` hält das fertige Spiegel-Paket (Manifest mit 214 Dateien,
+`mirror-corpus.mjs`, Workflow `donnees-du-soir` um 20h UTC).

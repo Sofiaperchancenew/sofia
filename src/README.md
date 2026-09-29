@@ -1126,3 +1126,49 @@ C'est pourquoi le miroir reste un **secours**, pas l'adresse principale.
 `src/build.json` (**v275**), `src/README.md`, `src/KNOWLEDGE.md`. **`main.pjs` inchangé.**
 
 Abschluss dieser Runde: `src/build.json` steht auf **v275**.
+
+## 174. Ronde 276 – banni à cause des requêtes : tout part sur GitHub, le soir (2026-09-28)
+
+Le propriétaire a été banni de Perchance à cause des requêtes : le corpus (toujours lu sur
+`user.uploads.dev`) doit vivre sur GitHub, et les données du jour doivent partir **le soir**.
+Constat : le dépôt `Sofiaperchancenew/sofia` est quasi vide (un `data/sources.json` de 67 octets).
+
+- **Miroir renseigné.** `src/remote.json` porte désormais la base
+  `https://cdn.jsdelivr.net/gh/Sofiaperchancenew/sofia@main/` — le secours de la ronde 275
+  devient réel dès que le dépôt est rempli (chemin logique simplement accroché).
+- **Paquet remis.** `scratch/sofia-github/` contient le dépôt prêt à pousser : `README.md`,
+  `data/corpus-manifest.json` (157 + 57 = 214 fichiers), `scripts/scrape.mjs` (données du jour),
+  `scripts/mirror-corpus.mjs` (remplit `src/...` depuis les adresses actuelles) et le workflow
+  `donnees-du-soir` (**20h UTC**, 22h Paris en été) qui fait scrape + miroir + push tout seul.
+- **Moins de requêtes.** `App.GitHubData` lit raw puis jsDelivr (secours) avec TTL 12h au lieu
+  d'1h — deux fois moins de trafic, aligné sur l'envoi du soir.
+
+**Fichiers.** `index.html` (`App.GitHubData`), `src/remote.json` (miroir), `src/build.json` (**v276**),
+`src/README.md`, `src/KNOWLEDGE.md`. **`main.pjs` inchangé.**
+
+Abschluss dieser Runde: `src/build.json` steht auf **v276**.
+
+## 175. Ronde 277 – l'archive miroir est arrivée (2026-09-28)
+
+Le propriétaire a remis `sofia-corpus-miroir-2.zip` : **215 fichiers, 0 manquant** au manifeste
+(les 206 corpus et index + `remote.json`, `droit/remote.json`, `README.md`, `CORPUS.md`,
+`KNOWLEDGE.md`, `build.json`, `README-full.md.gz`, le logo, `README-MIRROR.md`). Le paquet GitHub
+complet (221 fichiers avec les scripts et le workflow du soir) est reconstitué et remis en zip
+à pousser tel quel — plus rien à télécharger, le premier push remplit tout, le soir fait le reste.
+
+**Fichiers.** `src/build.json` (**v277**), `src/README.md`. `main.pjs`, `index.html` inchangées.
+
+Abschluss dieser Runde: `src/build.json` steht auf **v277**.
+
+## 176. Ronde 278 – le miroir devient l'adresse principale (2026-09-28)
+
+Le propriétaire : « pourquoi secours, pourquoi pas principal ? » — et où sont les fichiers, et
+les gigas si Sofia apprend ? Réponses : les fichiers sont sur `user.uploads.dev` (la cause du
+bannissement) **et** sur GitHub (jsDelivr, vérifié : 200) ; `App.Core.openJson` lit désormais le
+**miroir d'abord**, `uploads.dev` en repli, premier succès mémorisé. Données : ~44 Mo au total,
+chaque `.gz` < 1 Mo (limites : 100 Mo/fichier GitHub, 20 Mo/fichier jsDelivr — large marge) ;
+ce que Sofia apprend seule reste dans le navigateur (IndexedDB, `enya_weblearn_v1`), pas dans le dépôt.
+
+**Fichiers.** `index.html`, `src/build.json` (**v278**), `src/README.md`. `main.pjs` inchangée.
+
+Abschluss dieser Runde: `src/build.json` steht auf **v278**.
