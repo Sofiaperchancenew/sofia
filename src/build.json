@@ -1,7 +1,7 @@
 {
- "v": 356,
+ "v": 358,
  "ts": 1790882449671,
- "note": "5 sources thai : cuisineaz diapo 15 (7), coup de grace asiatique (2), chefsimon tag thai (6), umamicart thai (2), thaibyflo guide samrub+influences (2). Blog thaibyflo 100% JS, illisible statique.",
+ "note": "Module voix en clair (plus de déchiffrement, démarrage immédiat). Enchaînement fluide gardé.",
  "by": "helper",
  "files": {
   "src/workshop.js": "f6723979b8f1d44e",
