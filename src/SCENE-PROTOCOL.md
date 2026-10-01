@@ -64,3 +64,32 @@ und springt dann zurück ins Rollenspiel.
   wollte die *gesprochene* Lösung, nicht Farbe/Spalte).
 - Eine feine „hors-scène“-Markierung kann später aus dem gesprochenen Satz
   abgeleitet werden; erst nach Praxis entscheiden.
+
+## Nachtrag (Runde 270)
+
+Punkt 6 („Pause statt Vermischung") ist jetzt gebaut – aber allgemeiner als hier notiert: **eine Szene
+ist keine Erinnerung.** Jede Nachricht einer Szene trägt `scene: true` und bleibt aus
+Zusammenfassung, Gedächtniskern, tiefem Gedächtnis, innerem Journal, Selbstskript und Konsultationen
+heraus; was eine Szene schon hineingelegt hatte, löschen `App.Scene.sweep()` und
+`App.Scene.purgeMemory()`. Die Punkte 1–5 und 7–8 (Rückfrage im Register *vor* dem Bild, eingefrorene
+und wörtlich wieder eingesetzte Szene, Kontrollnachrichten zählen nicht) stehen weiterhin offen.
+
+## Nachtrag (Runde 271)
+
+Punkt 6 gilt jetzt auch für ihr eigenes Skript: **eine Szene hinterlässt keine Notiz.** Solange ein
+Szenenfaden offen ist — und ebenso, solange eine Sitzung nichts als Szenen-Nachrichten enthält (was bei
+einem im Chat gespielten Rollenspiel der Normalfall ist, ohne dass ein Faden geöffnet wird) — schreibt
+kein Weg mehr in `src/selfscript.js`: nicht der automatische Durchgang, nicht der Knopf, nicht ihr
+eigener `[SOFIA_SCRIPT]`-Block. Die Notiz, die noch aus der Szene stammte (v37), ist gelöscht worden;
+eine neue entsteht erst wieder aus einer Unterhaltung, die keine Szene ist. Die Punkte 1–5 und 7–8
+stehen weiterhin offen.
+
+## Nachtrag (Runde 272)
+
+Spielen ist ausdrücklich erlaubt — und genau dafür ist das Skript jetzt geschlossen: solange eine Szene
+läuft (offener Faden, oder eine Sitzung, in der nur gespielt wurde), zeigt `block()` ihre Notiz, aber
+ohne jede Einladung, sie umzuschreiben, und mit dem ausdrücklichen Satz, dass nichts aus der Fiktion
+hineingehört; ein `[SOFIA_SCRIPT]`-Block bleibt wirkungslos. Schließt sich der Faden (Stoppbefehl oder
+letzte Figur fort), trägt auch die schließende Antwort die Szenen-Marke — vorher blieb genau dieser
+letzte Austausch erinnerbar. Und `App.Scene.sweep()` reinigt jede Sitzung mit Szenen-Nachrichten, nicht
+nur die laufende. Punkt 6 gilt damit vollständig. Die Punkte 1–5 und 7–8 stehen weiterhin offen.

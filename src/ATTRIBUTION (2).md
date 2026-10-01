@@ -1,27 +1,47 @@
-# Attributions - dossier src/metiers/
+# Herkunft und Lizenzen – `src/medicaments/`
 
-Ce dossier alimente Sofia sur les metiers et l'orientation. Il reprend quatre sources publiques.
+## VIDAL (vidal.fr)
 
-## 1. ONISEP - Le dico des metiers (edition 2019)
-- URL : https://ifra.leolagrange-formation.fr/pluginfile.php/138626/mod_resource/content/2/ONISEP%20-%20Dico%20des%20m%C3%A9tiers%202019.pdf
-- Editeur : ONISEP (Office national d'information sur les enseignements et les professions), novembre 2017.
-- Droit : contenu proprietaire, (c) ONISEP. Reproduction interdite sans accord.
-- Usage ici : seules des donnees factuelles sont reprises dans `onisep-metiers-index.json` (nom du metier, niveau d'etudes minimal, secteur professionnel GFE, centres d'interet associes) ; `orientation-france.json` est un resume redige, avec la source citee, sans reproduction du texte.
+* **Was**: das französische Referenzportal für Arzneimittel, Produkte der Gesundheit und medizinische
+  Information. Zwei Publika: Laien (Patientenseiten, frei) und Fachleute (Monographien, gesperrt).
+* **Rechteinhaber**: VIDAL France („Copyright Vidal“). Der Inhalt ist **proprietär**.
+* **Was hier liegt**: eigene, verdichtete Neufassungen (deutsch/französisch) mit Quellenangabe und den
+  Adressen der Seiten, **kein** wörtlicher Abdruck einer Monographie. Kurze Zitate nur als Beleg.
+* **`vidal-index.json`**: kein Inhalt, sondern ein **Verzeichnis** von Namen und Adressen, gebaut aus
+  den drei öffentlichen Sitemaps (`sitemap.xml`, `sitemap1.xml`, `sitemap2.xml`, Stand 2026-09-21).
+  Ein Verzeichnis von Adressen ist keine Vervielfältigung des Werks; die Fiches selbst werden zur
+  Laufzeit gelesen, nicht mitgeliefert.
+* **`robots.txt` von VIDAL** (geprüft 2026-09-21) sperrt für Roboter u. a. `/recherche.html*` und alle
+  Adressen mit `query=`, dazu `/toxin/`, `/outils/`, `/login*`, `/mon-compte*`. **Nicht** gesperrt sind
+  die Fiches unter `/medicaments/<…>.html`, `/medicaments/gammes/…`, `/medicaments/substances/…` und
+  `/medicaments/utilisation/…`. `App.MedLookup` hält sich daran: es sucht **lokal** im Index und ruft
+  nur einzelne Fiches ab, nie die Recherche-Endpunkte. Die Sitemaps sind ausdrücklich als Sitemap
+  ausgewiesen und nicht gesperrt.
 
-## 2. ONISEP - Le dico des metiers, Guide parents
-- URL : https://www.onisep.fr/content/download/2523060/file/dico-des-metiers_guide%20parents.pdf
-- Meme editeur et meme droit. Resume redige dans `orientation-france.json` (comment accompagner un jeune, stage de 3e, CIO, JPO, salons).
+## Base de données publique des médicaments (BDPM)
 
-## 3. Dictionnaire interministeriel des competences des metiers de l'Etat (DICo), 2e edition 2017
-- URL : https://www.fonction-publique.gouv.fr/files/files/Devenir%20agent%20public/Dictionnaire_interministeriel_des_competences_des_metiers-de-lEtat.pdf
-- Editeur : ministere de l'Action et des Comptes publics.
-- Droit : document public diffuse par l'administration francaise.
-- Usage ici : les listes de libelles (127 savoir-faire, 24 savoir-etre, 36 domaines de connaissance), la grille des niveaux (Notions, Application, Maitrise, Expertise) et quelques definitions sont reprises dans `competences-etat.json` ; le reste est redige.
+* **Was**: offizielle Datenbank des französischen Gesundheitsministeriums, umgesetzt von der **ANSM**
+  mit **HAS** und **UNCAM**: RCP, Beipackzettel, Zusammensetzung, administrative Daten (AMM, CIS, CIP).
+  Adresse: <https://base-donnees-publique.medicaments.gouv.fr>.
+* **Lizenz**: Die Daten werden nach Artikel L. 161-40-1 des Code de la sécurité sociale **frei und
+  kostenlos zum Herunterladen** angeboten; Bedingung ist, die Daten nicht zu verfälschen, ihren Sinn zu
+  wahren und **Quelle und Datum der Aktualisierung zu nennen** (Loi CADA vom 17. Juli 1978, Art. 12).
+  Eine Nennung verleiht der Weiterverwendung keinen amtlichen Charakter.
+* **`robots.txt`** der BDPM: `User-agent: * / Allow: /`.
 
-## 4. Studyrama - annuaire des fiches metiers
-- URL : https://www.studyrama.com/formations/fiches-metiers
-- Droit : contenu proprietaire de Studyrama ; robots.txt interdit /search/, /admin/, /user/, mais autorise /formations/fiches-metiers/.
-- Usage ici : `studyrama-index.json` ne contient que les adresses publiques (issues de sitemap.xml). Sofia lit la fiche a la demande et en resume les rubriques, en citant Studyrama.
+## Weitere genannte Quellen
 
-## Regle de fond
-Sofia s'informe, elle ne decide pas a la place du jeune et ne promet ni salaire ni debouché. Pour un conseil d'orientation, elle renvoie au CIO et a son psychologue de l'Education nationale, a onisep.fr et, pour l'apres-bac, a Parcoursup.
+* **ANSM** – Agence nationale de sécurité du médicament et des produits de santé,
+  <https://ansm.sante.fr> (Zulassungen, Chargenrückrufe, Briefe an Fachleute, Pharmakovigilanz).
+* **CRAT** – Centre de Référence sur les Agents Tératogènes, <https://www.lecrat.fr>, öffentliche
+  Struktur ohne private Finanzierung (Schwangerschaft, Stillzeit, Fertilitaet).
+* **EMA** – <https://www.ema.europa.eu> (RCP und Beipackzettel der zentral zugelassenen Mittel).
+* **Anses** – Trägerin der Toxicovigilance über die acht **Centres antipoison et de toxicovigilance**.
+
+## Grenze, die nicht überschritten wird
+
+VIDAL druckt Posologien, weil sein Leser ein Fachmann ist. Sofia **nicht**: die Fichen beschreiben das
+Mittel, sie verordnen es nicht. In `App.MedLookup` werden die Posologie-Rubriken aus dem Block
+entfernt, und der Auftrag im Prompt verbietet ausdrücklich jede Dosis, jede Verordnung, jede Diagnose
+und jeden Austausch eines Mittels gegen ein anderes. Bei einer Dosisfrage verweist sie an Arzt oder
+Apotheker, bei Vergiftung oder Notfall an das Centre antipoison, die 15 oder die 112.

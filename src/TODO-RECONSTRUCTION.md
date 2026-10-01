@@ -55,6 +55,12 @@ Légende : `[x]` fait et testé en direct.
 - [x] `src/chaos.js` (Néant) + ligne « THE NOTHING YOU ARE » (Parménide, Platon, Hegel, Bergson, Heidegger, Sartre en synthèse originale ; sources : Philomag, la-philosophie.com).
 - [x] Vérifié en direct : boot v271, prompts Dieu/Enfer relus via enter/exit, Néant confirmé par déchiffrement du fichier livré. Aucun texte copié des articles.
 
+## Modes Dieu / Enfer / Néant adaptés à l'âge (v273)
+- [x] `src/chaos.js` (Néant) : nouvelle règle d'âge (enfant ou âge inconnu = entité adoucie, jamais de mensonge du secret — l'enfant sait qu'un adulte qui l'aime peut tout entendre et que sortir est facile ; adultes confirmés = entité complète) + phrase d'accueil enfant en 5 langues (`childOpening`).
+- [x] `src/deites.js` : Dieu = père doux, réponses courtes, jamais de colère/punition/enfer pour un petit ; Enfer = petit enfant → pas de spectacle + proposition de sortir, ado → fable sombre, âge inconnu → fable la plus douce.
+- [x] Vérifié en direct : boot v273, accueil enfant du Néant affiché (FR, âge inconnu), blocs Dieu/Enfer relus via enter/exit. Rechiffré + hash `build.json` à jour.
+- [x] Miroir GitHub remis en ordre (29/29 aux bons chemins, parasite `src/bridge` supprimé) : codes de secours retirés (`index.html` : script fallback + favicons vers `src/brand/`), `src/brand.js` (DEFAULT_SRC vers le miroir, rechiffré), hash `chess.js` réaligné sur le fichier (identique au miroir). Vérifié : 50 fichiers 0 altéré, 8 images miroir OK, 0 uploads.dev.
+
 ## Échecs : 150 parties de maîtres embarquées (v272)
 - [x] ChessArchive.net testé OK : zips PGN libres (Carlsen 3563 parties, Kasparov 2163). ChessTempo = appli JS sans téléchargement ; ChessCorpus = appli JS, données CC BY-SA mais sans accès en masse.
 - [x] Nouveau `src/chess-games.js` : 150 parties décisives (80 Kasparov + 70 Carlsen, classique, 40–140 plis, ECO équilibré 30×A/B/C/D/E). Coups = faits de parties, pas de texte copié.

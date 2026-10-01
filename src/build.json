@@ -1,7 +1,7 @@
 {
- "v": 358,
+ "v": 360,
  "ts": 1790882449671,
- "note": "Module voix en clair (plus de déchiffrement, démarrage immédiat). Enchaînement fluide gardé.",
+ "note": "Panneau export catalogue GitHub invisible aux visiteurs, concepteur uniquement (masqué + réaffiché au déverrouillage).",
  "by": "helper",
  "files": {
   "src/workshop.js": "f6723979b8f1d44e",

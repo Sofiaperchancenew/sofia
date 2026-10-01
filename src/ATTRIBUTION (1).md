@@ -1,47 +1,49 @@
-# Herkunft und Lizenzen – `src/medicaments/`
+# Herkunft und Rechte — `src/gbd/` (Runde 178)
 
-## VIDAL (vidal.fr)
+## Quelle
 
-* **Was**: das französische Referenzportal für Arzneimittel, Produkte der Gesundheit und medizinische
-  Information. Zwei Publika: Laien (Patientenseiten, frei) und Fachleute (Monographien, gesperrt).
-* **Rechteinhaber**: VIDAL France („Copyright Vidal“). Der Inhalt ist **proprietär**.
-* **Was hier liegt**: eigene, verdichtete Neufassungen (deutsch/französisch) mit Quellenangabe und den
-  Adressen der Seiten, **kein** wörtlicher Abdruck einer Monographie. Kurze Zitate nur als Beleg.
-* **`vidal-index.json`**: kein Inhalt, sondern ein **Verzeichnis** von Namen und Adressen, gebaut aus
-  den drei öffentlichen Sitemaps (`sitemap.xml`, `sitemap1.xml`, `sitemap2.xml`, Stand 2026-09-21).
-  Ein Verzeichnis von Adressen ist keine Vervielfältigung des Werks; die Fiches selbst werden zur
-  Laufzeit gelesen, nicht mitgeliefert.
-* **`robots.txt` von VIDAL** (geprüft 2026-09-21) sperrt für Roboter u. a. `/recherche.html*` und alle
-  Adressen mit `query=`, dazu `/toxin/`, `/outils/`, `/login*`, `/mon-compte*`. **Nicht** gesperrt sind
-  die Fiches unter `/medicaments/<…>.html`, `/medicaments/gammes/…`, `/medicaments/substances/…` und
-  `/medicaments/utilisation/…`. `App.MedLookup` hält sich daran: es sucht **lokal** im Index und ruft
-  nur einzelne Fiches ab, nie die Recherche-Endpunkte. Die Sitemaps sind ausdrücklich als Sitemap
-  ausgewiesen und nicht gesperrt.
+**La Grande Bibliothèque du Droit (GBD)** — die juristische Online-Bibliothek des
+**Ordre des avocats de Paris** (Barreau de Paris), seit dem 2. April 2014 online.
+Adresse: <https://www.lagbd.org/> (das Wiki antwortet auch auf `lagbd.fr`).
+Herausgeber: Ordre des avocats de Paris; wissenschaftliches Komitee unter Vorsitz von
+Basile Ader (ehemaliger Vizepräsident der Anwaltskammer); Kontakt `lagbd@avocatparis.org`.
+Erhebung für diese Mappe: **22.09.2026** (Seite, „Qui sommes-nous ?“, Charte, API `api.php`).
 
-## Base de données publique des médicaments (BDPM)
+## Was hier gespeichert ist — und was nicht
 
-* **Was**: offizielle Datenbank des französischen Gesundheitsministeriums, umgesetzt von der **ANSM**
-  mit **HAS** und **UNCAM**: RCP, Beipackzettel, Zusammensetzung, administrative Daten (AMM, CIS, CIP).
-  Adresse: <https://base-donnees-publique.medicaments.gouv.fr>.
-* **Lizenz**: Die Daten werden nach Artikel L. 161-40-1 des Code de la sécurité sociale **frei und
-  kostenlos zum Herunterladen** angeboten; Bedingung ist, die Daten nicht zu verfälschen, ihren Sinn zu
-  wahren und **Quelle und Datum der Aktualisierung zu nennen** (Loi CADA vom 17. Juli 1978, Art. 12).
-  Eine Nennung verleiht der Weiterverwendung keinen amtlichen Charakter.
-* **`robots.txt`** der BDPM: `User-agent: * / Allow: /`.
+Gespeichert sind **Tatsachen und Verweise**, keine fremden Texte:
 
-## Weitere genannte Quellen
+| Datei | Inhalt | Art |
+| --- | --- | --- |
+| `fiche-gbd.json` | Was die GBD ist, wer sie trägt, ihre Charte, ihre Regeln | von der Anwendung **selbst verfasst**, aus den Fakten der Seite |
+| `domaines.json` | Die Landkarte der Bestände (Kategorienamen + Seitenzahlen) | Zählungen aus der öffentlichen API |
+| `blogs.json` | Verzeichnis der 136 juristischen Blogs (Name, Fachgebiet, Adresse) | Adressdaten aus dem Verzeichnis „Ressource internet“ |
 
-* **ANSM** – Agence nationale de sécurité du médicament et des produits de santé,
-  <https://ansm.sante.fr> (Zulassungen, Chargenrückrufe, Briefe an Fachleute, Pharmakovigilanz).
-* **CRAT** – Centre de Référence sur les Agents Tératogènes, <https://www.lecrat.fr>, öffentliche
-  Struktur ohne private Finanzierung (Schwangerschaft, Stillzeit, Fertilitaet).
-* **EMA** – <https://www.ema.europa.eu> (RCP und Beipackzettel der zentral zugelassenen Mittel).
-* **Anses** – Trägerin der Toxicovigilance über die acht **Centres antipoison et de toxicovigilance**.
+Der **Volltext der Artikel liegt NICHT hier.** Er wird — wie bei Légifrance und VIDAL —
+zur Laufzeit von der Seite gelesen (`App.GbdLookup`, MediaWiki-API), auf die Frage hin
+ausgewertet und im Prompt als gelesene Quelle zitiert (Autor, Datum, Link). Es wird keine
+Artikelkopie im Generator gespeichert.
 
-## Grenze, die nicht überschritten wird
+## Rechte (Charte der GBD)
 
-VIDAL druckt Posologien, weil sein Leser ein Fachmann ist. Sofia **nicht**: die Fichen beschreiben das
-Mittel, sie verordnen es nicht. In `App.MedLookup` werden die Posologie-Rubriken aus dem Block
-entfernt, und der Auftrag im Prompt verbietet ausdrücklich jede Dosis, jede Verordnung, jede Diagnose
-und jeden Austausch eines Mittels gegen ein anderes. Bei einer Dosisfrage verweist sie an Arzt oder
-Apotheker, bei Vergiftung oder Notfall an das Centre antipoison, die 15 oder die 112.
+- „L'ensemble des Données mises à la disposition de l'Utilisateur dans le cadre du Service
+  GBD est protégé par le droit d'auteur et par le droit des bases de données.“
+- Die Charte räumt dem Nutzer **kostenlos und nicht-exklusiv** das Recht ein, die Daten zu
+  vervielfältigen, öffentlich zugänglich zu machen und **wesentliche Teile zu entnehmen
+  (extraire ou réutiliser des parties substantielles)** — vorbehaltlich der Zustimmung der
+  Autoren.
+- **Bedingungen**: Quelle nennen; eine Kopie oder die Adresse der Charte beifügen; die
+  Bezeichnungen „La Grande Bibliothèque du Droit“ und „GBD“ nicht ohne Erlaubnis in Werbung
+  oder Handel verwenden; **keine kommerzielle Nutzung**; die Veröffentlichungen der Autoren
+  **nicht verändern** (sie sind im Wiki gesperrt).
+- Charte: <https://www.lagbd.org/La_Grande_Biblioth%C3%A8que_du_Droit_:_la_Charte>
+  (auch als PDF auf Englisch, Deutsch, Spanisch, Arabisch, Russisch, Chinesisch).
+
+## Wie Sofia es benutzt (Regeln, die im Prompt stehen)
+
+1. Ein GBD-Artikel ist **signierte Doktrin** (Meinung/Analyse eines Autors), **keine Norm**:
+   Autor und Blog nennen, Datum nennen, sagen **dass** es Doktrin ist; die These eines Autors
+   nie als geltende Regel ausgeben.
+2. Für den **geltenden Wortlaut** bleibt Légifrance (bzw. die Fiche) die Referenz.
+3. Nichts zitieren, was nicht gelesen wurde; das Verzeichnis der Blogs ist ein **Verzeichnis**
+   — nur Blogs nennen, die darin stehen, mit ihrer genauen Adresse.
