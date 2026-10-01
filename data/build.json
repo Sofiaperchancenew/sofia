@@ -1,7 +1,7 @@
 {
  "v": 303,
- "ts": 1790851266637,
- "note": "Catalogue BDSM 1073 pieces (Eveselache + Univers BDSM + Sybian + F-Machine + AgriExpo + Cage-Chastete + Sophie Libertine + Boutique du Hard + Sinful 18 rubriques) branche au donjon + chili_oil Pepper X",
+ "ts": 1790871117119,
+ "note": "Cuisine monde v327 : 7 fiches originales Asiamarché (goi ga/laab, pad kra pao, mie goreng, kimchi jeon, inari/anmitsu, shabu-shabu/ponzu, ramyeon/gyoza légumes) + classiques maison/Ricardo/Chine/Asie/Liban/Pologne/Maroc/Japon, BDSM 1080, INSEE",
  "by": "helper",
  "files": {
   "src/workshop.js": "f6723979b8f1d44e",
@@ -72,5 +72,5 @@
   "src/rpg-bestiary.js": "ae5544faef423caf",
   "src/chess-games.js": "bdb8e26a21ced3a3"
  },
- "version": 317
+ "version": 327
 }
