@@ -1,7 +1,7 @@
 {
  "author": "",
  "licence": "",
- "note": "Fiche v327 : hygiène, cuissons, sauces, pain et pâtisserie, conservation, 76 plats du monde (Asie du Sud-Est, Corée et Japon étoffés : salades, pad kra pao, mie goreng, kimchi jeon, inari, shabu-shabu, ramyeon) avec doses et temps usuels. Temps et doses = ordres de grandeur de la cuisine familiale. Synthèse originale, sans reprise des textes sources.",
+ "note": "Fiche v331 : hygiène, cuissons, sauces, pain et pâtisserie, conservation, 104 plats du monde (gestes québécois-italiens : pâtes fraîches, légumes rôtis, bouillons, tians, apéros, mijotés, fruits) avec doses et temps usuels. Temps et doses = ordres de grandeur de la cuisine familiale. Synthèse originale, sans reprise des textes sources.",
  "sections": [
   {
    "c": "Hygiène",
@@ -537,6 +537,146 @@
    "c": "Monde",
    "t": "Ramyeon amélioré et gyoza légumes (Corée-Japon)",
    "x": "Ramyeon : nouilles instant + eau juste à hauteur, œuf cassé 2 min avant la fin, tranche de fromage fondue dessus + ciboule + kimchi — le classique étudiant qui tient au corps. Gyoza légumes : chou-nori-champignons shiitake + ail-gingembre, pliage 6 plis, dorer-vapeur-recroustiller (fond d'eau, couvercle, découvrir). Sauce soja-vinaigre-ail. Deux réconforts de semaine, 10-15 min."
+  },
+  {
+   "c": "Monde",
+   "t": "Pratzida et pains italiens (Sardaigne)",
+   "x": "Pratzida : pain rond sarde garni de tomates mûres écrasées + ail + huile d'olive + origan, passé au four 10 min — entre bruschetta et pizza blanche. Principe italien : pain rassis ressuscité (panzanella en salade, ribollita en soupe, bruschetta grillée). Frotter d'ail, huiler généreusement, garnir de saison. Le pain ne se jette jamais : il se transforme."
+  },
+  {
+   "c": "Monde",
+   "t": "Pesto génois et pesti d'herbes",
+   "x": "Vrai pesto : basilic frais + pignons + parmesan-pecorino + ail + huile d'olive, pilés (ou mixés par à-coups sans chauffer), jamais cuit — il nappe les trofie avec une louche d'eau de cuisson. Variante épinards : mêmes proportions, goût plus doux, couleur vive (blanchir 1 min pour fixer). Règle : fromage râpé minute, huile fruitée, servir aussitôt (il noircit à l'air)."
+  },
+  {
+   "c": "Monde",
+   "t": "Stroscia et desserts à l'huile d'olive (Ligurie)",
+   "x": "Stroscia : pâte (farine + sucre + huile d'olive + vin blanc + levure), étalée rustique, 25 min au four — croquant parfumé, sans beurre. L'huile d'olive en dessert : gâteau au citron-huile (moelleux 7 jours), sablés, glace vanille-huile. Choisir une huile douce fruitée, pas poivrée. Moins de gras saturés, conservation longue, goût subtil."
+  },
+  {
+   "c": "Monde",
+   "t": "Blanc-manger sicilien au lait d'amandes",
+   "x": "Lait d'amandes (amandes mixées-filtrées ou du commerce épais) + sucre + Maïzena, épaissi 5 min à feu doux sans bouillir, moulé froid 4 h. Cannelle ou zeste de citron, pistaches de Bronte en couronne. Dessert de couvent : blanc, frais, léger après un repas riche. Variante : gelo di melone (pastèque) sur le même principe gélifié."
+  },
+  {
+   "c": "Monde",
+   "t": "Poivron tonnato et vitello tonnato (Piémont)",
+   "x": "Sauce tonnato : thon + câpres + anchois + jaune d'œuf + citron montés à l'huile (comme une mayo), nappant veau poché froid en tranches (vitello) ou poivrons grillés pelés (version légumes). Servir bien froid, câpres et citron en fin. Plat d'été et de fêtes : se prépare la veille, meilleur le lendemain. Équilibre iodé-acide qui réveille la viande douce."
+  },
+  {
+   "c": "Monde",
+   "t": "Pâtes de printemps : asperges, robiola, haricots",
+   "x": "Principe : pâtes courtes + légumes verts de saison + fromage frais. Asperges en tronçons sautés 5 min + robiola (ou stracchino) fondu avec une louche d'eau de cuisson — sauce crémeuse sans crème. Haricots verts + tomates cerises confites + parmesan, même geste. Cuire les légumes avec les pâtes (2 min avant la fin) pour une seule casserole. Poivre noir, citron, huile crue en fin."
+  },
+  {
+   "c": "Monde",
+   "t": "Confiture tomates-peperoncino et salade romaine",
+   "x": "Confiture : tomates bien mûres + sucre (moitié du poids) + piment (peperoncino) + citron, 45 min à 105 °C — avec fromages frais et grillades. Salade de haricots à la romaine : haricots blancs + thon + oignon rouge + céleri, citron-huile, repos 1 h. Cuisine romaine : abat, légumes et légumineuses assaisonnés franchement (menthe, pecorino, anchois). Simple, qui sent l'été."
+  },
+  {
+   "c": "Monde",
+   "t": "Carbonara vraie et cacio e pepe (Rome)",
+   "x": "Carbonara : guanciale (ou pancetta) doré, spaghettis al dente, sauce (jaunes + pecorino + poivre) liée hors du feu avec une louche d'eau de cuisson — jamais de crème, jamais d'œuf entier brouillé. Cacio e pepe : tonnarelli, pecorino râpé fin + poivre torréfié, même liaison crémeuse à l'eau de cuisson. Secret romain : poêle tiédie, gestes rapides, fromage en pluie. Trois ingrédients, zéro approximation."
+  },
+  {
+   "c": "Monde",
+   "t": "Norma, parmigiana et scarpaccia (légumes du Sud)",
+   "x": "Norma : rigatoni + tomates + aubergines frites + ricotta salée râpée + basilic — Sicile en assiette. Parmigiana : couches d'aubergines grillées (ou frites), tomate, mozzarella, parmesan, 30 min au four, servie tiède. Scarpaccia toscane : courgettes en fines rondelles + pâte légère (farine-eau-huile-parmesan), galette fine croustillante. Trois façons de rendre les légumes d'été irrésistibles : frire ou griller d'abord, gratiner ensuite."
+  },
+  {
+   "c": "Monde",
+   "t": "Bolognaise, lasagnes et boulettes",
+   "x": "Ragù alla bolognese : bœuf + pancetta + carotte-céleri-oignon fondus, vin, lait, tomate, 2-3 h à frémissement — sauce de viande, pas de sauce tomate à la viande. Lasagnes : couches ragù-béchamel-parmesan, 30 min, repos 10 min (sinon ça s'effondre). Boulettes : viande + pain trempé + parmesan + persil, saisies puis mijotées 20 min en sauce tomate. Dimanche italien : mijoté long, servi avec tagliatelles (jamais spaghetti en Émilie)."
+  },
+  {
+   "c": "Monde",
+   "t": "Pizzas maison : pâte et garnitures",
+   "x": "Pâte : 500 g farine + 300 ml eau + levure + sel + huile, pousse 2 h minimum (24 h au frais = alvéoles). Cuisson max du four 250-275 °C sur plaque brûlante, 7-10 min. Quatre saisons : artichaut, jambon, champignon, olive en quartiers. Regina : tomate-mozzarella-jambon-champignon. Blanche : sans tomate, fromages + figues + prosciutto. Sauce tomate fine (pas de coulis épais), mozzarella égouttée, garnir peu."
+  },
+  {
+   "c": "Monde",
+   "t": "Arancini, gnocchis et polenta",
+   "x": "Arancini : boules de risotto froid (restes) farcies mozzarella, panées (farine-œuf-chapelure), friture 170 °C 4-5 min. Gnocchis : pommes de terre farineuses + peu de farine + jaune, roulés à la fourchette, pochés (ils flottent = cuits), sauce tomate ou beurre-sauge. Polenta : pluie dans l'eau bouillante salée, 40 min en remuant, parmesan ; tiède crémeuse ou refroidie en tranches grillées. Cuisine des restes et des placards."
+  },
+  {
+   "c": "Monde",
+   "t": "Tiramisu classique et variantes",
+   "x": "Classique : savoiardi trempés café froid vite fait (pas détrempés) + crème mascarpone-jaunes-sucre montée + cacao amer, 4 h au frais minimum (une nuit = parfait). Fraises : jus de fraises au lieu du café, fruits frais entre couches. Chocolat-orange : cacao + zeste d'orange. Règles : œufs frais, pas de gélatine, servir bien froid. Le meilleur tiramisu est celui de la veille."
+  },
+  {
+   "c": "Monde",
+   "t": "Pâtes express : limone, puttanesca, primavera",
+   "x": "Al limone : spaghetti + beurre + jus et zeste de citron + parmesan, 15 min, fraîcheur de la côte amalfitaine. Puttanesca : tomate + olives + câpres + anchois + ail + piment, sauce relevée qui se fait pendant la cuisson des pâtes. Primavera : légumes de printemps + burrata crémeuse posée dessus à table. Trois pâtes de semaine : un geste, des ingrédients francs, parmesan ou pecorino selon l'humeur."
+  },
+  {
+   "c": "Monde",
+   "t": "Pizza napolitaine et focaccia moelleuse",
+   "x": "Napolitaine : pâte hydratée 60-65 % (farine 00 + eau + peu de levure + sel), pousse 24-48 h au frais, étalée à la main (bords gonflés), cuisson max 60-90 secondes idéalement (four maison : plaque brûlante, 5-7 min). Margherita : tomate San Marzano + fior di latte + basilic + huile. Focaccia : pâte plus hydratée, pousse longue, trous au doigt, huile + romarin + gros sel, 220 °C 20 min. Lente fermentation = digestibilité et goût."
+  },
+  {
+   "c": "Monde",
+   "t": "Piadina et porchetta (street food)",
+   "x": "Piadina romagnole : galette (farine + saindoux ou huile + eau + sel), étalée fine, poêle chaude 2 min par côté, garnie chaude (squacquerone + roquette + jambon cru) pliée en deux. Porchetta : poitrine roulée ail-romarin-fenouil, rôtie 3-4 h peau croustillante, tranches fines en sandwich avec jus. Deux cantines de rue : simple, gras assumé, mangé debout avec un verre de Sangiovese."
+  },
+  {
+   "c": "Monde",
+   "t": "Affogato, pasticciotti et sfogliatella",
+   "x": "Affogato : boule de fior di latte (ou vanille) noyée d'espresso brûlant versé à table — chaud-froid en 2 min. Pasticciotti : coques de pâte sablée à la vanille fourrées de crème pâtissière citronnée, 20 min au four. Sfogliatella : feuilletage strié roulé, ricotta-orange-cannelle, croustillant du matin à Naples. Trois desserts : un express, deux de pâtisserie, tous servis frais."
+  },
+  {
+   "c": "Monde",
+   "t": "Lasagnes radicchio-gorgonzola et légumes d'automne",
+   "x": "Lasagnes blanches : couches de radicchio braisé + béchamel au gorgonzola + noisettes torréfiées, 25 min gratinées — amer-crémeux-croquant. Salade d'épeautre : grain cuit 30 min + courgettes-aubergines grillées + tomates cerises, huile-citron, tiède. Terrine : légumes grillés pressés une nuit (huile, herbes), tranchée froide. L'automne italien : amertume, noix, fromages bleus."
+  },
+  {
+   "c": "Monde",
+   "t": "Fromages italiens : parmesan, mozzarella, squacquerone",
+   "x": "Parmigiano : 24 mois minimum, cristaux croquants, râpé minute sur tout (jamais en sachet). Mozzarella maison : lait + présure + filage à l'eau chaude — à manger dans la journée, eau de conservation. Squacquerone : frais crémeux de Romagne, piadina et confitures. Robiola en gâteau : crémeux + citron en cheesecake cuit doux. Règle : fromage italien = frais ou affiné, jamais les deux à moitié."
+  },
+  {
+   "c": "Monde",
+   "t": "Farines italiennes et levain maison",
+   "x": "00 : mouture fine, pizza et pâtes fraîches. Semoule de blé dur : pâtes sèches et pains du Sud. Manitoba : force pour brioches et longues pousses. Levain : 50 g farine complète + 50 g eau, 5-7 jours de rafraîchis (bulles, odeur fruitée), puis moitié-complet. Pain au levain : pousse 4-6 h, cuisson cocotte 240 °C. La farine choisit le plat : ne pas les intervertir."
+  },
+  {
+   "c": "Monde",
+   "t": "Balsamique et finitions à l'italienne",
+   "x": "Vrai balsamique de Modène DOP : moût cuit vieilli en fûts (12-25 ans), quelques gouttes suffisent (parmesan, fraises, glaces). Quotidien : IGP correct pour assaisonner, jamais cuit longtemps. Finitions : huile crue en filet, zeste de citron, copeaux de parmesan, poivre au moulin — le plat se termine dans l'assiette, pas dans la casserole. Trois gestes qui font la différence entre cuisiné et italien."
+  },
+  {
+   "c": "Monde",
+   "t": "Pâtes fraîches maison",
+   "x": "100 g de farine 00 + 1 œuf par personne, pétrir 10 min (pâte ferme et lisse), reposer 30 min filmé. Étaler au laminoir (crans décroissants) ou au rouleau fin, découper tagliatelles ou farcir (ricotta-épinards, bien soudés). Cuisson 2-4 min eau bouillante salée — elles flottent et gonflent. Sauce simple : le frais n'aime pas les sauces lourdes (beurre-sauge, tomate vive, cacio). Sécher 30 min si on les garde."
+  },
+  {
+   "c": "Monde",
+   "t": "Parer et rôtir les légumes",
+   "x": "Poivrons : flamme ou grill jusqu'à peau cloquée, 10 min en sac fermé (vapeur), peler — chair fumée pour salades et muhammara. Courge musquée : moitié, graines, cubes, 200 °C 30 min. Fenouil : quartiers, braisé ou cru fin. Asperges : casser la base (elle casse où il faut), 4 min vapeur ou grill. Règle : morceaux égaux, huile + sel, four chaud, une seule couche (sinon ça bout)."
+  },
+  {
+   "c": "Monde",
+   "t": "Bouillon de volaille et casserole de poisson",
+   "x": "Bouillon : carcasse + eau froide + carotte-oignon-céleri + bouquet, 2-3 h frémissement, écumer, filtrer, dégraisser froid. Base des soupes-repas et risottos. Casserole de poisson : morceaux fermes (cabillaud, saumon) pochés 8-10 min en bouillon parfumé (tomate, fenouil, safran léger) + pommes de terre. Servir avec rouille et croûtons. Deux plats généreux : un fonds clair, une garniture qui ne surcuit pas."
+  },
+  {
+   "c": "Monde",
+   "t": "Tian et tartes salées d'été",
+   "x": "Tian : rondelles alternées courgette-tomate-aubergine debout, ail, thym, huile, 1 h au four — beau et fondant. Tarte tomate-gruyère : pâte brisée, moutarde au fond, tomates + gruyère, 30 min. Tarte courgette-chèvre : courgettes sautées + chèvre + œufs-crème. Trois règles : pâte précuite 10 min si garniture humide, légumes égouttés ou sautés d'abord, servir tiède."
+  },
+  {
+   "c": "Monde",
+   "t": "Apéro levantin-italien : muhammara et tartinades",
+   "x": "Muhammara : poivrons rôtis + noix + chapelure + mélasse de grenade + cumin, mixé grossier, huile en filet. Purée d'aubergine rôtie : chair fumée + tahin + citron (baba ganoush). Plateau poivrons-mozzarella : poivrons rôtis + mozzarella + anchois + câpres. Servir avec pains (naan maison, crostinis, pita) : 250 °C quelques minutes, huile et sel. L'apéro qui fait le repas."
+  },
+  {
+   "c": "Monde",
+   "t": "Osso buco citron et canard confit",
+   "x": "Osso buco : rouelles de veau farinées, saisies, braisées 1 h 30 (vin blanc + bouillon + carotte-oignon), gremolata citron-ail-persil en fin (fraîcheur obligatoire). Canard confit : cuisses salées 12 h, confites 2 h à 150 °C en graisse, peau croustillante au four avant de servir. Deux viandes fondantes : cuisson longue et douce, finition vive (agrumes, herbes). Repos, dégraissage, réchauffé meilleur."
+  },
+  {
+   "c": "Monde",
+   "t": "Pommes d'automne et cobbler d'été",
+   "x": "Gâteau simplissime : pommes en dés + pâte (œufs-sucre-farine-beurre), 40 min — rustique, tiède avec crème. Croustade : fruits + crumble (avoine-beurre-cassonade), 30 min doré. Compotes : pommes + canneberges ou bleuets, 15 min, peu de sucre. Cobbler : pêches-bleuets + pâte à biscuit déposée à la cuillère, 25 min. Fruits de saison, sucre mesuré, service tiède : l'automne et l'été au four."
   }
  ]
 }
