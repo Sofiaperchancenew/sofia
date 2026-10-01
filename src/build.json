@@ -1,7 +1,7 @@
 {
- "v": 304,
- "ts": 1790871871430,
- "note": "v304 : cuisines du monde 40 -> 107 sections (Pologne, Maroc, Japon, Liban, Asie, Chine, Inde-Thai, classiques maison, Asiamarche), BDSM 1080, INSEE",
+ "v": 308,
+ "ts": 1790872809763,
+ "note": "v308 : cuisines 128 -> 135 sections (gestes di Stasio : pâtes fraîches, légumes rôtis, bouillon/casserole, tian/tartes, muhammara/tartinades, osso buco/confit, pommes/cobbler), BDSM 1080, INSEE",
  "by": "helper",
  "files": {
   "src/workshop.js": "f6723979b8f1d44e",
@@ -72,5 +72,5 @@
   "src/rpg-bestiary.js": "ae5544faef423caf",
   "src/chess-games.js": "bdb8e26a21ced3a3"
  },
- "version": 327
+ "version": 331
 }
