@@ -1,7 +1,7 @@
 {
- "v": 371,
+ "v": 377,
  "ts": 1790924115024,
- "note": "Conversion locale d'images jointes (png/jpg/webp, bouton ⇄ sur la pastille, tout dans le navigateur); analyse media-file-convert/chessmate/ask-ai/ai-text-plugin: echecs, web et vision deja couverts.",
+ "note": "v376 consigne anti-login CAS + vision normalizeVisionBlob (jpg->jpeg, re-encodage PNG) aux 3 points d'appel + dataUrlToBlob.",
  "by": "helper",
  "files": {
   "src/workshop.js": "f6723979b8f1d44e",
