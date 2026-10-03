@@ -1,7 +1,7 @@
 {
- "v": 1,
- "at": "2026-09-24T13:11:37.275Z",
- "why": "Corpus de lois (24 codes, 89 000 articles) hebergé hors du generateur : le dossier src/ dépassait la taille d'enregistrement (29 Mo). Les fichiers restent publics, aux mêmes contenus.",
+ "v": 4,
+ "at": "2026-09-26T12:00:00.000Z",
+ "why": "Corpus de lois complet (Runde 277/278): ALLE 78 Kodexe von codes.droit.org (165 580 Artikel) + die Vertraege der Union (EUV, AEUV, Charta, Euratom; 608 Artikel) aus EUR-Lex. Der Bestand liegt ausserhalb des Generators und wird ueber diese Tabelle gelesen. Runde 279: die Rechtsprechung — die offiziellen Seiten des Conseil d'Etat (Ordnung der Verwaltungsgerichtsbarkeit, ArianeWeb, die 75 grossen Entscheidungen seit 1873) als Fiche jurisprudence/notions.json.gz. Runde 279b: die offizielle Open-Data-Plattform der Verwaltungsjustiz (opendata.justice-administrative.fr) als Fiche jurisprudence/opendata.json.gz — was sie veroeffentlicht (seit 2021/2022 ALLE Entscheidungen von CE, CAA und TA), wie man sie laedt (zip je Gericht/Jahr/Monat, XML), die Veroeffentlichungscodes A/B/C/D/Z, die Lizenz und die Live-Lesung. Runde 281: das oeffentliche Dokumentenregister des Rates der EU (consilium.europa.eu/fr/documents/public-register/) als Fiche conseil/register.json.gz — das Register seit 1999, seine drei Dokumentarten, die Grammatik einer Ratscote (ST/CM/PE/SN, INIT/ADD/REV/COR), die interinstitutionellen Codes und die Matieres-Codes, das Herunterladen, die Archive (ueber 30 Jahre), PRADO, die Vertrags-Datenbank, der Zugang zu Dokumenten (15 Arbeitstage) und die Tatsache, dass nur das Amtsblatt bindet.",
  "base": "https://user.uploads.dev/file/",
  "files": {
   "code-travail/articles.json.gz": "https://user.uploads.dev/file/6c5626eed8f879cbe2eb6fbc06938d8e.gz",
@@ -52,15 +52,799 @@
   "code-travail/index.json.gz": "https://user.uploads.dev/file/6ee8d856f54dfee6b989b0cef2dbadec.gz",
   "code-urbanisme/articles.json.gz": "https://user.uploads.dev/file/3ed4cd417897a9a87ec8b08343009a15.gz",
   "code-urbanisme/index.json.gz": "https://user.uploads.dev/file/648f50735fd580fa94eba7623e3418fa.gz",
-  "numbers-index.json.gz": "https://user.uploads.dev/file/5e5c1a5ad3dba01a771dd462c967349e.gz",
+  "numbers-index.json.gz": "https://user.uploads.dev/file/aaab5fc6dd459c7e9e7304c8dcb7c6ec.gz",
   "notions-droit-civil.json": "https://user.uploads.dev/file/5b95f1ffb63f87e62446d259d5670427.json",
-  "codes-index.json": "https://user.uploads.dev/file/07d95c69b220ce6ee0ea4a3718f35b03.json",
+  "codes-index.json": "https://user.uploads.dev/file/778cf3f31c3a3865d0f931a04ac31f36.gz",
   "procedure-penale/notions.json": "https://user.uploads.dev/file/5b505fc430934173f045aa0eb26a892e.json",
   "penal/notions.json": "https://user.uploads.dev/file/8a173a7dd6642a10fd699e72402b477d.json",
   "justice-administrative/notions.json": "https://user.uploads.dev/file/0a2556e0d3f04526267d0a915e0f6045.json",
   "famille-aide-sociale/notions.json": "https://user.uploads.dev/file/ac0d7cbf151c2acc987e9273e7a78a95.json",
   "education/notions.json": "https://user.uploads.dev/file/02303e07e7976e0b2f44453af20bc419.json",
-  "ceseda/notions.json": "https://user.uploads.dev/file/fd7b44146197a191d40d673a9f815243.json"
+  "ceseda/notions.json": "https://user.uploads.dev/file/fd7b44146197a191d40d673a9f815243.json",
+  "code-assurances/articles.json.gz": "https://user.uploads.dev/file/f7883ee46c1cfd04398096d2fb589c82.gz",
+  "code-assurances/index.json.gz": "https://user.uploads.dev/file/55f8e042621a0cbef7c4c30730ad36ee.gz",
+  "code-aviation-civile/articles.json.gz": "https://user.uploads.dev/file/b25d64a9506cc615ae53d4ff14427bbc.gz",
+  "code-aviation-civile/index.json.gz": "https://user.uploads.dev/file/8516fe5b140129356286b41c73b1c589.gz",
+  "code-rural-et-de-la-peche-maritime/articles.json.gz": "https://user.uploads.dev/file/782843ac70c5655fc52641ba6467c4e3.gz",
+  "code-rural-et-de-la-peche-maritime/index.json.gz": "https://user.uploads.dev/file/9938faeec129ad90e9d6495199a59bf3.gz",
+  "code-artisanat/articles.json.gz": "https://user.uploads.dev/file/e80982f3dfc4a9c7d2f78d1c41ccf6bb.gz",
+  "code-artisanat/index.json.gz": "https://user.uploads.dev/file/ee3bbd3d89115aa9e5d008315ef2f105.gz",
+  "code-cinema/articles.json.gz": "https://user.uploads.dev/file/6cd4e7625b7af11bc1e3b8efe02010f6.gz",
+  "code-cinema/index.json.gz": "https://user.uploads.dev/file/372d3f8bd602a1b435641b0a1b0bf6b0.gz",
+  "code-commande-publique/articles.json.gz": "https://user.uploads.dev/file/25e33eaf79b969102013650fafc0c339.gz",
+  "code-commande-publique/index.json.gz": "https://user.uploads.dev/file/ff7e60783de087d49e5e16125ea6c5c9.gz",
+  "code-communes/articles.json.gz": "https://user.uploads.dev/file/c0476ee1858ce96c8b3c67ccc2f23dcc.gz",
+  "code-communes/index.json.gz": "https://user.uploads.dev/file/80b47734bed8f44b5e3d11200980078b.gz",
+  "code-communes-nouvelle-caledonie/articles.json.gz": "https://user.uploads.dev/file/d4b067ac35cb89c206d7d41232831b73.gz",
+  "code-communes-nouvelle-caledonie/index.json.gz": "https://user.uploads.dev/file/d17731efb1423021f5a1c71d4b2dabce.gz",
+  "code-defense/articles.json.gz": "https://user.uploads.dev/file/553ed461ecf2ce78a041b3018a5d3895.gz",
+  "code-defense/index.json.gz": "https://user.uploads.dev/file/0757ecdcbbeb502fc26db25a1465ee18.gz",
+  "code-architectes/articles.json.gz": "https://user.uploads.dev/file/d9a80664f402889eaeceffbb34738af8.gz",
+  "code-architectes/index.json.gz": "https://user.uploads.dev/file/6ca00023c6c4d21100bd985b6bbb4628.gz",
+  "code-marine-marchande/articles.json.gz": "https://user.uploads.dev/file/3d167085b3738e66adfb092341c9e473.gz",
+  "code-marine-marchande/index.json.gz": "https://user.uploads.dev/file/4116a6e3f05784e388ab12ee0e8bfa5e.gz",
+  "code-domaine-de-l-etat/articles.json.gz": "https://user.uploads.dev/file/5338244c29673dcc3f8ce2e96e78fe4a.gz",
+  "code-domaine-de-l-etat/index.json.gz": "https://user.uploads.dev/file/468124e0d2ae4dbcd7d668c91bf78dcd.gz",
+  "code-domaine-etat-mayotte/articles.json.gz": "https://user.uploads.dev/file/c976ed43ced61811d210d67bc93b9568.gz",
+  "code-domaine-etat-mayotte/index.json.gz": "https://user.uploads.dev/file/514e3a09201b6af4e0488f898db086b4.gz",
+  "code-domaine-fluvial/articles.json.gz": "https://user.uploads.dev/file/81aca1a1c76ed0109e2f3f00d155d496.gz",
+  "code-domaine-fluvial/index.json.gz": "https://user.uploads.dev/file/87f86e618a5a357b00248c8622578764.gz",
+  "code-douanes/articles.json.gz": "https://user.uploads.dev/file/5313e3c8000e15cd51e504bbaa9123ea.gz",
+  "code-douanes/index.json.gz": "https://user.uploads.dev/file/9d49b434d846d859dc9a745fb1d69f78.gz",
+  "code-douanes-de-mayotte/articles.json.gz": "https://user.uploads.dev/file/c46a87d29c742a0892374fcd0d3c5a2b.gz",
+  "code-douanes-de-mayotte/index.json.gz": "https://user.uploads.dev/file/d0ac8306f5d0595019acd739462334d7.gz",
+  "code-electoral/articles.json.gz": "https://user.uploads.dev/file/5864be7f573f3b3e9a22f70fce2977a0.gz",
+  "code-electoral/index.json.gz": "https://user.uploads.dev/file/5a56b3903cd6091374a85943d901abb9.gz",
+  "code-energie/articles.json.gz": "https://user.uploads.dev/file/ffbe7824d46a29bee95c43d92cc65dea.gz",
+  "code-energie/index.json.gz": "https://user.uploads.dev/file/1f76671be8f0c6fb0be87792ad9d19c9.gz",
+  "code-expropriation/articles.json.gz": "https://user.uploads.dev/file/3485fc14fcc8066f0158e042012d2952.gz",
+  "code-expropriation/index.json.gz": "https://user.uploads.dev/file/f22a7d97efa9c3db28f4c137a8ffd381.gz",
+  "code-forestier/articles.json.gz": "https://user.uploads.dev/file/087935dc80ea82805b4990d90e6ee843.gz",
+  "code-forestier/index.json.gz": "https://user.uploads.dev/file/aace0b097847f054f470403a7015eef1.gz",
+  "code-general-de-la-fonction-publique/articles.json.gz": "https://user.uploads.dev/file/74b6e4c9a6d869cc57f03b4f111de0e8.gz",
+  "code-general-de-la-fonction-publique/index.json.gz": "https://user.uploads.dev/file/43e06c59ad19500be8e4a7972bf19711.gz",
+  "code-propriete-personnes-publiques/articles.json.gz": "https://user.uploads.dev/file/1d1e6cf20edd0a0c476b6b23545e7cd0.gz",
+  "code-propriete-personnes-publiques/index.json.gz": "https://user.uploads.dev/file/7ecea8edcd71f7d2d6c94c8a75787fb9.gz",
+  "code-general-des-collectivites-territoriales/articles.json.gz": "https://user.uploads.dev/file/165ede156000c2d059dedd2b5ca02675.gz",
+  "code-general-des-collectivites-territoriales/index.json.gz": "https://user.uploads.dev/file/dfbfe5d416609c43e3ac76afdd3281a1.gz",
+  "code-general-des-impots/articles.json.gz": "https://user.uploads.dev/file/37f9e5b6d5af7e32691fe11388041a95.gz",
+  "code-general-des-impots/index.json.gz": "https://user.uploads.dev/file/09d86c9cd82f9082cc8e366483ba0b1e.gz",
+  "code-general-des-impots-annexe-i/articles.json.gz": "https://user.uploads.dev/file/4ced25c234826dc21dd514a4cbc114df.gz",
+  "code-general-des-impots-annexe-i/index.json.gz": "https://user.uploads.dev/file/69ac37b9f644b781cd403273c8120d0d.gz",
+  "code-general-des-impots-annexe-ii/articles.json.gz": "https://user.uploads.dev/file/6befc9fdd9bf3e7f052a89e351ab35af.gz",
+  "code-general-des-impots-annexe-ii/index.json.gz": "https://user.uploads.dev/file/814d63e2717d586bb224b02bead8b4bd.gz",
+  "code-general-des-impots-annexe-iii/articles.json.gz": "https://user.uploads.dev/file/6d767cb576eec167047b52d1a42ccc69.gz",
+  "code-general-des-impots-annexe-iii/index.json.gz": "https://user.uploads.dev/file/b98f16481972c5a570de2ba752c738b2.gz",
+  "code-general-des-impots-annexe-iv/articles.json.gz": "https://user.uploads.dev/file/35a0c0832da4cbaf582bb15ccdc2fc47.gz",
+  "code-general-des-impots-annexe-iv/index.json.gz": "https://user.uploads.dev/file/a25fd6f171b2ffad61ae3f74625e7aee.gz",
+  "code-impositions-biens-services/articles.json.gz": "https://user.uploads.dev/file/fc2ae959beb2b37f633d348f03030d22.gz",
+  "code-impositions-biens-services/index.json.gz": "https://user.uploads.dev/file/60f514cbbb8e8244cb458d94a320f461.gz",
+  "code-instruments-monetaires/articles.json.gz": "https://user.uploads.dev/file/a04a035904f6d838b0d798b42c83116c.gz",
+  "code-instruments-monetaires/index.json.gz": "https://user.uploads.dev/file/25ad8bbdc5610d6b7bd3e72324f32668.gz",
+  "code-juridictions-financieres/articles.json.gz": "https://user.uploads.dev/file/f476710b874a06e00536fa2d28ae1b8c.gz",
+  "code-juridictions-financieres/index.json.gz": "https://user.uploads.dev/file/f66408650e63ed23d54d21d893b59a94.gz",
+  "code-justice-militaire/articles.json.gz": "https://user.uploads.dev/file/973b249437b0573b4e73f070a47dcd19.gz",
+  "code-justice-militaire/index.json.gz": "https://user.uploads.dev/file/e76838684c581f5247238b18ed57b498.gz",
+  "code-legion-honneur/articles.json.gz": "https://user.uploads.dev/file/e00b7da8a04bd77070e8ee106becf595.gz",
+  "code-legion-honneur/index.json.gz": "https://user.uploads.dev/file/9a4a27a8a50ac013449a2ce945eb32d0.gz",
+  "code-minier/articles.json.gz": "https://user.uploads.dev/file/9064b07df43c56251b49620988350ade.gz",
+  "code-minier/index.json.gz": "https://user.uploads.dev/file/b7773308f8df36d9e8a3a65558eaec73.gz",
+  "code-minier-nouveau/articles.json.gz": "https://user.uploads.dev/file/7af20f873f92ec050d8e8c6d00035a7d.gz",
+  "code-minier-nouveau/index.json.gz": "https://user.uploads.dev/file/4dbe3134d2d3d982647dd6192d1b5820.gz",
+  "code-monetaire-et-financier/articles.json.gz": "https://user.uploads.dev/file/7983a43edd236bcdfb9ea3675b9ef6bc.gz",
+  "code-monetaire-et-financier/index.json.gz": "https://user.uploads.dev/file/386a45b28ea01d6f4441ab757916638c.gz",
+  "code-mutualite/articles.json.gz": "https://user.uploads.dev/file/1fde72ab2b16eed710deaf28da46dcd3.gz",
+  "code-mutualite/index.json.gz": "https://user.uploads.dev/file/829e99a2807673fc04e35d572e1f2265.gz",
+  "code-organisation-judiciaire/articles.json.gz": "https://user.uploads.dev/file/34f92f4983d625fd1eedcacdb872f6ca.gz",
+  "code-organisation-judiciaire/index.json.gz": "https://user.uploads.dev/file/fb795beee02f7fcf7cdb07ec796010b1.gz",
+  "code-patrimoine/articles.json.gz": "https://user.uploads.dev/file/fff3f93863cceffdc8c57e75e0e9bb97.gz",
+  "code-patrimoine/index.json.gz": "https://user.uploads.dev/file/4b9076b6332797ac20a471ac7baabbb7.gz",
+  "code-pensions-civiles-militaires/articles.json.gz": "https://user.uploads.dev/file/b8dc60ed4b1ca7366430ff39c9b8cf10.gz",
+  "code-pensions-civiles-militaires/index.json.gz": "https://user.uploads.dev/file/deb33e9110f26385566f9d310073092b.gz",
+  "code-pensions-marins/articles.json.gz": "https://user.uploads.dev/file/309ad3c7b5aac5b40348745a426b65cd.gz",
+  "code-pensions-marins/index.json.gz": "https://user.uploads.dev/file/9ce8e33b4a61e8119c4e50afd85a4dcd.gz",
+  "code-pensions-militaires/articles.json.gz": "https://user.uploads.dev/file/34510f1ae4226d94d2ac631a89111b2c.gz",
+  "code-pensions-militaires/index.json.gz": "https://user.uploads.dev/file/3e1592bc323fe6aacabf6c1f53fb3e64.gz",
+  "code-ports-maritimes/articles.json.gz": "https://user.uploads.dev/file/309ff328cd7ebfd91e64e332a42d83d7.gz",
+  "code-ports-maritimes/index.json.gz": "https://user.uploads.dev/file/e01f9e24cd37242dd6ba03265a5df4fc.gz",
+  "code-postes-communications/articles.json.gz": "https://user.uploads.dev/file/65b30106c7b42ae30ac7784d893a687b.gz",
+  "code-postes-communications/index.json.gz": "https://user.uploads.dev/file/530c47a67eaf6c8cc9541108ed31c8c9.gz",
+  "code-procedures-execution/articles.json.gz": "https://user.uploads.dev/file/41836d11fa5791b4fe91b44f00cfa4db.gz",
+  "code-procedures-execution/index.json.gz": "https://user.uploads.dev/file/e57a09b8db69827fafbd9497d22c40f0.gz",
+  "livre-procedures-fiscales/articles.json.gz": "https://user.uploads.dev/file/2143f3e7c198bc5f7b66fef614c6c3f4.gz",
+  "livre-procedures-fiscales/index.json.gz": "https://user.uploads.dev/file/673e473d6a666be5977575a6f74d053f.gz",
+  "code-recherche/articles.json.gz": "https://user.uploads.dev/file/175881b4905a212096cb784dc254ce6f.gz",
+  "code-recherche/index.json.gz": "https://user.uploads.dev/file/8765fcaeb51355cd76c568cf86f9dd5a.gz",
+  "code-rural-ancien/articles.json.gz": "https://user.uploads.dev/file/e0b1dca97d9a8b1a01d48338eb6230d4.gz",
+  "code-rural-ancien/index.json.gz": "https://user.uploads.dev/file/bd3dffd8b7e2ceecf4777311cc7d870a.gz",
+  "code-service-national/articles.json.gz": "https://user.uploads.dev/file/e5bcb78da05200ba261cefcd48c99af9.gz",
+  "code-service-national/index.json.gz": "https://user.uploads.dev/file/35b8997584a783b48893652671e60743.gz",
+  "code-tourisme/articles.json.gz": "https://user.uploads.dev/file/aa7be28e6eafe0196cefde53d937f357.gz",
+  "code-tourisme/index.json.gz": "https://user.uploads.dev/file/6cb1cee3913ce75f159ae2cda734e488.gz",
+  "code-transports/articles.json.gz": "https://user.uploads.dev/file/65b81161117f0898a2a9d48a85dc77b5.gz",
+  "code-transports/index.json.gz": "https://user.uploads.dev/file/befab5f1118560a71b7a235620cc9d4f.gz",
+  "code-travail-mayotte/articles.json.gz": "https://user.uploads.dev/file/0d221837e2cd14322515c9d3ae6a7770.gz",
+  "code-travail-mayotte/index.json.gz": "https://user.uploads.dev/file/aba81638104b47d3a0e6c1f220fda1ed.gz",
+  "code-travail-maritime/articles.json.gz": "https://user.uploads.dev/file/ca8f5498e6041c0b91a0f1911d0366bc.gz",
+  "code-travail-maritime/index.json.gz": "https://user.uploads.dev/file/40b0e71c79858ef69c5238ded2592aef.gz",
+  "code-voirie-routiere/articles.json.gz": "https://user.uploads.dev/file/fbab997c316f70d7921afb9493ae6c89.gz",
+  "code-voirie-routiere/index.json.gz": "https://user.uploads.dev/file/b8814b88a8a75a564c72c6159ed58747.gz",
+  "tfue/articles.json.gz": "https://user.uploads.dev/file/f5bf54e149b322207219e7e37e07fa0e.gz",
+  "tfue/index.json.gz": "https://user.uploads.dev/file/b9a8bae34db5b1a499731b8926571250.gz",
+  "tue/articles.json.gz": "https://user.uploads.dev/file/d1fba2647b8d9b1114c8a27a3ec402bf.gz",
+  "tue/index.json.gz": "https://user.uploads.dev/file/965b969329f1a03afe6788285058f6ef.gz",
+  "charte/articles.json.gz": "https://user.uploads.dev/file/cd311e2f29e014708b50251190498ff0.gz",
+  "charte/index.json.gz": "https://user.uploads.dev/file/8148b96660e692e7ba1666828507a07a.gz",
+  "euratom/articles.json.gz": "https://user.uploads.dev/file/b13b348bf33fa4737b3e22b29da1da9c.gz",
+  "euratom/index.json.gz": "https://user.uploads.dev/file/f4641b8df35113e1380330d49856e5b3.gz",
+  "jurisprudence/notions.json.gz": "https://user.uploads.dev/file/617adf3f253cf176a3253adfbfd115dc.gz",
+  "jurisprudence/opendata.json.gz": "https://user.uploads.dev/file/78a5b503e8ff7126742f6d29f27e3467.gz",
+  "conseil/register.json.gz": "https://user.uploads.dev/file/b3034c854c357ea4198aea0242d27d44.gz"
  },
- "count": 49
+ "count": 176,
+ "mirrorNote": " Runde 277: nur die Dateien bis Runde 276 liegen zusaetzlich auf GitHub; die neuen Kodexe gibt es nur an der Hauptadresse.",
+ "src": {
+  "url": "https://codes.droit.org/",
+  "checked": "2026-09-27",
+  "codes": 78,
+  "note": "Le guet de la ronde 283 lit cette meme page (une par code: data-modif) et le compare au champ 'seen' ci-dessous. 'lastup' = la version que porte notre corpus (champ lastup de son index). Les quatre traites (source 'eur-lex') ne sont pas concernes par le guet."
+ },
+ "codes": {
+  "ceseda": {
+   "nom": "Code de l'entrée et du séjour des étrangers et du droit d'asile",
+   "lastup": "2026-08-27",
+   "seen": "2026-08-27",
+   "enVigueur": 2496,
+   "abroges": 991,
+   "edit": "2026-09-21"
+  },
+  "code-action-sociale-familles": {
+   "nom": "Code de l'action sociale et des familles",
+   "lastup": "2026-08-10",
+   "seen": "2026-08-10",
+   "enVigueur": 3689,
+   "abroges": 0,
+   "edit": "2026-08-31"
+  },
+  "code-civil": {
+   "nom": "Code civil",
+   "lastup": "2026-07-29",
+   "seen": "2026-07-29",
+   "enVigueur": 2899,
+   "abroges": 350,
+   "edit": "2026-09-12"
+  },
+  "code-construction-habitation": {
+   "nom": "Code de la construction et de l'habitation",
+   "lastup": "2026-09-14",
+   "seen": "2026-09-14",
+   "enVigueur": 4114,
+   "abroges": 0,
+   "edit": "2026-09-15"
+  },
+  "code-commerce": {
+   "nom": "Code de commerce",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 7255,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-consommation": {
+   "nom": "Code de la consommation",
+   "lastup": "2026-08-20",
+   "seen": "2026-08-20",
+   "enVigueur": 2104,
+   "abroges": 0,
+   "edit": "2026-09-12"
+  },
+  "code-environnement": {
+   "nom": "Code de l'environnement",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 7277,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-education": {
+   "nom": "Code de l'éducation",
+   "lastup": "2026-09-20",
+   "seen": "2026-09-20",
+   "enVigueur": 5010,
+   "abroges": 582,
+   "edit": "2026-09-22"
+  },
+  "code-famille-aide-sociale": {
+   "nom": "Code de la famille et de l'aide sociale",
+   "lastup": "2019-12-30",
+   "seen": "2019-12-30",
+   "enVigueur": 12,
+   "abroges": 267,
+   "edit": "2026-09-18"
+  },
+  "code-justice-administrative": {
+   "nom": "Code de justice administrative",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 1279,
+   "abroges": 102,
+   "edit": "2026-09-01"
+  },
+  "code-justice-penale-mineurs": {
+   "nom": "Code de la justice pénale des mineurs",
+   "lastup": "2026-08-20",
+   "seen": "2026-08-20",
+   "enVigueur": 560,
+   "abroges": 0,
+   "edit": "2026-09-14"
+  },
+  "code-penal": {
+   "nom": "Code pénal",
+   "lastup": "2026-08-26",
+   "seen": "2026-08-26",
+   "enVigueur": 1301,
+   "abroges": 53,
+   "edit": "2026-09-19"
+  },
+  "code-penitentiaire": {
+   "nom": "Code pénitentiaire",
+   "lastup": "2026-08-19",
+   "seen": "2026-08-19",
+   "enVigueur": 1868,
+   "abroges": 0,
+   "edit": "2026-09-07"
+  },
+  "code-procedure-civile": {
+   "nom": "Code de procédure civile",
+   "lastup": "2026-05-07",
+   "seen": "2026-05-07",
+   "enVigueur": 2085,
+   "abroges": 0,
+   "edit": "2026-09-02"
+  },
+  "code-procedure-penale": {
+   "nom": "Code de procédure pénale",
+   "lastup": "2026-08-20",
+   "seen": "2026-08-20",
+   "enVigueur": 4631,
+   "abroges": 928,
+   "edit": "2026-09-14"
+  },
+  "code-propriete-intellectuelle": {
+   "nom": "Code de la propriété intellectuelle",
+   "lastup": "2026-08-05",
+   "seen": "2026-08-05",
+   "enVigueur": 1896,
+   "abroges": 0,
+   "edit": "2026-09-20"
+  },
+  "code-relations-public-administration": {
+   "nom": "Code des relations entre le public et l'administration",
+   "lastup": "2026-05-28",
+   "seen": "2026-05-28",
+   "enVigueur": 476,
+   "abroges": 0,
+   "edit": "2026-08-30"
+  },
+  "code-route": {
+   "nom": "Code de la route",
+   "lastup": "2026-08-20",
+   "seen": "2026-08-20",
+   "enVigueur": 1174,
+   "abroges": 0,
+   "edit": "2026-09-10"
+  },
+  "code-sante-publique": {
+   "nom": "Code de la santé publique",
+   "lastup": "2026-09-19",
+   "seen": "2026-09-19",
+   "enVigueur": 13661,
+   "abroges": 0,
+   "edit": "2026-09-19"
+  },
+  "code-securite-interieure": {
+   "nom": "Code de la sécurité intérieure",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 2927,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-securite-sociale": {
+   "nom": "Code de la sécurité sociale",
+   "lastup": "2026-09-19",
+   "seen": "2026-09-19",
+   "enVigueur": 7421,
+   "abroges": 0,
+   "edit": "2026-09-19"
+  },
+  "code-sport": {
+   "nom": "Code du sport",
+   "lastup": "2026-08-20",
+   "seen": "2026-08-20",
+   "enVigueur": 1915,
+   "abroges": 0,
+   "edit": "2026-09-09"
+  },
+  "code-travail": {
+   "nom": "Code du travail",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 11592,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-urbanisme": {
+   "nom": "Code de l'urbanisme",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 2459,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-aviation-civile": {
+   "nom": "Code de l'aviation civile",
+   "lastup": "2025-02-07",
+   "seen": "2025-02-07",
+   "enVigueur": 46,
+   "abroges": 0,
+   "edit": "2026-09-20"
+  },
+  "code-artisanat": {
+   "nom": "Code de l'artisanat",
+   "lastup": "2025-12-11",
+   "seen": "2025-12-11",
+   "enVigueur": 393,
+   "abroges": 0,
+   "edit": "2026-09-22"
+  },
+  "code-communes": {
+   "nom": "Code des communes",
+   "lastup": "2026-08-13",
+   "seen": "2026-08-13",
+   "enVigueur": 178,
+   "abroges": 0,
+   "edit": "2026-09-04"
+  },
+  "code-assurances": {
+   "nom": "Code des assurances",
+   "lastup": "2026-08-20",
+   "seen": "2026-08-20",
+   "enVigueur": 2389,
+   "abroges": 0,
+   "edit": "2026-09-11"
+  },
+  "code-communes-nouvelle-caledonie": {
+   "nom": "Code des communes de la Nouvelle-Calédonie",
+   "lastup": "2026-08-19",
+   "seen": "2026-08-19",
+   "enVigueur": 814,
+   "abroges": 0,
+   "edit": "2026-09-08"
+  },
+  "code-cinema": {
+   "nom": "Code du cinéma et de l'image animée",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 2063,
+   "abroges": 0,
+   "edit": "2026-09-02"
+  },
+  "code-commande-publique": {
+   "nom": "Code de la commande publique",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 1811,
+   "abroges": 0,
+   "edit": "2026-09-02"
+  },
+  "code-douanes": {
+   "nom": "Code des douanes",
+   "lastup": "2026-08-20",
+   "seen": "2026-08-20",
+   "enVigueur": 1428,
+   "abroges": 0,
+   "edit": "2026-09-13"
+  },
+  "code-defense": {
+   "nom": "Code de la défense",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 3435,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-electoral": {
+   "nom": "Code électoral",
+   "lastup": "2026-07-01",
+   "seen": "2026-07-01",
+   "enVigueur": 1250,
+   "abroges": 0,
+   "edit": "2026-09-04"
+  },
+  "code-rural-et-de-la-peche-maritime": {
+   "nom": "Code rural et de la pêche maritime",
+   "lastup": "2026-09-19",
+   "seen": "2026-09-19",
+   "enVigueur": 9825,
+   "abroges": 0,
+   "edit": "2026-09-20"
+  },
+  "code-architectes": {
+   "nom": "Code de déontologie des architectes",
+   "lastup": "2026-07-01",
+   "seen": "2026-07-01",
+   "enVigueur": 48,
+   "abroges": 0,
+   "edit": "2026-09-05"
+  },
+  "code-marine-marchande": {
+   "nom": "Code disciplinaire et pénal de la marine marchande",
+   "lastup": "2018-01-01",
+   "seen": "2018-01-01",
+   "enVigueur": 6,
+   "abroges": 0,
+   "edit": "2026-09-03"
+  },
+  "code-domaine-etat-mayotte": {
+   "nom": "Code du domaine de l'Etat et des collectivités publiques applicable à la collectivité territoriale de Mayotte",
+   "lastup": "2011-11-25",
+   "seen": "2011-11-25",
+   "enVigueur": 3,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-domaine-de-l-etat": {
+   "nom": "Code du domaine de l'Etat",
+   "lastup": "2023-05-26",
+   "seen": "2023-05-26",
+   "enVigueur": 473,
+   "abroges": 0,
+   "edit": "2026-09-17"
+  },
+  "code-domaine-fluvial": {
+   "nom": "Code du domaine public fluvial et de la navigation intérieure",
+   "lastup": "2014-05-28",
+   "seen": "2014-05-28",
+   "enVigueur": 1,
+   "abroges": 0,
+   "edit": "2026-09-17"
+  },
+  "code-douanes-de-mayotte": {
+   "nom": "Code des douanes de Mayotte",
+   "lastup": "2021-09-30",
+   "seen": "2021-09-30",
+   "enVigueur": 328,
+   "abroges": 0,
+   "edit": "2026-03-27"
+  },
+  "code-expropriation": {
+   "nom": "Code de l'expropriation pour cause d'utilité publique",
+   "lastup": "2026-05-28",
+   "seen": "2026-05-28",
+   "enVigueur": 372,
+   "abroges": 0,
+   "edit": "2026-09-23"
+  },
+  "code-forestier": {
+   "nom": "Code forestier (nouveau)",
+   "lastup": "2026-08-20",
+   "seen": "2026-08-20",
+   "enVigueur": 1400,
+   "abroges": 0,
+   "edit": "2026-09-10"
+  },
+  "code-energie": {
+   "nom": "Code de l'énergie",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 3222,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-general-des-impots-annexe-i": {
+   "nom": "Code général des impôts, annexe I",
+   "lastup": "2026-07-01",
+   "seen": "2026-07-01",
+   "enVigueur": 71,
+   "abroges": 0,
+   "edit": "2026-09-15"
+  },
+  "code-propriete-personnes-publiques": {
+   "nom": "Code général de la propriété des personnes publiques",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 1131,
+   "abroges": 0,
+   "edit": "2026-09-02"
+  },
+  "code-general-de-la-fonction-publique": {
+   "nom": "Code général de la fonction publique",
+   "lastup": "2026-09-03",
+   "seen": "2026-09-03",
+   "enVigueur": 4244,
+   "abroges": 0,
+   "edit": "2026-09-03"
+  },
+  "code-general-des-collectivites-territoriales": {
+   "nom": "Code général des collectivités territoriales",
+   "lastup": "2026-08-20",
+   "seen": "2026-08-20",
+   "enVigueur": 6607,
+   "abroges": 0,
+   "edit": "2026-09-11"
+  },
+  "code-general-des-impots": {
+   "nom": "Code général des impôts",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 2404,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-general-des-impots-annexe-ii": {
+   "nom": "Code général des impôts, annexe II",
+   "lastup": "2026-07-29",
+   "seen": "2026-07-29",
+   "enVigueur": 674,
+   "abroges": 0,
+   "edit": "2026-09-13"
+  },
+  "code-instruments-monetaires": {
+   "nom": "Code des instruments monétaires et des médailles",
+   "lastup": "2009-05-14",
+   "seen": "2009-05-14",
+   "enVigueur": 6,
+   "abroges": 0,
+   "edit": "2026-09-05"
+  },
+  "code-general-des-impots-annexe-iv": {
+   "nom": "Code général des impôts, annexe IV",
+   "lastup": "2026-09-10",
+   "seen": "2026-09-10",
+   "enVigueur": 477,
+   "abroges": 0,
+   "edit": "2026-09-10"
+  },
+  "code-general-des-impots-annexe-iii": {
+   "nom": "Code général des impôts, annexe III",
+   "lastup": "2026-08-22",
+   "seen": "2026-08-22",
+   "enVigueur": 1114,
+   "abroges": 0,
+   "edit": "2026-09-16"
+  },
+  "code-impositions-biens-services": {
+   "nom": "Code des impositions sur les biens et services",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 1761,
+   "abroges": 0,
+   "edit": "2026-09-02"
+  },
+  "code-legion-honneur": {
+   "nom": "Code de la Légion d'honneur, de la Médaille militaire et de l'ordre national du Mérite",
+   "lastup": "2025-01-24",
+   "seen": "2025-01-24",
+   "enVigueur": 230,
+   "abroges": 0,
+   "edit": "2026-09-19"
+  },
+  "code-justice-militaire": {
+   "nom": "Code de justice militaire (nouveau)",
+   "lastup": "2025-12-01",
+   "seen": "2025-12-01",
+   "enVigueur": 732,
+   "abroges": 0,
+   "edit": "2026-09-09"
+  },
+  "code-juridictions-financieres": {
+   "nom": "Code des juridictions financières",
+   "lastup": "2026-08-05",
+   "seen": "2026-08-05",
+   "enVigueur": 1310,
+   "abroges": 0,
+   "edit": "2026-09-22"
+  },
+  "code-minier": {
+   "nom": "Code minier",
+   "lastup": "2017-03-02",
+   "seen": "2017-03-02",
+   "enVigueur": 167,
+   "abroges": 0,
+   "edit": "2026-09-15"
+  },
+  "code-minier-nouveau": {
+   "nom": "Code minier (nouveau)",
+   "lastup": "2026-05-28",
+   "seen": "2026-05-28",
+   "enVigueur": 571,
+   "abroges": 0,
+   "edit": "2026-09-23"
+  },
+  "code-mutualite": {
+   "nom": "Code de la mutualité",
+   "lastup": "2026-08-20",
+   "seen": "2026-08-20",
+   "enVigueur": 533,
+   "abroges": 0,
+   "edit": "2026-09-10"
+  },
+  "code-organisation-judiciaire": {
+   "nom": "Code de l'organisation judiciaire",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 1018,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-monetaire-et-financier": {
+   "nom": "Code monétaire et financier",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 5313,
+   "abroges": 0,
+   "edit": "2026-09-02"
+  },
+  "code-pensions-civiles-militaires": {
+   "nom": "Code des pensions civiles et militaires de retraite",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 262,
+   "abroges": 0,
+   "edit": "2026-09-02"
+  },
+  "code-pensions-marins": {
+   "nom": "Code des pensions de retraite des marins français du commerce, de pêche ou de plaisance",
+   "lastup": "2026-01-22",
+   "seen": "2026-01-22",
+   "enVigueur": 32,
+   "abroges": 0,
+   "edit": "2026-08-31"
+  },
+  "code-ports-maritimes": {
+   "nom": "Code des ports maritimes",
+   "lastup": "2021-09-10",
+   "seen": "2021-09-10",
+   "enVigueur": 30,
+   "abroges": 0,
+   "edit": "2026-09-18"
+  },
+  "code-patrimoine": {
+   "nom": "Code du patrimoine",
+   "lastup": "2026-08-05",
+   "seen": "2026-08-05",
+   "enVigueur": 1637,
+   "abroges": 0,
+   "edit": "2026-09-21"
+  },
+  "code-postes-communications": {
+   "nom": "Code des postes et des communications électroniques",
+   "lastup": "2026-08-19",
+   "seen": "2026-08-19",
+   "enVigueur": 736,
+   "abroges": 0,
+   "edit": "2026-09-07"
+  },
+  "code-pensions-militaires": {
+   "nom": "Code des pensions militaires d'invalidité et des victimes de guerre",
+   "lastup": "2026-08-19",
+   "seen": "2026-08-19",
+   "enVigueur": 1179,
+   "abroges": 0,
+   "edit": "2026-09-08"
+  },
+  "code-tourisme": {
+   "nom": "Code du tourisme",
+   "lastup": "2026-09-03",
+   "seen": "2026-09-03",
+   "enVigueur": 647,
+   "abroges": 0,
+   "edit": "2026-09-03"
+  },
+  "code-procedures-execution": {
+   "nom": "Code des procédures civiles d'exécution",
+   "lastup": "2026-08-19",
+   "seen": "2026-08-19",
+   "enVigueur": 755,
+   "abroges": 0,
+   "edit": "2026-09-06"
+  },
+  "code-rural-ancien": {
+   "nom": "Code rural (ancien)",
+   "lastup": "2013-01-01",
+   "seen": "2013-01-01",
+   "enVigueur": 69,
+   "abroges": 0,
+   "edit": "2026-09-16"
+  },
+  "tfue": {
+   "nom": "Traité sur le fonctionnement de l'Union européenne",
+   "source": "eur-lex",
+   "celex": "12016E",
+   "lastup": "JO C 202 du 7.6.2016",
+   "enVigueur": 358,
+   "abroges": 0
+  },
+  "tue": {
+   "nom": "Traité sur l'Union européenne",
+   "source": "eur-lex",
+   "celex": "12016M",
+   "lastup": "JO C 202 du 7.6.2016",
+   "enVigueur": 55,
+   "abroges": 0
+  },
+  "charte": {
+   "nom": "Charte des droits fondamentaux de l'Union européenne",
+   "source": "eur-lex",
+   "celex": "12012P",
+   "lastup": "JO C 326 du 26.10.2012",
+   "enVigueur": 54,
+   "abroges": 0
+  },
+  "livre-procedures-fiscales": {
+   "nom": "Livre des procédures fiscales",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 919,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-recherche": {
+   "nom": "Code de la recherche",
+   "lastup": "2026-09-01",
+   "seen": "2026-09-01",
+   "enVigueur": 1027,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "code-service-national": {
+   "nom": "Code du service national",
+   "lastup": "2026-08-19",
+   "seen": "2026-08-19",
+   "enVigueur": 624,
+   "abroges": 0,
+   "edit": "2026-09-06"
+  },
+  "code-travail-mayotte": {
+   "nom": "Code du travail applicable à Mayotte",
+   "lastup": "2020-01-01",
+   "seen": "2020-01-01",
+   "enVigueur": 7,
+   "abroges": 0,
+   "edit": "2024-03-04"
+  },
+  "code-travail-maritime": {
+   "nom": "Code du travail maritime",
+   "lastup": "2020-09-25",
+   "seen": "2020-09-25",
+   "enVigueur": 4,
+   "abroges": 0,
+   "edit": "2026-09-03"
+  },
+  "code-voirie-routiere": {
+   "nom": "Code de la voirie routière",
+   "lastup": "2026-03-21",
+   "seen": "2026-03-21",
+   "enVigueur": 446,
+   "abroges": 0,
+   "edit": "2026-09-01"
+  },
+  "euratom": {
+   "nom": "Traité instituant la Communauté européenne de l'énergie atomique",
+   "source": "eur-lex",
+   "celex": "12016A",
+   "lastup": "JO C 203 du 7.6.2016",
+   "enVigueur": 141,
+   "abroges": 0
+  },
+  "code-transports": {
+   "nom": "Code des transports",
+   "lastup": "2026-09-22",
+   "seen": "2026-09-22",
+   "enVigueur": 9257,
+   "abroges": 0,
+   "edit": "2026-09-22"
+  }
+ }
 }
