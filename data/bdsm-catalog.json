@@ -12490,6 +12490,118 @@
     }
    ],
    "count": 7
+  },
+  "mobimed-gyneco": {
+   "label": "Mobimed — fauteuil de gynécologie (modèle visuel)",
+   "url": null,
+   "shop": "mobimed",
+   "items": [
+    {
+     "pid": "arco100m-kiwi",
+     "shop": "mobimed",
+     "brand": "Schmitz",
+     "name": "Fauteuil de gynécologie électrique Arco 100M (garniture kiwi)",
+     "url": null,
+     "colors": [
+      "gris",
+      "vert kiwi"
+     ],
+     "img": "https://www.mobimed.fr/39007-thickbox_default/fauteuil-de-gynecologie-electrique-schmitz-arco-100m-1-moteur.jpg",
+     "desc": "Fauteuil d'examen gynécologique électrique 1 moteur, coque gris clair, assise et dossier vert kiwi, repose-pieds et étriers latéraux gris, cuvette inox et télécommande à fil. Modèle visuel pour la mise en scène, sans prix."
+    },
+    {
+     "pid": "arco100m-fuchsia",
+     "shop": "mobimed",
+     "brand": "Schmitz",
+     "name": "Fauteuil de gynécologie électrique Arco 100M (garniture fuchsia)",
+     "url": null,
+     "colors": [
+      "gris",
+      "fuchsia"
+     ],
+     "img": "https://www.mobimed.fr/47227-thickbox_default/fauteuil-de-gynecologie-electrique-schmitz-arco-100m-1-moteur.jpg",
+     "desc": "Même fauteuil gynécologique électrique Arco 100M vu vide de trois quarts : coque gris clair, garniture fuchsia, étriers relevés, cuvette inox, télécommande à fil. Modèle visuel pour la mise en scène, sans prix."
+    },
+    {
+     "pid": "arco100m-vert",
+     "shop": "mobimed",
+     "brand": "Schmitz",
+     "name": "Fauteuil de gynécologie électrique Arco 100M (garniture verte, vide)",
+     "url": null,
+     "colors": [
+      "gris",
+      "vert"
+     ],
+     "img": "https://www.mobimed.fr/38775-thickbox_default/fauteuil-de-gynecologie-electrique-schmitz-arco-100m-1-moteur.jpg",
+     "desc": "Même fauteuil gynécologique électrique Arco 100M vu vide de trois quarts : coque gris clair, garniture vert anis, étriers relevés, cuvette inox, socle à pédale. Modèle visuel pour la mise en scène, sans prix."
+    }
+   ]
+  },
+  "liberateur-pilori": {
+   "label": "Libérateur d'idées — pilori, mobilier médiéval (modèle visuel)",
+   "url": null,
+   "shop": "liberateurdidees",
+   "items": [
+    {
+     "pid": "locpir1-pilori-chatiment",
+     "shop": "liberateurdidees",
+     "brand": null,
+     "name": "Pilori du châtiment en bois (123 cm)",
+     "url": null,
+     "colors": [
+      "bois",
+      "brun"
+     ],
+     "img": "https://www.liberateurdidees.com/web/image/product.template/4570/image_1024?unique=809ffcc",
+     "desc": "Pilori médiéval en bois sur socle, 123 cm : traverse haute à trois ouvertures (tête et deux mains), ferrures cloutées, deux montants sur plancher. Modèle visuel pour la mise en scène, sans prix."
+    }
+   ]
+  },
+  "etsy-croix": {
+   "label": "Etsy — croix de Saint-André portable, mobilier (modèle visuel)",
+   "url": null,
+   "shop": "etsy",
+   "items": [
+    {
+     "pid": "croix-portable-vue1",
+     "shop": "etsy",
+     "brand": null,
+     "name": "Croix de Saint-André portable design (vue d'ensemble)",
+     "url": null,
+     "colors": [
+      "bois clair",
+      "noir"
+     ],
+     "img": "https://i.etsystatic.com/22874865/r/il/98b427/7639406530/il_794xN.7639406530_sdf1.jpg",
+     "desc": "Croix de Saint-André portable en bois clair, deux lattes en X avec bandeau central noir, quatre anneaux d'attache inox aux extrémités, posée contre un mur. Modèle visuel pour la mise en scène, sans prix."
+    },
+    {
+     "pid": "croix-portable-vue2",
+     "shop": "etsy",
+     "brand": null,
+     "name": "Croix de Saint-André portable design (vue de face)",
+     "url": null,
+     "colors": [
+      "bois clair",
+      "noir"
+     ],
+     "img": "https://i.etsystatic.com/22874865/r/il/5622dd/7639346066/il_794xN.7639346066_lflz.jpg",
+     "desc": "Même croix de Saint-André portable vue de face : X en bois clair, croisement noir, anneaux inox en haut et en bas pour poignets et chevilles. Modèle visuel pour la mise en scène, sans prix."
+    },
+    {
+     "pid": "croix-portable-detail",
+     "shop": "etsy",
+     "brand": null,
+     "name": "Croix de Saint-André portable design (détail anneau)",
+     "url": null,
+     "colors": [
+      "bois clair",
+      "noir"
+     ],
+     "img": "https://i.etsystatic.com/22874865/r/il/000c94/7639345900/il_794xN.7639345900_cyd7.jpg",
+     "desc": "Gros plan sur la quincaillerie : platine inox vissée et gros anneau d'attache sur latte en bois clair. Modèle visuel pour la mise en scène, sans prix."
+    }
+   ]
   }
  }
 }
