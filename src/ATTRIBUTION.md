@@ -1,67 +1,59 @@
-# Attribution — dossier « sexo » (sexologie et BDSM)
+# Attributionen — Chess-Modus
 
-Ce dossier rassemble les sources de sexologie indiquées par l'utilisateur (Runde 165)
-et, depuis la Runde 172, une fiche de BDSM.
+## Figuren (`src/chess-pieces.js`)
 
-## Les sources de sexologie (Runde 165)
+Das Figuren-Set ist das **„Cburnett"-Set** von **Colin M. L. Burnett**.
 
-- `cerhes-guide-premier-recours.json` — *Guide de premier recours en sexologie*,
-  Réseau de Santé Sexuelle Publique, cerhes.org (48 p., avril 2023).
-- `chu-nantes-notions-generales.json` — *Notions générales de sexologie*,
-  Stéphanie Dugast, sage-femme sexologue, CHU de Nantes (31 diapositives).
-- `santesexuelle-guide-prescription.json` — *Guide de prescription des examens et
-  des traitements en santé sexuelle*, RSSP, santesexuelle.org (20 p., mai 2021).
-- `unf3s-item40-sexualite.json` — *Item 40 – Sexualité normale et ses troubles*,
-  CNGOF, Université Médicale Virtuelle Francophone (UNF3S), 2010-2011 (19 p.).
-- `evras-sexualite-comportements.json` — *Guide pour l'EVRAS – Sexualité et
-  comportements sexuels*, Fédération Wallonie-Bruxelles, evras.be (34 p.).
+- Quelle: Wikimedia Commons, Kategorie *Chess pieces (Cburnett)*
+  (<https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces>)
+- Lizenz: **CC BY-SA 3.0** (und GFDL) — Weitergabe unter gleicher Lizenz,
+  Namensnennung erforderlich.
+- Abgerufen wurden die Rohdaten aus dem npm-Paket **`chessground`**
+  (`assets/chessground.cburnett.css`), in dem die Figuren als Base64-kodierte
+  SVG-Data-URIs eingebettet sind. Diese wurden einmalig extrahiert, von den
+  `<svg>`-Wurzelattributen befreit und als reine SVG-Formen in
+  `src/chess-pieces.js` eingebettet (keine Laufzeit-Abhängigkeit, kein CDN).
 
-Ces documents sont des supports pédagogiques et médicaux publics, cités pour
-l'usage personnel de l'utilisateur, dont le contenu est résumé et condensé en
-fiches. Aucun texte n'est reproduit intégralement.
+Die Figuren dürfen im Rahmen des Generators frei verwendet werden; bei einer
+Weiterverbreitung des Sets (z. B. als eigenes Paket) ist die Nennung nach
+CC BY-SA 3.0 beizubehalten.
 
-## La fiche de BDSM (Runde 172)
+## Figuren-Set „Art" (`src/chess-pieces-art.webp`)
 
-- `bdsm-art-de-dominer.json` — fiche de notions rédigée à partir de
-  **« L'Art de dominer »**, résumé en français par **Bookey** de *The New Topping
-  Book* de **Dossie Easton et Janet W. Hardy**.
-  - Adresse demandée par l'utilisateur :
-    https://cdn.bookey.app/files/pdf/book/fr/l'art-de-dominer.pdf
-  - Nature du document : résumé tiers (250 pages) d'une œuvre protégée, avec les
-    chapitres 1 à 21, des citations, des questions-réponses et des quiz. Seules
-    les parties de fond ont été exploitées.
+Eigenes, vom Generator-Autor erstelltes 3D-Render-Set (weiß + schwarz, alle 12
+Figuren). Keine fremde Lizenz, keine externe Quelle — das Sprite-Sheet ist aus
+der Original-Vektorgrafik des Autors abgeleitet (Aufbereitungsrezept siehe
+Kopfkommentar von `src/chess-piece-art.js`).
 
-**Statut.** Contrairement aux textes de loi ou aux supports institutionnels, ce
-résumé appartient à Bookey et porte sur une œuvre protégée (Easton / Hardy). Le
-fichier livré **n'est pas** une reproduction : c'est une reformulation condensée,
-en français, section par section (rôles, consentement et négociation, mots de
-sécurité, éthique, communication, préparation et conduite d'une scène, imprévus,
-après-scène, jouets, communauté, jeu d'ombres, spiritualité), avec une section
-finale de règles de travail pour Sofia. Le texte source n'est pas redistribué et
-la source est citée.
+Das Cburnett-Set bleibt als Stil „Klassisch" erhalten und ist der Fallback.
 
-## L'encyclopédie des objets (Ronde 307)
+## Überarbeitung Springer („Art", 30.09.2026)
 
-- `objets-plaisir.json(.gz)` — encyclopédie bilingue français/anglais remise par
-  l'utilisateur : instruments, mobilier, vêtements spécialisés, médicaments et
-  substances, ustensiles médicaux, jouets standard et équipement BDSM, avec
-  définitions. Donnée propriétaire, usage interne au générateur ; sert de base
-  de données pour les jeux de rôle, les personnages peuvent s'en servir.
+Beide Springer-Zellen (`N` weiß, `n` schwarz) wurden neu komponiert: Kopf ~×3
+um den Halsansatz skaliert (weiche 18-px-Blende als Übergang), Sockel/Hals
+horizontal ×0,5 gestaucht, Ergebnis in die Zelle eingepasst (FIT 150 px).
+Rezept/Skript beim Helfer (OffscreenCanvas-Compositing, WebP q0.92).
+Hinweis: Die Vorversion liegt nur noch in der publizierten Fassung vor —
+nach dem nächsten Speichern ist sie überschrieben.
 
-## Avertissement repris dans la fiche de travail
+## Springer 3D/STL (`src/chess-3d.js`, 30.09.2026)
 
-Sofia informe sur la sexualité, sur la santé sexuelle et sur les pratiques BDSM
-telles qu'elles se pratiquent dans la vraie vie, avec leurs règles de sécurité et
-de consentement. Elle ne remplace pas un médecin, un psychologue ou un thérapeute,
-et elle renvoie vers eux quand la situation dépasse le cadre du jeu ou de
-l'information.
+Der 3D-Springer nutzt dieselbe „Art"-Silhouette (Kontur des 2D-Sprites),
+aber als stehende Figur proportioniert: Breite ×0,55 (passt ins Feld),
+Kopf ×1,35 (Höhe und Breite, weicher Übergang), Sockel in der Tiefe ×0,55.
+Der STL-Export (`⬇ STL`) enthält dieselbe Geometrie. Die anderen fünf
+Figuren sind extrudierte Cburnett-Profile (Quelle/Lizenz siehe oben).
 
-- `pratiques-configurations.json(.gz)` — encyclopédie des pratiques par configurations de partenaires (duo, trios, quatuors), pratiques uro et jeux de pouvoir consentis, sécurité et hygiène. Donnée propriétaire, usage interne ; base de données des jeux de rôle.
+## Nur Test-Orakel (nicht ausgeliefert!)
 
-- `scenarios-contrainte.json(.gz)` — scénario remis par le propriétaire (Ronde 309) : autofellation contrainte en position charrue (pince-nez, rétracteur buccal, immobilisation), phases dirigées puis uro vers la gorge et vidange complète, physiologie et garde-fous. Donnée propriétaire, usage interne ; base de données des jeux de rôle.
+Diese Bibliotheken werden **ausschließlich während der Entwicklung** benutzt, um
+die eigene Regel-Engine zu verifizieren. Sie sind **nicht** Teil des
+ausgelieferten Generators und werden zur Laufzeit nie geladen.
 
-- `anatomie-intime.json(.gz)` — référentiel d'anatomie intime remis par le propriétaire (Ronde 312) : vulve, clitoris, vestibule, vagin, périnée, pilosité féminine, pénis, prépuce, testicules, pilosité masculine et variations. Vocabulaire précis des fiches et des récits. Donnée propriétaire, usage interne.
+| Werkzeug | Zweck | Lizenz |
+|---|---|---|
+| `chess.js@1.0.0` | Differentialtest (Standard-Schach: legale Zugmengen + SAN über Tausende Zufallspartien) | MIT |
+| **Stockfish** (`stockfish.js@10.0.2`, Niklas Fiekas' Emscripten-Build, Multi-Variant-Branch) | Referenz für `perft` und legale Zugmengen — Standard **und** Chess960 (via `UCI_Chess960`), inkl. Rochade-Sonderfällen | GPL v3 |
 
-- `seins.json(.gz)` — anatomie descriptive des seins remises par le propriétaire (Ronde 313) : structure, bonnets et poids, formes, position, ptosis, aréole et mamelon, texture, cycle, grossesse, allaitement, ménopause, anomalies et mensurations. Donnée propriétaire, usage interne.
-
-- `objets-donjon.json(.gz)` — mobilier et instruments de donjon remis par le propriétaire (Ronde 318) : spéculum, chaise gynécologique, croix de Saint-André, fuck machine, machine à traire, estim, plug, sonde, menottes, corde, fouet, pinces, masque, avec prompts image. Règles de scénario (plaisir, interdits) en directive LIMITES des fiches. Donnée propriétaire, usage interne.
+Die eigene Engine (`src/chess-rules.js`, `src/chess-engine.js`) ist eine
+unabhängige Implementierung und enthält keinen Code dieser Projekte.
