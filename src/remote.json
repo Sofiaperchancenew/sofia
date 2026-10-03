@@ -1,7 +1,7 @@
 {
  "note": "Fichiers de corpus heberges (user.uploads.dev). Chemin logique -> adresse. Lu par App.Core.loadJson (et par App.DroitLookup pour ses propres fichiers). Voir src/README.md.",
- "mirror": "https://cdn.jsdelivr.net/gh/Sofiaperchancenew/sofia@main/",
- "mirrorNote": "Ronde 276 : der Spiegel ist eingerichtet (github.com/Sofiaperchancenew/sofia, jsDelivr @main). Fuer eine feste Fassung @<commit> statt @main schreiben. Leer = kein Spiegel. 30.09.2026 : depot renomme (ancien Sofiaperchance/Sofia mort) -> nouveau depot, 100 % GitHub.",
+ "mirror": "",
+ "mirrorNote": "Ronde 275 : hier die Basis des Spiegels eintragen, z. B. https://cdn.jsdelivr.net/gh/<Konto>/<Repo>@<Commit>/ — der logische Pfad wird einfach angehaengt. Alternativ eine Tabelle { \"src/...\": \"https://...\" }. Leer = kein Spiegel.",
  "files": {
   "src/anatomy/texte.json.gz": "https://user.uploads.dev/file/b9fa147f8e4ba0c0d2ff9b837e1a090a.gz",
   "src/anatomy/physio-urinaire-genital-clinique.json.gz": "https://user.uploads.dev/file/112efcad4e79d7fb7794f41ec386f924.gz",

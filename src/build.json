@@ -1,7 +1,7 @@
 {
- "v": 360,
- "ts": 1790882449671,
- "note": "Panneau export catalogue GitHub invisible aux visiteurs, concepteur uniquement (masqué + réaffiché au déverrouillage).",
+ "v": 371,
+ "ts": 1790924115024,
+ "note": "Conversion locale d'images jointes (png/jpg/webp, bouton ⇄ sur la pastille, tout dans le navigateur); analyse media-file-convert/chessmate/ask-ai/ai-text-plugin: echecs, web et vision deja couverts.",
  "by": "helper",
  "files": {
   "src/workshop.js": "f6723979b8f1d44e",
@@ -38,7 +38,7 @@
   "src/inner.js": "0da86ab9157cfe03",
   "src/i18n.js": "69455474504d581f",
   "src/i18n-auto.js": "3efcddd09b60f012",
-  "src/help.js": "4654a39ff9ef7350",
+  "src/help.js": "774226a118542161",
   "src/guard.js": "3e9ed892688dcfb7",
   "src/feedback.js": "2ddc2b8d210b0b53",
   "src/errorreport.js": "fca43400974d83b2",

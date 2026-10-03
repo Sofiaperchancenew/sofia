@@ -471,6 +471,32 @@ export function attachMedias(App) {
   }
   function cmdMedia(text) {
     const t = String(text || "").trim();
+    try {
+      const A = (typeof App !== "undefined" ? App : window.App) || null;
+      if (A) {
+        if (A.RPG && A.RPG.state && A.RPG.state.active) return null;
+        if (A.Deites && A.Deites.isActive && A.Deites.isActive()) return null;
+        try {
+          const s = A.State.sessions.find(x => x.id === A.State.currentSessionId) || null;
+          if (s && A.Core) {
+            if (A.Scene && A.Scene.active && A.Scene.active(s)) return null;
+            try { if (A.Core.sceneCraftActive && A.Core.sceneCraftActive(s, t)) return null; } catch (e1) {}
+            try { if (A.Core.soloActive && A.Core.soloActive(s, t)) return null; } catch (e2) {}
+            try { if (A.Core.castTail && A.Core.castTail(s, t)) return null; } catch (e3) {}
+            try {
+              const adultOn = (A.Age && A.Age.nsfw) ? !!A.Age.nsfw() : !!(A.State.settings && A.State.settings.adultContent);
+              if (!adultOn && A.Core.BDSM_RE && A.Core.BDSM_RE.test(t)) {
+                let wc = 0;
+                try { wc = A.Core.newCastCount(t) || 0; } catch (e4) {}
+                if (wc >= 1) return null;
+                try { if (A.Core.castLatched && A.Core.castLatched(s, t)) return null; } catch (e5) {}
+              }
+            } catch (e6) {}
+          }
+        } catch (e) {}
+      }
+    } catch (e) {}
+    const hasWordChar = (s) => /[a-z0-9àâäéèêëîïôöùûüç]/i.test(s);
     let m = t.match(/^\/(radio|musique|music|podcast|image|images|photo|archive)\s+(.+)/i);
     if (m) {
       let ty = m[1].toLowerCase();
@@ -506,12 +532,13 @@ export function attachMedias(App) {
       else if (/archive|livre audio/i.test(t)) type = "archive";
       const qm = t.match(/(?:mets?|mettez|joue?|jouer|lance|lancer|lis|lire|lisez|écoute|écouter|cherche|chercher|trouve|trouver|montre|montrer|passe|passer|balance)\s+(?:moi\s+|une\s+|un\s+|des\s+|la\s+|le\s+|les\s+|l\s+)?(?:radio\s+|station\s+|musique\s+|music\s+|chanson\s+|podcast\s+|image\s+|photo\s+)?(.{2,120})/i);
       let q = qm ? cleanRadioQuery(qm[1].replace(/\s*(sur\s+)?(youtube|peertube|vimeo|archive|spotify)\s*$/i, "")) : "";
-      if (q.length >= 2) return { type: type, q: q };
+      if (q.length >= 2 && hasWordChar(q)) return { type: type, q: q };
     }
     const qm2 = t.match(/(?:mets?|mettez|joue?|jouer|lance|lancer|lis|lire|lisez|écoute|écouter|passe|passer|balance)\s+(?:moi\s+|une\s+|un\s+|des\s+|du\s+|de\s+la\s+|de\s+|la\s+|le\s+|les\s+|l\s+)?(.{2,60})/i);
     if (qm2) {
       const q2 = cleanRadioQuery(qm2[1].replace(/\s*(sur\s+)?(youtube|peertube|vimeo|archive|spotify)\s*$/i, ""));
-      if (q2.length >= 2) return { type: "radio", q: q2 };
+      if (/^(je|j'|tu|il|elle|on|nous|vous|ils|elles|ce|cette|ça)\b/i.test(q2.trim())) return null;
+      if (q2.length >= 2 && hasWordChar(q2)) return { type: "radio", q: q2 };
     }
     return null;
   }
