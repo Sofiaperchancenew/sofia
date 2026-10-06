@@ -1,6 +1,6 @@
 export function attachVideos(App) {
   const PEERTUBE_BASE = "https://peer.tube";
-  const YT_EMBED = "https://www.youtube.com/embed/";
+  const YT_EMBED = "https://www.youtube-nocookie.com/embed/";
   const VIMEO_EMBED = "https://player.vimeo.com/video/";
   const VIMEO_JWT_TTL = 20 * 60 * 1000;
   const cache = { vimeoJwt: "", vimeoJwtAt: 0 };
@@ -111,20 +111,54 @@ export function attachVideos(App) {
       return { source: "vimeo", id: id, title: v.name || "", channel: (v.user && v.user.name) || "", duration: fmtDur(v.duration), thumb: thumb, url: v.link || "", embed: id ? VIMEO_EMBED + id : "" };
     }).filter((v) => v.id);
   }
+  function juniorManual() {
+    try { return localStorage.getItem("sofia_qwant_junior") === "1"; } catch (e) { return false; }
+  }
+  function juniorAuto() {
+    try { if (App.Parental && typeof App.Parental.effectiveLocked === "function" && App.Parental.effectiveLocked()) return true; } catch (e) {}
+    try { if (App.Age && typeof App.Age.age === "function" && App.Age.age() > 0 && App.Age.age() < 18) return true; } catch (e) {}
+    return false;
+  }
+  function isJunior() { return juniorManual() || juniorAuto(); }
+  function setJunior(on) {
+    try { localStorage.setItem("sofia_qwant_junior", on ? "1" : "0"); } catch (e) {}
+    return isJunior();
+  }
+  async function searchQwant(q, count) {
+    count = Math.min(Math.max(Number(count) || 6, 1), 12);
+    const safe = isJunior() ? 1 : 1;
+    const url = "https://api.qwant.com/v3/search/videos?t=videos&q=" + encodeURIComponent(q) + "&count=" + count + "&safesearch=" + safe + "&locale=fr_FR&uiv=4";
+    const txt = await getText(url, { timeoutMs: 25000 });
+    const o = JSON.parse(txt);
+    const items = (((o || {}).data || {}).result || {}).items || [];
+    return items.slice(0, count).map((it) => {
+      const title = it.title || "";
+      const link = it.url || "";
+      const thumb = it.thumbnail || "";
+      let dur = it.duration;
+      if (typeof dur === "number" && dur > 0) dur = fmtDur(dur);
+      else dur = "";
+      const channel = it.channel || it.source || "";
+      let embed = it.media || link;
+      try { const parsed = link ? parseUrl(link) : null; if (parsed && parsed.embed) embed = parsed.embed; } catch (e) {}
+      return { source: "qwant", id: link, title: title, channel: channel, duration: dur, thumb: thumb, url: link, embed: embed };
+    }).filter((v) => v.url);
+  }
   async function searchAll(q, count) {
     count = Math.min(Math.max(Number(count) || 4, 1), 8);
     const jobs = [
       searchYouTube(q, count).then((v) => ({ k: "youtube", v: v })).catch(() => ({ k: "youtube", v: [] })),
       searchPeerTube(q, count).then((v) => ({ k: "peertube", v: v })).catch(() => ({ k: "peertube", v: [] })),
-      searchVimeo(q, count).then((v) => ({ k: "vimeo", v: v })).catch(() => ({ k: "vimeo", v: [] }))
+      searchVimeo(q, count).then((v) => ({ k: "vimeo", v: v })).catch(() => ({ k: "vimeo", v: [] })),
+      searchQwant(q, count).then((v) => ({ k: "qwant", v: v })).catch(() => ({ k: "qwant", v: [] }))
     ];
     const res = await Promise.all(jobs);
-    const out = { youtube: [], peertube: [], vimeo: [] };
+    const out = { youtube: [], peertube: [], vimeo: [], qwant: [] };
     for (const r of res) out[r.k] = r.v;
     return out;
   }
   function srcLabel(s) {
-    return s === "youtube" ? "YouTube" : s === "peertube" ? "PeerTube" : "Vimeo";
+    return s === "youtube" ? "YouTube" : s === "peertube" ? "PeerTube" : s === "vimeo" ? "Vimeo" : "Qwant";
   }
   function playCard(v) {
     const card = document.createElement("div");
@@ -178,7 +212,7 @@ export function attachVideos(App) {
       const wrap = document.createElement("div");
       wrap.className = "svideo-player";
       const fr = document.createElement("iframe");
-      fr.src = v.embed + (v.embed.indexOf("?") >= 0 ? "&" : "?") + "autoplay=1";
+      fr.src = v.embed;
       fr.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
       fr.setAttribute("allowfullscreen", "");
       fr.setAttribute("frameborder", "0");
@@ -263,9 +297,16 @@ export function attachVideos(App) {
     const t = String(text || "").trim();
     let m = t.match(/^\/vid[eé]os?\s+(.+)/i) || t.match(/^\/video\s+(.+)/i);
     if (m) return m[1].trim();
-    m = t.match(/(?:cherch\w*|trouve\w*|montre\w*|mets?\w*|lance\w*|jou\w*|regarde\w*)\s+(?:moi\s+)?(?:une\s+|des\s+|la\s+|les\s+)?(?:vid[eé]os?\s*)?(?:sur\s+|de\s+|du\s+)?(.{3,120})/i);
-    if (m && /(vid[eé]o|youtube|peertube|peer\.tube|vimeo|regarder|jouer|lire)/i.test(t)) {
-      let q = m[1].replace(/\s*(sur\s+)?(youtube|peertube|peer\.tube|vimeo)\s*$/i, "").trim();
+    m = t.match(/^\/junior\s+(on|off|oui|non|1|0)/i);
+    if (m) {
+      const on = /^(on|oui|1)/i.test(m[1]);
+      setJunior(on);
+      postAssistant(on ? "Mode Junior activé : Qwant Junior et filtrage strict." : "Mode Junior désactivé.", []);
+      return "";
+    }
+    m = t.match(/(?:cherch\w*|trouve\w*|montre\w*|mets?\w*|lance\w*|regarde\w*)\s+(?:moi\s+)?(?:une\s+|des\s+|la\s+|les\s+)?(?:vid[eé]os?\s*)?(?:sur\s+|de\s+|du\s+)?(.{3,120})/i);
+    if (m && /(vid[eé]o|youtube|peertube|peer\.tube|vimeo|qwant)/i.test(t)) {
+      let q = m[1].replace(/\s*(sur\s+)?(youtube|peertube|peer\.tube|vimeo|qwant)\s*$/i, "").trim();
       return q.length >= 2 ? q : "";
     }
     return "";
@@ -328,6 +369,7 @@ export function attachVideos(App) {
       const next = document.createElement("button");
       next.type = "button";
       next.className = "svideo-tab";
+      next.dataset.svideoTry = "1";
       next.textContent = "Essayer : " + queue[0].title.slice(0, 60);
       next.addEventListener("click", () => {
         const nv = queue[0];
@@ -344,6 +386,22 @@ export function attachVideos(App) {
   }
   function directPlayer(v, queue) {
     queue = queue || [];
+    if (v.source === "qwant" && !parseUrl(v.embed || v.url)) {
+      const box = document.createElement("div");
+      box.className = "svideo-blocked";
+      const p = document.createElement("div");
+      p.className = "svideo-intro";
+      p.textContent = "« " + (v.title || "") + " » (Qwant) — lecture sur le site d'origine.";
+      box.appendChild(p);
+      const open = document.createElement("a");
+      open.href = v.url;
+      open.target = "_blank";
+      open.rel = "noopener";
+      open.className = "svideo-tab";
+      open.textContent = "Ouvrir la vidéo";
+      box.appendChild(open);
+      return box;
+    }
     const wrap = document.createElement("div");
     wrap.className = "svideo-player";
     wrap.style.margin = "10px 0";
@@ -360,13 +418,56 @@ export function attachVideos(App) {
           return;
         }
         try {
+          let started = false;
+          let engaged = false;
+          let stallTimer = null;
+          const clearStall = () => { try { if (stallTimer) clearTimeout(stallTimer); } catch (e) {} stallTimer = null; };
+          const offerDirect = () => {
+            try {
+              if (started || !wrap.isConnected) return;
+              if (wrap.querySelector("[data-svideo-direct]")) return;
+              const b = document.createElement("button");
+              b.type = "button";
+              b.className = "svideo-tab";
+              b.dataset.svideoDirect = "1";
+              b.textContent = "Lecture directe";
+              b.title = "Si la lecture ne démarre pas, lire sans le pilotage YouTube";
+              b.addEventListener("click", () => {
+                const w2 = document.createElement("div");
+                w2.className = "svideo-player";
+                w2.style.margin = "10px 0";
+                w2.style.maxWidth = "520px";
+                const fr = document.createElement("iframe");
+                fr.src = v.embed;
+                fr.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
+                fr.setAttribute("allowfullscreen", "");
+                fr.setAttribute("frameborder", "0");
+                w2.appendChild(fr);
+                wrap.replaceWith(w2);
+              });
+              wrap.appendChild(b);
+            } catch (e) {}
+          };
           new api.Player(slot, {
             videoId: v.id,
+            host: "https://www.youtube-nocookie.com",
             playerVars: { rel: 0 },
             events: {
+              onStateChange: (e) => {
+                try {
+                  if (e && (e.data === 1 || e.data === 2 || e.data === 3)) engaged = true;
+                  if (e && e.data === 1) { started = true; clearStall(); }
+                  else if (e && e.data === 3 && !started) { clearStall(); stallTimer = setTimeout(offerDirect, 12000); }
+                } catch (e2) {}
+              },
               onError: (e) => {
                 try { v.ytErr = String((e && e.data) || "153"); } catch (e2) {}
-                wrap.replaceWith(blockedBox(v, queue, wrap));
+                try {
+                  if (engaged && wrap.isConnected) {
+                    const nx = wrap.nextElementSibling;
+                    if (!nx || !nx.querySelector || !nx.querySelector("[data-svideo-try]")) wrap.after(blockedBox(v, queue, wrap));
+                  } else wrap.replaceWith(blockedBox(v, queue, wrap));
+                } catch (e3) { try { wrap.replaceWith(blockedBox(v, queue, wrap)); } catch (e4) {} }
               }
             }
           });
@@ -388,16 +489,17 @@ export function attachVideos(App) {
   async function answerQuery(q, originRow) {
     if (!q) return;
     if (originRow) originRow.dataset.svideoBusy = "1";
-    postAssistant("Je cherche « " + q + " » sur YouTube, PeerTube et Vimeo…", []);
+    const jr = isJunior();
+    postAssistant("Je cherche « " + q + " » sur YouTube, PeerTube, Vimeo et Qwant…" + (jr ? " (Junior : filtrage strict)" : ""), []);
     let all = null;
     try {
       all = await searchAll(q, 3);
     } catch (e) {
-      all = { youtube: [], peertube: [], vimeo: [] };
+      all = { youtube: [], peertube: [], vimeo: [], qwant: [] };
     }
     const list = document.querySelector("#messageListEl");
     if (list && list.lastChild) list.lastChild.remove();
-    const mixed = [...(all.youtube || []), ...(all.peertube || []), ...(all.vimeo || [])];
+    const mixed = [...(all.youtube || []), ...(all.peertube || []), ...(all.vimeo || []), ...(all.qwant || [])];
     if (!mixed.length) {
       postAssistant("Je n'ai rien trouvé pour « " + q + " » cette fois. Essaie avec d'autres mots.", []);
       return;
@@ -469,6 +571,7 @@ export function attachVideos(App) {
       + ".svideo-youtube{background:rgba(255,0,0,.15);color:#ff8a8a;border:1px solid rgba(255,0,0,.4)}"
       + ".svideo-peertube{background:rgba(255,143,0,.14);color:#ffc37a;border:1px solid rgba(255,143,0,.4)}"
       + ".svideo-vimeo{background:rgba(26,183,234,.14);color:#8fd8f5;border:1px solid rgba(26,183,234,.4)}"
+      + ".svideo-qwant{background:rgba(90,63,180,.16);color:#c4b5fd;border:1px solid rgba(90,63,180,.45)}"
       + ".svideo-title{color:#e8e8ea;font-size:13.5px;font-weight:600;text-decoration:none;flex:1 1 200px}"
       + ".svideo-title:hover{text-decoration:underline}"
       + ".svideo-chan{width:100%;color:#8e8e96;font-size:12px}"
@@ -501,7 +604,7 @@ export function attachVideos(App) {
     const b = document.createElement("button");
     b.id = "svideoBtn";
     b.type = "button";
-    b.title = "Chercher une vidéo (YouTube, PeerTube, Vimeo)";
+    b.title = "Chercher une vidéo (YouTube, PeerTube, Vimeo, Qwant)";
     b.setAttribute("aria-label", "Chercher une vidéo");
     b.innerHTML = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"></rect><polygon points="10 9 15 12 10 15 10 9" fill="currentColor" stroke="none"></polygon></svg>';
     b.addEventListener("click", togglePop);
@@ -511,7 +614,7 @@ export function attachVideos(App) {
     pop.id = "svideoPop";
     pop.hidden = true;
     pop.innerHTML = '<div id="svideoHead"><input id="svideoInput" placeholder="Chercher une vidéo…" autocomplete="off" spellcheck="false"><button id="svideoGo" type="button">Chercher</button></div>'
-      + '<div id="svideoTabs"><button class="svideo-tab on" data-tab="all" type="button">Tout</button><button class="svideo-tab" data-tab="youtube" type="button">YouTube</button><button class="svideo-tab" data-tab="peertube" type="button">PeerTube</button><button class="svideo-tab" data-tab="vimeo" type="button">Vimeo</button></div>'
+      + '<div id="svideoTabs"><button class="svideo-tab on" data-tab="all" type="button">Tout</button><button class="svideo-tab" data-tab="youtube" type="button">YouTube</button><button class="svideo-tab" data-tab="peertube" type="button">PeerTube</button><button class="svideo-tab" data-tab="vimeo" type="button">Vimeo</button><button class="svideo-tab" data-tab="qwant" type="button">Qwant</button><button class="svideo-tab" data-tab="junior" type="button">Junior : off</button></div>'
       + '<div id="svideoStatus">Astuce : écris « cherche une vidéo de … » ou « /video … » et je la joue ici même.</div>'
       + '<div id="svideoRes"></div>';
     document.body.appendChild(pop);
@@ -520,7 +623,16 @@ export function attachVideos(App) {
     const res = pop.querySelector("#svideoRes");
     const status = pop.querySelector("#svideoStatus");
     let tab = "all";
+    const jrBtn = () => pop.querySelector('[data-tab="junior"]');
+    const syncJr = () => { const b = jrBtn(); if (b) b.textContent = "Junior : " + (isJunior() ? "on" : "off"); };
+    syncJr();
     pop.querySelectorAll(".svideo-tab").forEach((t) => t.addEventListener("click", () => {
+      if (t.dataset.tab === "junior") {
+        setJunior(!isJunior());
+        syncJr();
+        status.textContent = isJunior() ? "Junior activé : Qwant Junior et filtrage strict." : "Junior désactivé.";
+        return;
+      }
       pop.querySelectorAll(".svideo-tab").forEach((x) => x.classList.remove("on"));
       t.classList.add("on");
       tab = t.dataset.tab;
@@ -528,11 +640,11 @@ export function attachVideos(App) {
     const run = async () => {
       const q = input.value.trim();
       if (q.length < 2) { status.textContent = "Écris au moins deux lettres."; return; }
-      status.textContent = "Recherche en cours…";
+      status.textContent = "Recherche en cours…" + (isJunior() ? " (Junior : filtrage strict)" : "");
       res.innerHTML = "";
       try {
-        const all = await searchAll(q, tab === "all" ? 3 : 8);
-        const list = tab === "all" ? [...all.youtube, ...all.peertube, ...all.vimeo] : (all[tab] || []);
+        const all = await searchAll(q, tab === "all" ? 2 : 8);
+        const list = tab === "all" ? [...all.youtube, ...all.peertube, ...all.vimeo, ...all.qwant] : (all[tab] || []);
         if (!list.length) { status.textContent = "Rien trouvé pour « " + q + " »."; return; }
         status.textContent = list.length + " résultat(s) — ▶ pour lire ici, le titre pour ouvrir la page.";
         for (const v of list) {
@@ -568,7 +680,7 @@ export function attachVideos(App) {
       if (i) i.focus();
     }
   }
-  App.Videos = { searchYouTube: searchYouTube, searchPeerTube: searchPeerTube, searchVimeo: searchVimeo, searchAll: searchAll, answer: answerQuery, post: postAssistant, PEERTUBE_BASE: PEERTUBE_BASE };
+  App.Videos = { searchYouTube: searchYouTube, searchPeerTube: searchPeerTube, searchVimeo: searchVimeo, searchQwant: searchQwant, searchAll: searchAll, answer: answerQuery, post: postAssistant, card: playCard, isJunior: isJunior, setJunior: setJunior, PEERTUBE_BASE: PEERTUBE_BASE };
   try { globalThis.SofiaVideos = App.Videos; } catch (e) {}
   try {
     ensureUi();

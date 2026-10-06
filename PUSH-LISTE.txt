@@ -1,0 +1,14 @@
+PUSH GITHUB du soir - 38 fichiers, 3835 Ko
+
+[RESTAURE - urgent]
+- src/README.md (remplace le doc catalogue qui l'a ecrase)
+
+[NOUVEAUX]
+- §236 : src/secu/secu-fiche.json | §235 : src/medicaments/vidal-maladies.json
+- echecs/ (17) : manifest, remote, 5 morceaux ECO, Codes_ECO.pdf, ingest, twic-runner, LICENSE, LISEZ-MOI, QUEUE-FICS, chess-json x4
+- data/ (3) : vetements, bdsm, prenoms-insee | modules (4) : autodiag, chess-live, imgstyles x2 | COPIE-INTEGRALE.md
+
+[MAJ]
+- src/build.json v466 + professions, i18n, help, chess, chess-openings, sheets (+ medias, videos, wardrobe par securite)
+
+Glisser le dossier src/ ENTIER sur la page du depot (Upload files) : les arborescences sont conservees. Un seul commit.

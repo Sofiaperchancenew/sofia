@@ -39,18 +39,22 @@ export function attachWardrobe(App) {
       };
       items.forEach((it, i) => {
         const n = base + i + 1;        const cell = document.createElement('div');
-        cell.style.cssText = 'position:relative;border:1px solid #3f3f46;border-radius:10px;overflow:hidden;background:#000;cursor:pointer;';
+        cell.style.cssText = 'position:relative;border:1px solid #3f3f46;border-radius:10px;overflow:hidden;background:#000;cursor:pointer;height:max-content;';
         cell.title = (it.name || '') + ' — cliquer pour agrandir, pastille rouge pour choisir le ' + n;
         if (it.img) {
           const im = document.createElement('img');
           im.loading = 'lazy';
+          im.referrerPolicy = 'no-referrer';
           im.src = it.img;
           im.alt = it.name || '';
-          im.style.cssText = 'width:100%;aspect-ratio:1/1;object-fit:contain;object-position:center;display:block;background:#000;';
-          cell.appendChild(im);
+          im.style.cssText = 'max-width:100%;max-height:110px;object-fit:contain;object-position:center;display:block;background:#000;';
+          const wrap = document.createElement('div');
+          wrap.style.cssText = 'width:100%;height:110px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center;';
+          wrap.appendChild(im);
+          cell.appendChild(wrap);
         } else {
           const ph = document.createElement('div');
-          ph.style.cssText = 'aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;color:#52525b;font-size:11px;padding:6px;text-align:center;';
+          ph.style.cssText = 'height:110px;display:flex;align-items:center;justify-content:center;color:#52525b;font-size:11px;padding:6px;text-align:center;';
           ph.textContent = it.name || 'sans photo';
           cell.appendChild(ph);
         }
@@ -93,24 +97,33 @@ export function attachWardrobe(App) {
     cats: [],
     outfit: null,
     proposal: null,
+    others: {},
     open: false
   };
   try {
     const raw = localStorage.getItem(LS);
-    if (raw) { const o = JSON.parse(raw); W.outfit = o.her || null; W.his = o.his || null; W.decor = o.decor || null; W.proposal = o.proposal || null; }
+    if (raw) { const o = JSON.parse(raw); W.outfit = o.her || null; W.his = o.his || null; W.decor = o.decor || null; W.proposal = o.proposal || null; W.others = o.others || {}; }
   } catch (e) {}
   function save() {
-    try { localStorage.setItem(LS, JSON.stringify({ her: W.outfit, his: W.his || null, decor: W.decor || null, proposal: W.proposal || null })); } catch (e) {}
+    try { localStorage.setItem(LS, JSON.stringify({ her: W.outfit, his: W.his || null, decor: W.decor || null, proposal: W.proposal || null, others: W.others || {} })); } catch (e) {}
   }
   const KEEP = /(lingerie|soutien|culotte|string|boxer|slip|cale[çc]on|costume|chemise|pantalon|homme|bas|collant|nuit|pyjama|maillot|corset|gu[êe]pi[eè]re|jarretelle|latex|catsuit|combinaison|v[êe]tement|ensemble|nuisette|babydoll|bikini|dentelle|sexy|mobilier|meuble|d[ée]cor|canap[ée]|fauteuil|tabouret|balan[çc]oire|potence|cabine|machine|matelas|pouf|chaise\s+sm|si[èe]ge)/i;
+  function isAdult() {
+    try { if (App && App.Core && App.Core.sexoAllowed) return !!App.Core.sexoAllowed(); } catch (e) {}
+    return false;
+  }
+  const SURFACE = { 'vetements-femme': 1, 'rg-vetements': 1, 'gl-pull': 1 };
   async function load() {
+    const adult = isAdult();
+    if (W._adult !== adult) { W.cats = []; W._adult = adult; }
     if (W.cats.length) return W.cats;
-    const files = ['src/data/vetements-catalog.json', 'src/data/bdsm-catalog.json'];
+    const files = adult ? ['src/data/vetements-catalog.json', 'src/data/bdsm-catalog.json'] : ['src/data/vetements-catalog.json'];
     for (const f of files) {
       let c = null;
       try { c = await fetch(f).then(r => r.json()); } catch (e) { continue; }
       const cats = (c && c.categories) || {};
       for (const id of Object.keys(cats)) {
+        if (!adult && !SURFACE[id]) continue;
         const cat = cats[id] || {};
         const items = Array.isArray(cat.items) ? cat.items.filter(it => it && it.name) : [];
         if (!items.length) continue;
@@ -140,20 +153,23 @@ export function attachWardrobe(App) {
     if (/^#[0-9a-f]{3,8}$/i.test(c)) return '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:' + c + ';border:1px solid #52525b;vertical-align:-1px;"></span> ';
     return '<span style="font-size:11px;color:#a1a1aa;">' + esc(c) + '</span> ';
   }
-  function card(it, idx) {
+  function card(it, idx, num) {
     const sel = W.outfit && W.outfit.pid === it.pid;
     const nm = dec(it.name), br = dec(it.brand || ''), ds = dec(it.desc || '').replace(/\s+/g, ' ').trim().slice(0, 110);
-    return '<div class="wd-card" data-i="' + idx + '" style="background:#18181b;border:1px solid ' + (sel ? '#e11d48' : '#27272a') + ';border-radius:10px;overflow:hidden;cursor:pointer;">' +
-      (it.img ? '<img loading="lazy" src="' + esc(it.img) + '" alt="" data-full="' + esc(it.img) + '" style="width:100%;aspect-ratio:1/1;object-fit:contain;object-position:center;background:#000;display:block;cursor:zoom-in;" title="Voir en grand">' : '<div style="aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;color:#52525b;font-size:12px;background:#000;">sans photo</div>') +
+    const n = (typeof num === 'number' && num > 0) ? num : (idx + 1);
+    return '<div class="wd-card" data-i="' + idx + '" style="position:relative;background:#18181b;border:1px solid ' + (sel ? '#e11d48' : '#27272a') + ';border-radius:10px;overflow:hidden;cursor:pointer;height:max-content;">' +
+      '<span style="position:absolute;top:6px;left:6px;z-index:2;min-width:24px;height:24px;padding:0 7px;border-radius:12px;background:#e11d48;color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;">' + n + '</span>' +
+      (it.img ? '<div style="width:100%;height:220px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;"><img loading="lazy" referrerpolicy="no-referrer" src="' + esc(it.img) + '" alt="" data-full="' + esc(it.img) + '" style="max-width:100%;max-height:100%;object-fit:contain;object-position:center;background:#000;display:block;cursor:zoom-in;" title="Voir en grand"></div>' : '<div style="height:220px;display:flex;align-items:center;justify-content:center;color:#52525b;font-size:12px;background:#000;">sans photo</div>') +
       '<div style="padding:8px 10px;">' +
-      '<div style="font-size:12.5px;color:#e4e4e7;line-height:1.3;">' + esc(nm) + '</div>' +
+      '<div style="font-size:12.5px;color:#e4e4e7;line-height:1.3;"><b style="color:#fda4af;">n°' + n + '</b> ' + esc(nm) + '</div>' +
       '<div style="margin-top:4px;font-size:12px;color:#a1a1aa;">' + colorDot(it) + esc(br) + '</div>' +
       (ds ? '<div style="margin-top:4px;font-size:11.5px;color:#71717a;line-height:1.35;">' + esc(ds) + (dec(it.desc || '').length > 110 ? '…' : '') + '</div>' : '') +
       '</div></div>';
   }
   function collectAll() {
     const all = [];
-    for (const c of W.cats) for (const it of c.items) all.push({ cat: c.label, kind: c.kind || 'wear', it: it });
+    let g = 0;
+    for (const c of W.cats) for (const it of c.items) { g++; all.push({ cat: c.label, kind: c.kind || 'wear', it: it, g: g }); }
     return all;
   }
   function render() {
@@ -171,7 +187,7 @@ export function attachWardrobe(App) {
       });
     }
     all = all.slice(0, 120);
-    grid.innerHTML = all.map((x, i) => card(x.it, i)).join('') ||
+    grid.innerHTML = all.map((x, i) => card(x.it, i, x.g)).join('') ||
       '<div style="color:#71717a;font-size:13px;padding:20px;">Rien trouvé. Essaie « rouge », « dentelle », « corset »…</div>';
     grid.querySelectorAll('.wd-card').forEach(el => {
       el.onclick = () => {
@@ -183,7 +199,7 @@ export function attachWardrobe(App) {
       if (im) im.onclick = (e) => { e.stopPropagation(); try { window.open(im.dataset.full, '_blank'); } catch (err) {} };
     });
     const n = document.getElementById('wdCount');
-    if (n) n.textContent = all.length + ' modèle(s)';
+    if (n) n.textContent = all.length ? ('n°' + all[0].g + '–' + all[all.length - 1].g + ' — ' + all.length + ' modèle(s), dis le numéro pour choisir') : '0 modèle';
   }
   function selectDecor(it) {
     W.decor = { pid: it.pid, name: dec(it.name), brand: dec(it.brand || ''), shop: it.shop || '', colors: it.colors || [], img: it.img || '', url: it.url || '', desc: dec(it.desc || '').replace(/\s+/g, ' ').trim().slice(0, 200) };
@@ -230,7 +246,7 @@ export function attachWardrobe(App) {
     d.innerHTML =
       '<div style="background:#09090b;border:1px solid #27272a;border-radius:14px;max-width:860px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;">' +
       '<div style="padding:14px 16px;border-bottom:1px solid #27272a;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
-      '<b style="color:#e4e4e7;font-size:15px;">Catalogue lingerie</b>' +
+      '<b id="wdTitle" style="color:#e4e4e7;font-size:15px;">Catalogue</b>' +
       '<input id="wdSearch" placeholder="rouge, dentelle, corset…" style="flex:1;min-width:140px;background:#18181b;border:1px solid #3f3f46;color:#e4e4e7;border-radius:8px;padding:8px 10px;font-size:13px;">' +
       '<select id="wdCat" style="background:#18181b;border:1px solid #3f3f46;color:#e4e4e7;border-radius:8px;padding:8px;font-size:13px;max-width:220px;"></select>' +
       '<button id="wdClose" style="background:#27272a;border:none;color:#e4e4e7;border-radius:8px;padding:8px 12px;cursor:pointer;">✕</button>' +
@@ -251,6 +267,8 @@ export function attachWardrobe(App) {
       document.getElementById('wdNow').textContent = 'Elle est nue.';
     };
     load().then(() => {
+      const t = document.getElementById('wdTitle');
+      if (t) t.textContent = isAdult() ? 'Catalogue lingerie' : 'Catalogue vêtements';
       const sel = document.getElementById('wdCat');
       if (sel) sel.innerHTML = '<option value="">Toutes rayons</option>' + W.cats.map(c => '<option value="' + esc(c.label) + '">' + esc(c.label) + ' (' + c.items.length + ')</option>').join('');
       if (W.outfit && document.getElementById('wdNow')) document.getElementById('wdNow').innerHTML = 'Elle portera : <b style="color:#fda4af;">' + esc(W.outfit.name) + '</b>';
@@ -262,6 +280,7 @@ export function attachWardrobe(App) {
     open: openModal,
     current: () => W.outfit,
     his: () => W.his || null,
+    others: () => W.others || {},
     decor: () => W.decor || null,
     clear: () => { W.outfit = null; save(); },
     proposal: () => W.proposal || null,
@@ -285,8 +304,10 @@ export function attachWardrobe(App) {
     apply: (item, who) => {
       if (!item) return false;
       const o = { pid: item.pid, name: dec(item.name), brand: dec(item.brand || ''), shop: item.shop || '', colors: item.colors || [], img: item.img || '', url: item.url || '', desc: dec(item.desc || '').replace(/\s+/g, ' ').trim().slice(0, 200) };
-      if (who === 'him') W.his = o; else W.outfit = o;
-      if (who !== 'him') W.proposal = null;
+      if (who === 'him') W.his = o;
+      else if (typeof who === 'string' && who.indexOf('other:') === 0 && who.length > 6) { W.others = W.others || {}; W.others[who.slice(6)] = o; }
+      else W.outfit = o;
+      if (who !== 'him' && !(typeof who === 'string' && who.indexOf('other:') === 0)) W.proposal = null;
       save();
       return true;
     },
@@ -331,6 +352,19 @@ export function attachWardrobe(App) {
             (h.desc ? '. ' + h.desc : '') +
             '. This overrides any older clothing: never mention previous garments again. Every image prompt of him draws exactly this outfit on his body.';
         }
+        try {
+          const oo = W.others || {};
+          for (const nm of Object.keys(oo)) {
+            const x = oo[nm];
+            if (!x) continue;
+            if (s) s += '\n';
+            s += '[WARDROBE - ' + nm.toUpperCase() + ' WEARS NOW] ' + nm + ' wears exactly this real outfit and nothing else (unless the scene itself undresses them later): ' +
+              x.name + (x.brand ? ' (' + x.brand + ')' : '') +
+              (x.colors && x.colors.length ? ', colour ' + x.colors.join('/') : '') +
+              (x.desc ? '. ' + x.desc : '') +
+              '. Every image prompt of the scene draws exactly this outfit on ' + nm + '.';
+          }
+        } catch (e) {}
         if (W.decor) {
           const d = W.decor;
           if (s) s += '\n';
@@ -359,6 +393,17 @@ export function attachWardrobe(App) {
         if (!W.his) return '';
         const h = W.his;
         return '[WARDROBE - WHAT HE WEARS NOW] He wears exactly this real outfit: ' + h.name + (h.brand ? ' (' + h.brand + ')' : '') + (h.colors && h.colors.length ? ', colour ' + h.colors.join('/') : '') + (h.desc ? '. ' + h.desc : '');
+      } catch (e) { return ''; }
+    },
+    otherLine: () => {
+      try {
+        const oo = W.others || {};
+        const L = [];
+        for (const nm of Object.keys(oo)) {
+          const x = oo[nm];
+          if (x) L.push(nm + ' wears: ' + x.name + (x.brand ? ' (' + x.brand + ')' : ''));
+        }
+        return L.join(' | ');
       } catch (e) { return ''; }
     }
   };

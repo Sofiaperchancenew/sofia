@@ -344,6 +344,19 @@ export function attachMedias(App) {
     for (const r of res) out[r.k] = r.v;
     return out;
   }
+  async function searchVideosMedia(q, count) {
+    count = Math.min(Math.max(Number(count) || 6, 1), 12);
+    if (!(App.Videos && App.Videos.searchAll)) throw new Error("videos pas pret");
+    const all = await App.Videos.searchAll(q, Math.min(count, 6));
+    const out = [...(all.youtube || []), ...(all.peertube || []), ...(all.vimeo || [])];
+    return out.filter((v) => v && v.embed && (v.id || v.url)).slice(0, count).map((v, i) => ({ idx: i, v: v }));
+  }
+  function videoNode(w) {
+    try {
+      if (App.Videos && App.Videos.card) return App.Videos.card(w.v);
+    } catch (e) {}
+    return mediaNode({ kind: "cvideo", title: w.v.title, thumb: w.v.thumb, file: "", page: w.v.url });
+  }
   function kindLabel(m) {
     return m.kind === "radio" ? "Radio" : m.kind === "track" ? "Musique" : m.kind === "podcast" ? "Podcast" : m.kind === "cimage" ? "Image" : m.kind === "cvideo" ? "Vidéo" : m.kind === "caudio" ? "Audio" : m.kind === "archive" ? "Archive" : "Média";
   }
@@ -658,7 +671,7 @@ export function attachMedias(App) {
     const b = document.createElement("button");
     b.id = "smediaBtn";
     b.type = "button";
-    b.title = "Radios, musique, images, archives";
+    b.title = "Radios, musique, vidéos, images, archives";
     b.setAttribute("aria-label", "Chercher un média");
     b.innerHTML = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"></polygon></svg>';
     b.addEventListener("click", () => {
@@ -672,8 +685,8 @@ export function attachMedias(App) {
     const pop = document.createElement("div");
     pop.id = "smediaPop";
     pop.hidden = true;
-    pop.innerHTML = '<div id="smediaHead"><input id="smediaInput" placeholder="Radio, musique, image, archive…" autocomplete="off" spellcheck="false"><button id="smediaGo" type="button">Chercher</button></div>'
-      + '<div id="smediaTabs"><button class="svideo-tab on" data-tab="all" type="button">Tout</button><button class="svideo-tab" data-tab="radios" type="button">Radios</button><button class="svideo-tab" data-tab="music" type="button">Musique</button><button class="svideo-tab" data-tab="commons" type="button">Images</button><button class="svideo-tab" data-tab="archive" type="button">Archives</button></div>'
+    pop.innerHTML = '<div id="smediaHead"><input id="smediaInput" placeholder="Radio, musique, vidéo, image, archive…" autocomplete="off" spellcheck="false"><button id="smediaGo" type="button">Chercher</button></div>'
+      + '<div id="smediaTabs"><button class="svideo-tab on" data-tab="all" type="button">Tout</button><button class="svideo-tab" data-tab="radios" type="button">Radios</button><button class="svideo-tab" data-tab="music" type="button">Musique</button><button class="svideo-tab" data-tab="videos" type="button">Vidéos</button><button class="svideo-tab" data-tab="commons" type="button">Images</button><button class="svideo-tab" data-tab="archive" type="button">Archives</button></div>'
       + '<div id="smediaStatus">Astuce : « radio jazz », « radios belges », « radios du monde », « cherche une musique … ».</div>'
       + '<div id="smediaRes"></div>';
     document.body.appendChild(pop);
@@ -694,16 +707,33 @@ export function attachMedias(App) {
       res.innerHTML = "";
       try {
         let list = [];
+        let vids = null;
         if (tab === "radios") list = await searchRadios(q, 8);
         else if (tab === "music") list = await searchMusic(q, 8);
+        else if (tab === "videos") vids = await searchVideosMedia(q, 8);
         else if (tab === "commons") list = await searchCommons(q, "", 8);
         else if (tab === "archive") list = await searchArchive(q, "", 8);
         else {
           const all = await searchAllMedia(q, 2);
           list = [...all.radios.slice(0, 2), ...all.music.slice(0, 3), ...all.commons.slice(0, 3), ...all.archive.slice(0, 2)];
+          try { vids = (await searchVideosMedia(q, 2)).slice(0, 2); } catch (eV) { vids = null; }
         }
-        if (!list.length) { status.textContent = "Rien trouvé pour « " + q + " »."; return; }
-        status.textContent = list.length + " résultat(s).";
+        if (vids && vids.length) {
+          status.textContent = (list.length + vids.length) + " résultat(s).";
+          for (const w of vids) {
+            const wrap = document.createElement("div");
+            wrap.appendChild(videoNode(w));
+            const add = document.createElement("button");
+            add.type = "button";
+            add.className = "svideo-tab";
+            add.textContent = "Mettre dans le chat";
+            add.addEventListener("click", () => { try { if (App.Videos && App.Videos.post) App.Videos.post("", [w.v]); else postMedia("", [w.v]); } catch (eA) {} });
+            wrap.appendChild(add);
+            res.appendChild(wrap);
+          }
+        }
+        if (!list.length && !(vids && vids.length)) { status.textContent = "Rien trouvé pour « " + q + " »."; return; }
+        if (list.length) status.textContent = (list.length + (vids && vids.length ? vids.length : 0)) + " résultat(s).";
         for (const mm of list) {
           const wrap = document.createElement("div");
           wrap.appendChild(mediaNode(mm));
@@ -727,7 +757,7 @@ export function attachMedias(App) {
       pop.hidden = true;
     });
   }
-  App.Medias = { searchRadios: searchRadios, searchMusic: searchMusic, searchCommons: searchCommons, searchArchive: searchArchive, searchAll: searchAllMedia, answer: answerMedia, post: postMedia };
+  App.Medias = { searchRadios: searchRadios, searchMusic: searchMusic, searchVideos: searchVideosMedia, searchCommons: searchCommons, searchArchive: searchArchive, searchAll: searchAllMedia, answer: answerMedia, post: postMedia };
   try { globalThis.SofiaMedias = App.Medias; } catch (e) {}
   try {
     ensureMediaUi();
