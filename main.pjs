@@ -1,0 +1,10 @@
+$meta
+  title = Sofia Intelligence artificielle évoluée
+  description = Sofia, AI companion: chat in 364 languages (UI in 5) with memory, roleplay, homework and career help. Live stocks, French law, chess learning until 2250 Elo. When she doesn't know, she searches the web and learns by herself.
+  tags = assistant, francais, jeu de role, memoire, echecs, chess, english
+  image = https://user.uploads.dev/file/295a0bc99f4bfba45b5abdb97c7edffa.png
+
+generateText = {import:ai-text-plugin}
+generateImage = {import:text-to-image-plugin}
+superFetch = {import:super-fetch-plugin}
+commentsPlugin = {import:comments-plugin}
