@@ -107,6 +107,48 @@ export function attachWardrobe(App) {
   function save() {
     try { localStorage.setItem(LS, JSON.stringify({ her: W.outfit, his: W.his || null, decor: W.decor || null, proposal: W.proposal || null, others: W.others || {} })); } catch (e) {}
   }
+  // Ronde 635 : un choix vestiaire collait au localStorage SANS discussion ni
+  // personnage — une tenue d'essai (jean + pull...) habillait ensuite TOUTES
+  // les photos, y compris Nina en dentelle noire de sa fiche. Chaque choix est
+  // tamponne (discussion + heroine) et ignore des qu'il vient d'ailleurs.
+  function curSid() { try { return (App && App.State && App.State.currentSessionId) || ''; } catch (e) { return ''; } }
+  function normNm(s) { try { return String(s || '').toLowerCase().normalize('NFD').replace(/[^a-z]+/g, ' ').trim(); } catch (e) { return ''; } }
+  function curHeroine() {
+    try {
+      const Sid = curSid();
+      const ss = (App && App.State && Array.isArray(App.State.sessions)) ? App.State.sessions.find(function (x) { return x && x.id === Sid; }) : null;
+      if (App && App.Core && App.Core.soloLockedName) { const n = App.Core.soloLockedName(ss || undefined); if (n) return String(n); }
+      if (App && App.Scene && App.Scene.state) { const sc = App.Scene.state(ss || undefined); if (sc && Array.isArray(sc.cast) && sc.cast[0]) return String(sc.cast[0]); }
+    } catch (e) {}
+    return '';
+  }
+  function stamp(o, who) {
+    try {
+      o._sid = curSid();
+      o._at = Date.now();
+      if (typeof who === 'string' && who.indexOf('other:') === 0 && who.length > 6) o._for = who.slice(6);
+      else if (who === 'her') o._for = curHeroine();
+    } catch (e) {}
+    return o;
+  }
+  function fresh(o, needName) {
+    if (!o) return false;
+    try {
+      const cs = curSid();
+      if (!o._sid) { if (cs) return false; }
+      else if (cs && o._sid !== cs) return false;
+      if (needName && o._for) {
+        const h = curHeroine();
+        if (h && normNm(o._for) !== normNm(h)) return false;
+      }
+    } catch (e) {}
+    return true;
+  }
+  function liveOutfit() { try { return fresh(W.outfit, true) ? W.outfit : null; } catch (e) { return null; } }
+  function liveHis() { try { return fresh(W.his, false) ? (W.his || null) : null; } catch (e) { return null; } }
+  function liveOthers() { try { const r = {}; const oo = W.others || {}; for (const k of Object.keys(oo)) if (fresh(oo[k], true)) r[k] = oo[k]; return r; } catch (e) { return {}; } }
+  function liveDecor() { try { return fresh(W.decor, false) ? (W.decor || null) : null; } catch (e) { return null; } }
+  function liveProposal() { try { return fresh(W.proposal, true) ? (W.proposal || null) : null; } catch (e) { return null; } }
   const KEEP = /(lingerie|soutien|culotte|string|boxer|slip|cale[çc]on|costume|chemise|pantalon|homme|bas|collant|nuit|pyjama|maillot|corset|gu[êe]pi[eè]re|jarretelle|latex|catsuit|combinaison|v[êe]tement|ensemble|nuisette|babydoll|bikini|dentelle|sexy|mobilier|meuble|d[ée]cor|canap[ée]|fauteuil|tabouret|balan[çc]oire|potence|cabine|machine|matelas|pouf|chaise\s+sm|si[èe]ge)/i;
   function isAdult() {
     try { if (App && App.Core && App.Core.sexoAllowed) return !!App.Core.sexoAllowed(); } catch (e) {}
@@ -118,6 +160,7 @@ export function attachWardrobe(App) {
     if (W._adult !== adult) { W.cats = []; W._adult = adult; }
     if (W.cats.length) return W.cats;
     const files = adult ? ['src/data/vetements-catalog.json', 'src/data/bdsm-catalog.json'] : ['src/data/vetements-catalog.json'];
+    const extra = [];
     for (const f of files) {
       let c = null;
       try { c = await fetch(f).then(r => r.json()); } catch (e) { continue; }
@@ -128,10 +171,19 @@ export function attachWardrobe(App) {
         const items = Array.isArray(cat.items) ? cat.items.filter(it => it && it.name) : [];
         if (!items.length) continue;
         const label = cat.label || id;
+        // Ronde 634 : en mode adulte, les rayons BDSM (cages, camisoles, baillons,
+        // plugs, bondage...) sont selectionnables eux aussi — sinon la camisole de
+        // sa scene n'existe pour personne. Ils passent EN SECOND (numeros 1..N
+        // existants inchanges, les nouveaux prennent la suite).
+        if (adult && !KEEP.test(label + ' ' + id)) { extra.push({ f: f, id: id, label: label, cat: cat, items: items }); continue; }
         if (!KEEP.test(label + ' ' + id)) continue;
         const kind = /(mobilier|meuble|d[ée]cor|machine|canap[ée]|fauteuil|cabine|potence)/i.test(label + ' ' + id) ? 'decor' : 'wear';
         W.cats.push({ id: f + '#' + id, label: label, shop: cat.shop || '', kind: kind, items: items });
       }
+    }
+    for (const e of extra) {
+      const kind = /(mobilier|meuble|d[ée]cor|machine|canap[ée]|fauteuil|cabine|potence)/i.test(e.label + ' ' + e.id) ? 'decor' : 'wear';
+      W.cats.push({ id: e.f + '#' + e.id, label: e.label, shop: e.cat.shop || '', kind: kind, items: e.items });
     }
     return W.cats;
   }
@@ -154,7 +206,8 @@ export function attachWardrobe(App) {
     return '<span style="font-size:11px;color:#a1a1aa;">' + esc(c) + '</span> ';
   }
   function card(it, idx, num) {
-    const sel = W.outfit && W.outfit.pid === it.pid;
+    const lo = liveOutfit();
+    const sel = lo && lo.pid === it.pid;
     const nm = dec(it.name), br = dec(it.brand || ''), ds = dec(it.desc || '').replace(/\s+/g, ' ').trim().slice(0, 110);
     const n = (typeof num === 'number' && num > 0) ? num : (idx + 1);
     return '<div class="wd-card" data-i="' + idx + '" style="position:relative;background:#18181b;border:1px solid ' + (sel ? '#e11d48' : '#27272a') + ';border-radius:10px;overflow:hidden;cursor:pointer;height:max-content;">' +
@@ -231,12 +284,27 @@ export function attachWardrobe(App) {
       if (t) t('Tenue choisie : ' + W.outfit.name, 'success');
     } catch (e) {}
   }
+  function syncAdultNote(host) {
+    try {
+      let an = document.getElementById('wdAdultNote');
+      if (isAdult()) { if (an) an.remove(); return; }
+      if (!an) {
+        an = document.createElement('div');
+        an.id = 'wdAdultNote';
+        an.style.cssText = 'padding:8px 16px;font-size:12px;color:#fbbf24;border-bottom:1px solid #27272a;';
+        an.textContent = 'Rayons adultes masqués (BDSM, machines…) : déclare une personne majeure dans les réglages et coche « contenu adulte » pour les voir.';
+        const grid = (host && host.querySelector) ? host.querySelector('#wdGrid') : document.getElementById('wdGrid');
+        if (grid && grid.parentNode) grid.parentNode.insertBefore(an, grid);
+      }
+    } catch (e) {}
+  }
   function openModal() {
     if (document.getElementById('wdModal')) {
       const m = document.getElementById('wdModal');
       m.hidden = false;
       refreshBar();
       render();
+      syncAdultNote(m);
       return;
     }
     const d = document.createElement('div');
@@ -259,6 +327,7 @@ export function attachWardrobe(App) {
       '<span style="font-size:12px;color:#52525b;align-self:center;">La tenue choisie habille la scène et les images suivantes.</span>' +
       '</div></div>';
     document.body.appendChild(d);
+    syncAdultNote(d);
     document.getElementById('wdClose').onclick = () => { d.hidden = true; };
     document.getElementById('wdSearch').oninput = render;
     document.getElementById('wdCat').onchange = render;
@@ -271,22 +340,23 @@ export function attachWardrobe(App) {
       if (t) t.textContent = isAdult() ? 'Catalogue lingerie' : 'Catalogue vêtements';
       const sel = document.getElementById('wdCat');
       if (sel) sel.innerHTML = '<option value="">Toutes rayons</option>' + W.cats.map(c => '<option value="' + esc(c.label) + '">' + esc(c.label) + ' (' + c.items.length + ')</option>').join('');
-      if (W.outfit && document.getElementById('wdNow')) document.getElementById('wdNow').innerHTML = 'Elle portera : <b style="color:#fda4af;">' + esc(W.outfit.name) + '</b>';
+      if (liveOutfit() && document.getElementById('wdNow')) document.getElementById('wdNow').innerHTML = 'Elle portera : <b style="color:#fda4af;">' + esc(liveOutfit().name) + '</b>';
       render();
     });
     render();
   }
   App.Wardrobe = {
     open: openModal,
-    current: () => W.outfit,
-    his: () => W.his || null,
-    others: () => W.others || {},
-    decor: () => W.decor || null,
+    current: () => liveOutfit(),
+    his: () => liveHis(),
+    others: () => liveOthers(),
+    decor: () => liveDecor(),
     clear: () => { W.outfit = null; save(); },
-    proposal: () => W.proposal || null,
+    proposal: () => liveProposal(),
     propose: (item) => {
       if (!item) return false;
       W.proposal = { pid: item.pid, name: dec(item.name), brand: dec(item.brand || ''), shop: item.shop || '', colors: item.colors || [], img: item.img || '', url: item.url || '', desc: dec(item.desc || '').replace(/\s+/g, ' ').trim().slice(0, 200) };
+      stamp(W.proposal, 'her');
       save();
       return true;
     },
@@ -298,12 +368,14 @@ export function attachWardrobe(App) {
     applyDecor: (item) => {
       if (!item) return false;
       W.decor = { pid: item.pid, name: dec(item.name), brand: dec(item.brand || ''), shop: item.shop || '', colors: item.colors || [], img: item.img || '', url: item.url || '', desc: dec(item.desc || '').replace(/\s+/g, ' ').trim().slice(0, 200) };
+      stamp(W.decor, 'decor');
       save();
       return true;
     },
     apply: (item, who) => {
       if (!item) return false;
       const o = { pid: item.pid, name: dec(item.name), brand: dec(item.brand || ''), shop: item.shop || '', colors: item.colors || [], img: item.img || '', url: item.url || '', desc: dec(item.desc || '').replace(/\s+/g, ' ').trim().slice(0, 200) };
+      stamp(o, who);
       if (who === 'him') W.his = o;
       else if (typeof who === 'string' && who.indexOf('other:') === 0 && who.length > 6) { W.others = W.others || {}; W.others[who.slice(6)] = o; }
       else W.outfit = o;
@@ -331,11 +403,21 @@ export function attachWardrobe(App) {
         return out;
       } catch (e) { return []; }
     },
+    byNumber: (n) => {
+      try {
+        n = parseInt(n, 10);
+        if (!(n >= 1)) return null;
+        let g = 0;
+        for (const c of W.cats) for (const it of c.items) { g++; if (g === n) return { kind: c.kind || 'wear', item: it }; }
+        return null;
+      } catch (e) { return null; }
+    },
     promptLine: () => {
       try {
         let s = '';
-        if (W.outfit) {
-          const o = W.outfit;
+        const oL = liveOutfit();
+        if (oL) {
+          const o = oL;
           s += '[WARDROBE - WHAT SHE WEARS NOW] She wears exactly this real outfit and nothing else (unless the scene itself undresses her later): ' +
             o.name + (o.brand ? ' (' + o.brand + ')' : '') +
             (o.colors && o.colors.length ? ', colour ' + o.colors.join('/') : '') +
@@ -343,8 +425,8 @@ export function attachWardrobe(App) {
             (o.price ? ' [listed at ' + o.price + (o.shop ? ' on ' + o.shop : '') + ']' : '') +
             '. Name it naturally when relevant; every image prompt of her draws exactly this outfit on her body. Quote its shop and price only if he asks where to buy it - never advertise unprompted.';
         }
-        if (W.his) {
-          const h = W.his;
+        if (liveHis()) {
+          const h = liveHis();
           if (s) s += '\n';
           s += '[WARDROBE - WHAT HE WEARS NOW] He wears exactly this real outfit and nothing else (unless the scene itself undresses him later): ' +
             h.name + (h.brand ? ' (' + h.brand + ')' : '') +
@@ -353,7 +435,7 @@ export function attachWardrobe(App) {
             '. This overrides any older clothing: never mention previous garments again. Every image prompt of him draws exactly this outfit on his body.';
         }
         try {
-          const oo = W.others || {};
+          const oo = liveOthers();
           for (const nm of Object.keys(oo)) {
             const x = oo[nm];
             if (!x) continue;
@@ -365,8 +447,8 @@ export function attachWardrobe(App) {
               '. Every image prompt of the scene draws exactly this outfit on ' + nm + '.';
           }
         } catch (e) {}
-        if (W.decor) {
-          const d = W.decor;
+        if (liveDecor()) {
+          const d = liveDecor();
           if (s) s += '\n';
           s += '[SCENE DECOR - WHAT THE ROOM CONTAINS] The room of this scene contains exactly this real furniture piece, placed where it belongs and used as staged: ' +
             d.name + (d.brand ? ' (' + d.brand + ')' : '') +
@@ -375,8 +457,8 @@ export function attachWardrobe(App) {
             '. It stays there for the whole scene unless he moves it. Every image prompt of the room draws exactly this piece in it.';
         }
         try {
-          const p = W.proposal;
-          if (p && (!W.outfit || p.pid !== W.outfit.pid)) {
+          const p = liveProposal();
+          if (p && (!oL || p.pid !== oL.pid)) {
             if (s) s += '\n';
             s += '[WARDROBE PROPOSAL - NOT WORN YET] He proposed this piece for her but she has NOT accepted it yet: ' +
               p.name + (p.brand ? ' (' + p.brand + ')' : '') +
@@ -390,14 +472,14 @@ export function attachWardrobe(App) {
     },
     hisLine: () => {
       try {
-        if (!W.his) return '';
-        const h = W.his;
+        const h = liveHis();
+        if (!h) return '';
         return '[WARDROBE - WHAT HE WEARS NOW] He wears exactly this real outfit: ' + h.name + (h.brand ? ' (' + h.brand + ')' : '') + (h.colors && h.colors.length ? ', colour ' + h.colors.join('/') : '') + (h.desc ? '. ' + h.desc : '');
       } catch (e) { return ''; }
     },
     otherLine: () => {
       try {
-        const oo = W.others || {};
+        const oo = liveOthers();
         const L = [];
         for (const nm of Object.keys(oo)) {
           const x = oo[nm];

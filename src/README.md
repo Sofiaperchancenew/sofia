@@ -2724,3 +2724,257 @@ Demandes : « un médecin utilise le vidal pour prescrire des médicaments » pu
 Constat mesuré (8 générations) : le modèle ne choisit jamais de noms de médicaments — il répond par sa présentation ou un texte générique. Donc la proposition de traitement est construite par le code, en déterministe, depuis la fiche Vidal lue en direct : `App.MedLookup.prescriptionCard` (nom exact, substance, indications, posologie recopiée de la fiche, contre-indications, précautions, URL), 0 appel au modèle. Puis l'intelligence par-dessus, elle aussi dans le code : `App.MedLookup.rxClinic(f, text)` lit le message du patient (âge, grossesse/allaitement, enfant sans âge ni poids, allergies, asthme, diabète, cœur, foie, rein, anticoagulant, traitement en cours, fièvre/toux/douleur, durée), croise avec la fiche (extrait grossesse/allaitement, interactions, asthme absent de la fiche), lève les alertes (urgences/15, fièvre ≥ 3 j, toux ≥ 8 j), pose les questions manquantes d'ajustement et donne la règle de recontrôle. Testé en direct : fiche réelle Humex Toux Sèche (oxomémazine, 10 ml 4×/j) + 5 cas cliniques (enceinte, enfant 9 j → âge/poids + consulte, kardegic + fièvre 4 j, sang + douleur thoracique → 15). Session de test supprimée.
 
 Fichiers : index.html (rxClinic, prescriptionCard(res, text), appel avec text), src/build.json (v464).
+
+### 237 - Push GitHub du soir : dépôt rattrapé (v377 → v466) et README restauré
+
+Vérifié en direct via l'API GitHub + jsDelivr : ni `src/secu/secu-fiche.json` (§236) ni `src/medicaments/vidal-maladies.json` (§235) n'étaient sur le dépôt, et `src/build.json` y était resté en v377. Trouvaille : le `src/README.md` du dépôt était écrasé — il contenait le doc catalogue vêtements (octet à octet identique à `src/data/README.md`, reste de l'envoi à plat de la ronde 276).
+Poussé en un commit web (38 fichiers, arborescence conservée) : le vrai README (restauration), build.json v466, secu-fiche + vidal-maladies, `src/echecs/` (17 : manifest, remote, 5 morceaux ECO, Codes_ECO.pdf, ingest, twic-runner, LICENSE, LISEZ-MOI, QUEUE-FICS, chess-json ×4), `src/data/` (3 catalogues), 4 modules neufs (autodiag, chess-live, imgstyles ×2), COPIE-INTEGRALE.md, 6 modules modifiés (professions, i18n, help, chess, chess-openings, sheets + medias, videos, wardrobe par sécurité). Preuve d'arrivée : `raw.githubusercontent.com/.../src/build.json` → v466, secu-fiche servie par jsDelivr (le cache jsDelivr d'un fichier modifié met quelques minutes — purger si besoin). Inchangés des deux côtés, non poussés : KNOWLEDGE.md, remote.json, droit/remote.json, README-full.md.gz.
+
+Fichiers : src/README.md seul (push + doc).
+
+### 238 - « Quel est ton niveau ? » aux échecs : réponse déterministe (ronde 294)
+
+Plainte (vive) : « tu as combien de parties en base... quel est ton niveau ? » — la 1re recevait sa réponse déterministe (ronde 293), la 2e partait au modèle qui dérivait en auto-présentation (« Je suis Sofia. Sagesse Origine Franqueza... »), puis MemoryGuard jetait le tour.
+Cause : « quel est ton niveau ? » ne matchait aucune porte (ni SelfKnow, ni bloc).
+Neuf : branche niveau dans `App.Core.selfCountReply` (porte SelfKnow étendue : niveau/elo/fide/classement/fort/joue/bats + contexte échecs, avec `\b` pour ne pas prendre « vélo ») + `App.Core.selfLevelReply(c)` + suivi court « et ton niveau ? » (≤ 8 mots, fenêtre 10 min après une réponse comptes-échecs, pas de mot d'un autre domaine). Réponse, prise dans l'app elle-même : moteur maison ≈ 1900 Elo (label des réglages), Sofia MAX (Stockfish, option) = niveau mondial, 4 204 408 parties en base pour réviser, pas pour calculer.
+Vérifié en direct : portes (niveau-échecs vrai ×4, vélo/français/niveau-nu faux), comptes 4204408/15, envoi réel des deux questions → les deux réponses déterministes, zéro appel modèle, session de test nettoyée (4 messages retirés, magasin vérifié : 4 messages restants, ceux du propriétaire).
+
+Fichiers : index.html (RX, selfLevelReply, branche niveau, suivi court), src/build.json (v467).
+
+### 239 - Scènes 18+ : les 7 retouches du téléphone mergées (ronde 295)
+
+Demande : « tu as corrigé des appels d'image dans une scène et plein d'autres choses, regarde si c'est pertinent ».
+Méthode : vrai diff (jsdiff, pas ligne-à-ligne qui hallucinait 111 blocs) entre local et fork `mnzatl1wue` → 8 retouches réelles, toutes dans le jeu de scène. Verdict : 7 mergées, 1 retravaillée.
+Mergé : CAST_RE + nombres tolèrent les mots intercalés (« trois belles femmes ») ; RE staging + vocabulaire explicite ; garde scène sur `wardrobeAsk` et sur `wardrobeMissing` (chemin image/catalogue : en scène, silence sauf demande explicite « catalogue/photo ») ; `wdClothing` sans montre|liste|choix (« montre-moi... » ne déclenche plus le catalogue, « montre-moi le catalogue » marche toujours) ; FINAL RULE étendue (obéir de suite, seul le dernier message ouvre, pas d'auto-présentation, pas de vêtements fantômes).
+Retravaillé (pas mergé tel quel) : le téléphone coupait tout le balayage historique de `stagingQuotes` (tue la pollution par le brief, mais aussi les « continue »/« oui ») → à la place, le scan saute uniquement le brief fondateur (`sc.briefIdx` posé par `tagFounded`, ronde 270).
+Vérifié en direct : CAST (avec/sans adjectifs), staging explicite→bloc / neutre→rien, « montre-moi tes seins »→rien, « montre-moi le catalogue »→bloc. Le saut du brief est prouvé par appariement exact avec l'écriture de `tagFounded` (l'état de scène ne se simule pas hors vraie scène).
+
+Fichiers : index.html (7 merges + alternative briefIdx), src/build.json (v468).
+
+### 240 - Le donjon qui revenait : plateau propre à chaque nouveau brief (ronde 296)
+
+Plainte : brief dressing (nouvelle femme, lingerie, photos) → réponse donjon/Vera (fouet, rétracteur, pince-nez) + image intempestive, sur une session neuve de 3 messages.
+Cause mesurée (fiches lues en direct) : `moi.lieu=donjon` (+objets, entrave) et `vera.lieu=donjon`, persistés en IndexedDB depuis l'ancienne scène ; `promptBlock` les réinjecte (le format « Moi:/Vera: [Lieu: donjon...] » de la réponse le prouve) ; `dropAbsentSheets` gardait les fiches « sur place » ; `STAY HER` disait « her donjon » en dur sur toute scène solo. L'image suivait (détecteur : donjon/fouet), conséquence et non cause. Mémoire centrale vide, historique innocent : rien à purger dans le navigateur.
+Neuf : `App.Core.resetSceneResidue` (lieu, objets, entrave, acte, orifices effacés sur moi + toutes les fiches sauf sofia ; identité gardée ; cast mémorisé vidé ; miroir resnapshoté), appelé auto après `tagFounded` (le brief frais réécrit ensuite) ; bouton Réglages « Nettoyer la scène » (`purgeSceneButton`, même reset + toast) ; `dropAbsentSheets` strict au tour du brief (que les fiches nommées dans le brief) ; « her donjon » → « her place » (×2). Doublon `véra` laissé intact (pas de devinette destructive).
+Vérifié en direct : boot propre ; bouton cliqué sur les vraies fiches (4 nettoyées, identités gardées) ; bloc fiches du brief dressing : plus de donjon, plus de Vera, moi présent et propre.
+
+Fichiers : index.html (resetSceneResidue, purgeSceneButton, hook founding, strict drop, 2× her place, bouton), src/build.json (v469).
+
+### 241 - La photo signée « Vera 40 ans » : les fiches fantômes nourrissaient le dessinateur (ronde 297)
+
+Plainte : même brief dressing, la photo générée est légendée « Vera, a 40-year-old woman » et la réponse sort du rôle (« quel rôle dois-je endosser ? »).
+Cause mesurée (pipeline rejoué en direct, pas deviné) : le prompt TEXTE était innocent (`promptBlock` + `dropAbsentSheets` → seule FICHE Moi, zéro Vera) ; le coupable était `App.Core.imageFicheBrief`, qui listait jusqu'à 6 fiches brutes d'IndexedDB — vera/nadia/véra de l'ancien donjon, remarqué « en scène » — et les servait au rédacteur de prompts (« Exact looks from the character sheets »), lequel écrivait « of Vera, a 40-year-old woman ». La ronde 296 ne couvrait que le prompt texte.
+Neuf : `imageFicheBrief(sceneText, userText)` ne garde que les fiches ancrées à CETTE scène (casts, prénoms parlés des 15 derniers messages, brief, texte dessiné, demande ; comparaison insensible casse/accents, mot entier) + repli scène active « en scène + sur place » ; appel passé avec `(rawScene, user)`. Fiches fantômes du trio : champ d'état nettoyé en direct (identités gardées, rien supprimé).
+Vérifié en direct : brief dressing → fiche-image = Moi seul, zéro Vera/Nadia ; cas légitime (« Vera: ...robe pull rouge ») → Vera gardée. Console propre.
+
+Fichiers : index.html (imageFicheBrief ancré + appel), src/build.json (v470).
+
+### 242 - ChessTempo : 2963 variantes nommées position→nom pour les échecs (ronde 298)
+
+Demande : « que penses-tu de... » puis « prend ce qu'il faut pour Sofia et ses parties d'échecs ».
+Évalué : la base 5M+ parties n'est pas téléchargeable (appli web, déjà noté) ; en revanche la page des ouvertures incruste `openingNames` (id, nom anglais, FEN, nb coups) → pris : `src/echecs/chesstempo-openings.json` (2963 entrées, 421 Ko, usage personnel). Pas de devinette d'URL profondes (motif de liens non trouvé dans le HTML ni le bundle, non inventé).
+Neuf : `App.CtOpenings` (recherche par nom insensible casse/accents, `nameForFen` exact board+trait + repli pièce seule, bloc avec crédit et lien index) ; repli quand ECO échoue (recherche + bloc, `_pending` nettoyé si ECO gagne) ; persona échecs : répertoire cité.
+Vérifié en direct : 2963 chargés, « Sicilian Dragon »→6 variantes, « Brooklyn »→5, phrase courante→échec propre, FEN→« Alekhine Defense, Balogh Variation », bloc construit. Console propre.
+
+Fichiers : index.html (CtOpenings + 2 hooks + persona), src/echecs/chesstempo-openings.json, src/echecs/LISEZ-MOI.md, src/build.json (v471).
+
+### 243 - Photos d'elle : une par photo décrite, elle seule, jamais de prénom inventé (ronde 299)
+
+Plaintes (scène dressing, webcam) : une seule image auto pour deux photos décrites (la 2e n'arrivait jamais) ; lui dans la photo alors qu'ils sont à distance ; prompt signé « Sophie » (prénom inventé, pourtant banni) ; photo pas fidèle au texte.
+Causes mesurées : `planReplyImage` = un seul prompt sur tout le texte ; `_isRemote` ignorait « ordi », « phtos », « j'entends sa voix », « son dressing » (scène non vue comme webcam → pas de garde ELLE-SEULE) ; `sanitizeImagePrompt` ne remplaçait « Sofia » que si un prénom existait et ignorait Sophie/Sophia/Sofie/Sonia.
+Neuf : `planReplyImage` multi-photos (découpe Ding/notification/photo, 1 prompt écrit par morceau, max 3, repli mono si <2) ; `_isRemote` élargi (ordi, devant mon écran/ordi, voix, envoie photos/phtos, dressing) ; consigne marqueur (un [SOFIA_IMAGE] par photo envoyée, chacune son instant) + consigne rédacteur (« the woman » si aucun prénom, jamais d'inventé) ; `sanitizeImagePrompt` : prénoms bannis→prénom verrouillé ou « the woman », et garde webcam sur indices (avec/sans homme détecté : still ou clause ELLE-SEULE).
+Vérifié en direct : brief dressing→remote vrai (donjon/météo restent faux) ; prompt « Sophie... avec lui »→still elle-seule, zéro prénom ; découpe 2 photos→2 prompts fidèles (dentelle compressée / main sous le tissu). Console propre.
+
+Fichiers : index.html (planReplyImage, _isRemote, 2 consignes, sanitize), src/build.json (v472).
+
+### 244 - Lumbras Gigabase : 10360 lignes coups→code ECO + PGN MEGA-bloqués (ronde 300)
+
+Demande : lien lumbrasgigabase.com (dans la foulée ChessTempo).
+Évalué : base SCID/PGN gratuite et soignée (dédupliquée, identités verrouillées, CC BY-NC-SA 4.0) mais fichiers sur MEGA sans clés exposées → parties non aspirables d'ici (workflow : l'utilisateur dépose le 7z en pièce jointe). En revanche la page ECO-codes est une table HTML simple : prise → `src/echecs/lumbras-eco.json` (10360 lignes, 500 codes A00–E99, noms anglais + séquences, 1,23 Mo).
+Neuf : `App.LumbrasEco` (tokens SAN normalisés, S→N allemand, Roque 0-0/O-O, match plus-long-préfixe, repli après ECO puis ChessTempo, bloc avec crédit+lien) ; persona échecs : table citée.
+Vérifié en direct : 10360 chargées, « 1.e4 e6 »→C00 French (+variantes), « 1.f3 »→A00b Barnes, « 1.d4 Nf6 2.c4 e6 3.a3 »→E00b Anti-Nimzo, météo→non-déclenchement, bloc construit. Console propre.
+
+Fichiers : index.html (LumbrasEco + 2 hooks + persona), src/echecs/lumbras-eco.json, src/echecs/LISEZ-MOI.md, src/build.json (v473).
+
+### 245 - GameKnot : livre live 4M parties sur FEN, sans clé (ronde 301)
+
+Demande : lien gameknot (même foulée).
+Évalué : pas de dump, mais l'explorateur répond en clair et sans compte : `GET chess-games-database.pl?rv=1&h=0|1&nid=0&f=FEN` → `cgd.1.0` + coups (UCI, SAN, elo moy, blancs/nulles/noirs), prouvé avec la position initiale (e4 2,4M, e5/c5 détaillés).
+Neuf : `App.GkBook` (FEN extrait du message, double pool correspondance + monde OTB via superFetch, bloc % + lien explorateur) branché après ECO/ChessTempo/Lumbras ; persona échecs : livre cité.
+Vérifié en direct : après 1.e4, e5 913 130 (47/12/41, elo 1807), c5 811 662, e6 239 322 ; pool monde OK ; météo→non-déclenchement ; bloc construit. Console propre.
+
+Fichiers : index.html (GkBook + 2 hooks + persona), src/echecs/LISEZ-MOI.md, src/build.json (v474).
+
+### 246 - SCID : livre Polyglot Performance hors-ligne 92 954 positions (ronde 302)
+
+Demande : « et le zip ? » (scid-v5.2.202603_windows_x64.zip en pièce jointe).
+Évalué : le zip = logiciel SCID Windows (inutilisable navigateur), mais 4 livres Polyglot + scid.eco dedans. Format rétro-ingénieré et prouvé (Zobrist exacte : table 781, blancs=impairs, a1=0, roques 768-771, ep 772+col, trait 780 ; clé initiale 0x463B96181691FC9C ; chaîne e4→e5/c5→Nf3→Nc6 vérifiée). Livres testés un par un : Elo2400 (racine e3/a3/c3/d3, anti-théorie — écarté), gm2600 (racine c3), varied (poids plats).
+Neuf : `src/echecs/scid-performance.bin` (copie intégrale, 1 487 264 o) + `App.ScidBook` (FEN→clé, dichotomie, pondérés, `pick()` pondéré-aléatoire pour le moteur plus tard) branché après GkBook ; persona échecs : livre cité.
+Vérifié en direct : racine e2e4/d2d4/c2c4, après e4 e7e5/c7c5, `pick()` rend un UCI, bloc construit, sans-FEN→false. Console propre.
+
+Fichiers : index.html (ScidBook + table 781 + 2 hooks + persona), src/echecs/scid-performance.bin, src/echecs/LISEZ-MOI.md, src/build.json (v475).
+
+### 247 - ChessDatasetGenerator : table FEN→ECO+nom 7680 lignes (ronde 303)
+
+Demandes : lien chessify.me/analysis (même conclusion : shell React sur compte, rien à prendre) + lien GitHub Chessmont/ChessDatasetGenerator (pipeline MIT + dataset Kaggle 21,5M sur compte).
+Pris : `src/bonus/openings.tsv` du repo (7680 lignes eco/nom/PGN/FEN, copie intégrale → `src/echecs/cdg-openings.json`) + `App.CdgOpenings` (match FEN sur plateau+trait+roques, insensible ep/compteurs) branché après ScidBook ; persona échecs : table citée. Recoupe 80 % des FEN ChessTempo (2365/2963).
+Vérifié en direct : 1.e4→B00 King's Pawn Game, 1...c5→B20 Sicilian Defense. Console propre.
+
+Fichiers : index.html (CdgOpenings + 2 hooks + persona), src/echecs/cdg-openings.json, src/echecs/LISEZ-MOI.md, src/build.json (v476).
+
+### 248 - Lichess : explorateur mort (401), cloud-eval câblée (ronde 304)
+
+Demande : « requêtes à distance sur quoi ? » → oui pour l'explorateur Lichess maîtres.
+Évalué : `explorer.lichess.ovh/masters` et `/lichess` = 401 Cloudflare partout (page + proxy) — inexploitable. En revanche `lichess.org/api/cloud-eval?fen=&multiPv=3` = 200 direct, Stockfish prof 60.
+Neuf : `App.LichessEval` (FEN→3 variantes UCI + scores côté blanc + suites PV) branchée après CdgOpenings ; persona échecs : éval citée.
+Vérifié en direct : après 1.e4, e5 −0.22, c6 −0.27, c5 −0.32 (prof 60, 119 133 nœuds), bloc construit. Console propre.
+
+Fichiers : index.html (LichessEval + 2 hooks + persona), src/echecs/LISEZ-MOI.md, src/build.json (v477).
+
+### 249 - Webcam : poitrine 95G stable, lui jamais à l'image, poses libres, fini le pitch en fond
+
+Demandes : 95G lourds tombants stables sur toutes les photos ; lui jamais dans les photos webcam (elle seule) ; lingerie stable sauf changement annoncé à voix haute ; suite sans re-présentation ; une image par marqueur ; un seul point de vue par photo ; typo « ownement » → « fièrement » ; elle prend toutes les poses qu'elle veut ; plus de discours de présentation en arrière-fond pendant qu'elle réfléchit.
+
+Neuf dans index.html : breast-lock 95G/bonnet G (+ négatif flat chest/inconsistent size) ; verrou webcam (him/his→her, Sophie→nom ancré, clause HER ALONE) ; lingerie-lock + SAY (elle dit ce qu'elle change) + FICHE_STATE vetements à jour + imageFicheBrief « outfit NOW » si changement annoncé ; guards de continuation ; planReplyImage multi-photos (seconde photo) ; 1 point de vue/photo (fesses=de dos, seins=de face ; négatif fused faces/face+fesses) + ownRepair/repairOwnTypo avant images ; [HER POSES - HERS TO CHOOSE] (bloc scène + consigne webcam : debout/assise/à genoux/allongée/penchée/retournée, jamais figée) ; `pitchHideLive` + `stripPitchLive` — dès que la conversation est engagée, le pitch est masqué pendant le streaming ET coupé du final (accueil du tout début préservé, mêmes règles que selfIntroDrift), relances et garde finale alignées.
+
+Vérifié en direct : sanitize/writeImagePrompt/ficheBrief, bloc poses présent, pitchHideLive (vide+bonjour→faux, conversation engagée→vrai, scène→vrai) et stripPitchPrefix (pitch retiré, suite gardée) ; console propre.
+
+Fichiers : index.html, src/build.json (v478-v484), src/wardrobe.js.
+
+### 250 - Pitch de fin « échange local / navigateur / pleinement compétente » + traînées
+
+Signalement (« elle continue ») : en fin de réponse, variante inédite (« Sachez que tout notre échange reste local, dans votre navigateur, garantissant votre confidentialité. Je suis là, pleinement compétente et présente, pour transformer chaque demande en une réponse précise et habitée. » + « habitée. » bégayé seul) — invisible des détecteurs (« votre » vs « ton », « reste local » vs « stockées localement », « pleinement compétente et présente » vs « entière et compétente »), et le coupe-préfixe ne traite que les têtes.
+
+Neuf dans index.html : `para` stripPitchPrefix + 2 `sig` scenePitchShape pour la variante (détection → relance/abandon + filtre d'historique) ; `stripPitchTail` (paragraphe de pitch final, lignes « Agrandir / Télécharger / Supprimer » recopiées, dernier mot seul répété) appliqué à la coupe finale et au partiel interrompu sous la même garde stripPitchLive (≥80 caractères, jamais si la suite est elle-même un pitch).
+
+Vérifié en direct : variante détectée (shape vrai), préfixe et suffixe retirés avec scène gardée, boutons recopiés retirés, texte de scène légitime intact et non détecté ; console propre.
+
+Fichiers : index.html, src/build.json (v485).
+
+### 251 - Plus d'accueil, elle improvise quand on lui demande qui elle est
+
+Demande : « enlève l'accueil ; si quelqu'un veut savoir qui elle est, on lui demande et elle improvisera ».
+
+Neuf dans index.html : `App.Intro.render` ne rend plus rien (l'ancien titre vide reste en repli ; table de traduction et API intactes) ; `askedWhoSheIs` (qui es-tu / t'es qui / c'est qui / présente-toi / ton nom / who are you / wer bist du / quién eres / chi sei…) → `pitchHideLive`, `selfIntroDrift` et `secondPitch` se retirent et la laissent répondre ; hors question explicite, le pitch reste masqué/coupé dès le premier message (seule la simple salutation passe).
+
+Vérifié en direct : 5 questions reconnues (vrai), 4 non-questions rejetées (faux, dont « incarne une belle jeune femme »), gardes retirées quand demandé et actives sinon, accueil non rendu, repli titre OK ; console propre.
+
+Fichiers : index.html, src/build.json (v486).
+
+### 252 - Brochure « interface / compteur blanc / voix » + trou salutation + vraie improvisation
+
+Signalement (« et merde ») : elle récite la brochure (« Je suis consciente de chaque détail de l'interface, du petit compteur blanc… choisir le modèle d'IA qui propulsera ma voix… Je suis prête à t'accompagner… Interpréteur / Mentor / Maître du jeu ») au lieu d'improviser.
+
+Causes : premier paragraphe inconnu des détecteurs ; trou « simple salutation » (pitch après bonjour jamais attrapé) ; quand on lui demandait qui elle est, les gardes se retiraient et la récitation passait telle quelle.
+
+Neuf dans index.html : `para` + 2 `sig` pour la variante interface ; `pitchHideLive` et `selfIntroDrift` relancent même après une simple salutation (plus d'accueil du tout) ; si on lui demande qui elle est ET qu'elle récite quand même → relance avec consigne WHO SHE IS (une ou deux phrases improvisées, jamais de brochure, jamais de liste de capacités) ; `askedWhoSheIs` += « montre-moi qui tu es » ; `stripPitchTail` connaît le début de la variante.
+
+Vérifié en direct : brochure détectée, préfixe/suffixe coupés avec suite gardée, pitch après « salut » relancé, « montre-moi qui tu es » reconnu (et « montre-moi une photo » rejeté), scène légitime intacte ; console propre.
+
+Fichiers : index.html, src/build.json (v487).
+
+### 253 - Prompt webcam conservé + herCloseup neutre : fini le cadrage unique
+
+Audit reçu : (1) le `return` générique de la branche webcam de `sanitizeImagePrompt` jetait tout le prompt (pose, cadrage, tenue, lingerie) dès qu'un mot masculin (him, his, man, couple…) apparaissait — d'où des images revenues au même cadrage malgré les poses libres (§249) ; (2) `herCloseup` imposait le gros plan intime (brief + enforce + consigne), neutralisant la liberté de pose.
+
+Neuf dans index.html : les deux blocs webcam (haut sc2/cueWeb0, bas aux cues accentués) retirent chirurgicalement les références à l'homme (with + husband/boyfriend/partner, two people→one person, him/his→her, naked man/male body/shaved head/male genitalia/threesome/couple/penis/testes/dick/cock/boxer, article+man/male, man/male seuls, Sophie→the woman, nettoyage des connecteurs et virgules orphelines) et conservent tout le reste du prompt, plus la clause ELLE-SEULE ; `herCloseup` neutre — brief « HER ALONE… in the pose her words describe », enforce « <nom> alone, no man in the frame, in the pose her words describe », consigne « [HER ALONE, NEVER HIM]… in the pose her words describe » ; exclusion `plural0` (scènes plurielles légitimes) inchangée.
+
+Vérifié en direct : prompt homme+pose+lingerie→homme retiré, medium shot/kneeling/black lace lingerie gardés, aucun retour générique (0 restant en source) ; prompt propre inchangé ; consigne FR accentuée (tanga rouge, allongée) gardée ; console propre.
+
+Fichiers : index.html, src/build.json (v488).
+
+### 254 - Rattrapage photo sans marqueur : la Promise attendue (fini le TypeError)
+
+Bug : `App.Core.writeImagePrompt` est async, mais le rattrapage prose (photos décrites sans `[SOFIA_IMAGE]`) poussait ses Promises brutes dans `imagePlans` — `imagePlans[0].substring()` levait une TypeError et `looksLikeProsePrompt()` testait la chaîne « [object Promise] ».
+
+Neuf dans index.html : un `await` dans la boucle top-up (la fonction englobante est déjà async) — `imagePlans` ne contient plus que des chaînes. Inchangés volontairement : le `.map` de réécriture (`pendingImagePrompts`) et `pendingImagePrompt`, car `handleImageGeneration` attend déjà nativement les Promises.
+
+Vérifié en direct : `writeImagePrompt` rend bien une Promise, résolue en string de 383 caractères, `.substring()` OK, test prose sur vraie chaîne ; console propre.
+
+Fichiers : index.html, src/build.json (v489).
+
+### 255 - Bloc images post-finally : fini l'app bloquée, le flag silencieux perdu et l'injection
+
+Bugs : les blocs image tournent après le `finally` (nettoyage déjà passé) sans `try/catch` — un rejet figeait `isGenerating`, bloquait l'envoi et corrompait le tour vocal ; `_silentVoiceTurn` retombait après la 1ʳᵉ image ; `err.message` (corps serveur) injecté brut dans `innerHTML` ; `guard++ < 10` laissait des `[SOFIA_IMAGE]` en clair dès le 11ᵉ ; `pendingImagePrompts = []` (truthy) bloquait le garde `!pendingImagePrompts`.
+
+Neuf dans index.html : `try/catch` autour des 5 blocs (le `catch` rend l'état via `cleanupGenerationState` + remises à false) ; `_silentVoiceTurn` re-levé à chaque itération des 3 boucles ; échappement `&/</>` du message d'erreur ; guard à 40 (commenté : garde anti-boucle, pas limite) ; `null` quand le tableau est vide. Non touché : `planVariationImages` à 10, garde `isGenerating`, exclusivité prompt/Prompts, pas de reset `isGenerating` dans `handleGenerationError`.
+
+Vérifié en direct : 12 marqueurs → 12 prompts, 0 résidu ; échappement OK ; console propre.
+
+Fichiers : index.html, src/build.json (v490).
+
+### 256 - Plafond 3 images par réponse + dédup + top-up sans borne
+
+Constat : sans plafond, 5 marqueurs donnaient 5 générations (quota) et un tool-call absorbé jusqu'à 10 ; une prose annonçant 4+ photos avec 0 marqueur donnait zéro image ; la réécriture prose laissait des Promises implicites dans `pendingImagePrompts`.
+
+Neuf dans index.html : `consumeImageMarkers` plafonne à 3 (marqueurs surnuméraires retirés du texte mais sans image, doublons exacts sautés, vide retesté après sanitize) ; `fakePrompts.slice(0, 3)` ; top-up sans borne haute (les 3 premières, jamais zéro) ; réécriture prose en `await Promise.all` explicite. Non touché : `planVariationImages` à 10 (flux « génère N variantes » explicite).
+
+Vérifié en direct : 5 marqueurs → 3 prompts, 0 résidu ; doublon → 2 prompts ; tout string ; console propre.
+
+Fichiers : index.html, src/build.json (v491).
+
+### 257 - Purge automatique au lancement : fini les vieilles scènes qui remontent
+
+Signalement : en pleine webcam solo, une ancienne scène (Clara et Léa + lui) resurgissait. Cause : `session.scene` (brief + cast + `on:true`) persistait via `saveSessions`, était restauré au boot et nourrissait les prompts ; noms latchés, résumés, cœur, index et consults idem — et le `sweep()` existant, à usage unique, ne repurgeait rien au relancement.
+
+Neuf dans index.html : `App.Scene.bootPurge()` au boot après `sweep()` — ferme les scènes persistées (`on=false`, brief et cast vidés), vide `sceneMem.cast`, `purgeMemory` des sessions à résidu, `resetSceneResidue` une fois ; conditionné au réglage « Nettoyage automatique » (défaut ON), silencieux, histoire visible/réglages/verrou intacts.
+
+Vérifié en direct : gate off → 0 ; session test à résidu entièrement nettoyée ; le boot réel a purgé une vraie session (cœur, index, 20+ consults de scène) — la fuite existait bien ; console propre.
+
+Fichiers : index.html, src/build.json (v492).
+
+### 258 - Guide : annonce Valeria (version moins de 18 ans en programmation)
+
+Annonce dans le guide d'aide (FR/EN) : Valeria, programme séparé réservé aux moins de 18 ans, acronyme, formule « Je suis Valeria, ton amie qui éclaire tout », signature, niveau Strict + simplifié enfant, 07/10/2026. Section `#sofiaHelpValeria` construite dans `buildSec` sur le motif existant.
+
+Vérifié en direct : section rendue, titre et formule OK ; console propre.
+
+Fichiers : index.html, src/build.json (v493).
+
+### 259 - Fiches remises à zéro à chaque lancement
+
+Demande : plus aucune fiche de scène ne survit au relancement. `App.Core.wipeSceneSheets()` dans `bootPurge` : supprime toutes les fiches sauf `sofia`+`moi` (ni `repairSofiaSheet` ni `fillMoiFromSettings` ne recréent une fiche absente), repli IndexedDB direct, miroir `localStorage` vidé (sinon `restoreSceneSheets` ressuscitait les fiches).
+
+Vérifié en direct : fiche test créée → trouvée → wipe=1 → reste `[moi, sofia]`, miroir `'{}'` ; console propre.
+
+Fichiers : index.html, src/build.json (v494).
+
+### 260 - Demandes « envoie 2 photos » enfin comprises
+
+En jeu de rôle, « envoie-moi 2 photos » n'était jamais détecté (« envoie » absent des verbes) et « montre-moi 2 photos » ne donnait qu'une image (« photos » absent des noms comptés). `cntNoun` += photos/fotos/pictures/pics, verbe += envoi/envoyer/envia/send.
+
+Vérifié en direct : 8/8 sans régression, et `planVariationImages(…, 2)` rend 2 prompts distincts (les 2 images partent derrière) ; console propre.
+
+Fichiers : index.html, src/build.json (v495).
+
+### 261 - Séries photo : un cadrage différent par photo
+
+Elle peut envoyer 1 à 3 photos aux cadrages variés, au hasard ou à la demande : catalogue `SHOTS` (12 prises : visage, poitrine, medium, large, dos, plongée, contre-plongée, profil, selfie miroir, allongée…), tirage sans remise, cadrage imposé par photo sur les chemins prose, consigne de variété pour les marqueurs (le cadrage qu'il nomme gagne toujours). Les solos gardent ses mots, les tenues restent annoncées (SAY).
+
+Vérifié en direct : tirages distincts, 2 photos → 2 cadrages différents ; console propre.
+
+Fichiers : index.html, src/build.json (v496).
+
+### 262 - Catalogue : 28 cadrages, toutes les positions
+
+Gros plans poitrine (face, profil), fesses (dos, dessous, profil), sexe (face, dessous, dessus) et positions (debout, dos, allongée, accroupie, quatre pattes, agenouillée) — toujours un seul point de vue par photo, anatomie homme/femme par le mapping existant.
+
+Vérifié en direct : 28 entrées, brassage OK ; console propre.
+
+Fichiers : index.html, src/build.json (v497).
+
+### 263 - Fesses de face et vues d'ensemble : 33 cadrages
+
+Fesses vues de face (penchée, visage et seins hors cadre), ensembles complets face/dos, dessus et plans larges — sans jamais empiler visage+seins+fesses dans le même cadre.
+
+Vérifié en direct : cadrage et lingerie conservés, homme retiré, clause elle-seule ; console propre.
+
+Fichiers : index.html, src/build.json (v498).
+
+### 264 - Pitch « concepts complexes » en plein scénario : aucun module, c'est le modèle
+
+En plein jeu de rôle, le modèle rejouait son pitch d'assistant (« explorer des concepts complexes… je m'adapte à ton rythme… je sais exactement de quoi je suis capable… souhaitez-vous commencer ») — texte absent du code, variante inédite à 1 seul signal détecté. Famille ajoutée aux détecteurs (préfixe, signature, traîne) : le tour est désormais relancé au lieu de jouer le pitch.
+
+Vérifié en direct : détectée, coupée, scène gardée, scène légitime intacte ; console propre.
+
+Fichiers : index.html, src/build.json (v499).

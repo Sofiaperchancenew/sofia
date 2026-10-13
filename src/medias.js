@@ -170,6 +170,96 @@ export function attachMedias(App) {
     "Algérie": ["algerie", "algerien", "algerienne", "algeriennes"],
     "Tunisie": ["tunisie", "tunisien", "tunisienne", "tunisiennes"]
   };
+  // Langue active (réglage + verrou de conversation) pour tous les textes
+  // affichés par ce module : sans elle, « Je cherche… / J'ai mis la radio… »
+  // sort en français même avec l'interface en allemand.
+  function mediaLang() {
+    try {
+      const st = App.State;
+      const cur = st && st.sessions && st.sessions.find(function (s) { return s.id === st.currentSessionId; });
+      const l = String((cur && cur.lockedLanguage) || (st.settings && st.settings.language) || "en").toLowerCase().slice(0, 2);
+      if (["fr", "en", "de", "es", "it"].indexOf(l) >= 0) return l;
+      return "en";
+    } catch (e) { return "en"; }
+  }
+  const MEDIA_TXT = {
+    fr: {
+      searching: (q) => "Je cherche « " + q + " »…",
+      radio: (q) => "J'ai mis la radio pour « " + q + " » — touche lecture :",
+      music: (q) => "Voilà pour « " + q + " » — extraits et épisodes lisibles ici :",
+      image: (q) => "Images libres pour « " + q + " » :",
+      archive: (q) => "Dans Internet Archive pour « " + q + " » :",
+      all: (q) => "Médias pour « " + q + " » :",
+      nothing: (q) => "Je n'ai rien trouvé pour « " + q + " » cette fois.",
+      failed: "La recherche a échoué. Réessaie.",
+      tapPlay: "Pour l'écouter, touche lecture :",
+      kinds: { radio: "Radio", track: "Musique", podcast: "Podcast", cimage: "Image", cvideo: "Vidéo", caudio: "Audio", archive: "Archive", other: "Média" },
+      direct: "Flux direct",
+      themes: { info: "Info", culture: "Culture", rock: "Rock", classique: "Classique", jazz: "Jazz", electro: "Électro", pop: "Pop", hits: "Hits", humour: "Humour", soul: "Soul & Funk", metal: "Métal", ambient: "Ambient", rap: "Rap & Hip-hop", varietes: "Variétés" },
+      ui: { buttonTitle: "Radios, musique, vidéos, images, archives", buttonAria: "Chercher un média", placeholder: "Radio, musique, vidéo, image, archive…", search: "Chercher", tabs: ["Tout", "Radios", "Musique", "Vidéos", "Images", "Archives"], tip: "Astuce : « radio jazz », « radios belges », « radios du monde », « cherche une musique … ».", min2: "Écris au moins deux lettres.", searching2: "Recherche en cours…", none: (q) => "Rien trouvé pour « " + q + " ».", results: (n) => n + " résultat(s).", toChat: "Mettre dans le chat" }
+    },
+    de: {
+      searching: (q) => "Ich suche nach „" + q + "“…",
+      radio: (q) => "Ich habe das Radio für „" + q + "“ eingestellt — tippe auf Wiedergabe:",
+      music: (q) => "Hier für „" + q + "“ — Ausschnitte und Episoden direkt hier abspielbar:",
+      image: (q) => "Freie Bilder für „" + q + "“:",
+      archive: (q) => "Im Internet Archive für „" + q + "“:",
+      all: (q) => "Medien für „" + q + "“:",
+      nothing: (q) => "Ich habe diesmal nichts für „" + q + "“ gefunden.",
+      failed: "Die Suche ist fehlgeschlagen. Versuch es erneut.",
+      tapPlay: "Zum Anhören tippe auf Wiedergabe:",
+      kinds: { radio: "Radio", track: "Musik", podcast: "Podcast", cimage: "Bild", cvideo: "Video", caudio: "Audio", archive: "Archiv", other: "Medium" },
+      direct: "Direktstream",
+      themes: { info: "Info", culture: "Kultur", rock: "Rock", classique: "Klassik", jazz: "Jazz", electro: "Elektro", pop: "Pop", hits: "Hits", humour: "Humor", soul: "Soul & Funk", metal: "Metal", ambient: "Ambient", rap: "Rap & Hip-hop", varietes: "Schlager & Chanson" },
+      ui: { buttonTitle: "Radios, Musik, Videos, Bilder, Archive", buttonAria: "Medium suchen", placeholder: "Radio, Musik, Video, Bild, Archiv…", search: "Suchen", tabs: ["Alle", "Radios", "Musik", "Videos", "Bilder", "Archive"], tip: "Tipp: „Jazzradio“, „belgische Radios“, „Radios aus aller Welt“, „such mir Musik …“.", min2: "Schreib mindestens zwei Buchstaben.", searching2: "Suche läuft…", none: (q) => "Nichts gefunden für „" + q + "“.", results: (n) => n + " Ergebnis(se).", toChat: "In den Chat übernehmen" }
+    },
+    en: {
+      searching: (q) => "Searching for “" + q + "”…",
+      radio: (q) => "I've tuned the radio for “" + q + "” — tap play:",
+      music: (q) => "Here for “" + q + "” — clips and episodes playable right here:",
+      image: (q) => "Free images for “" + q + "”:",
+      archive: (q) => "In the Internet Archive for “" + q + "”:",
+      all: (q) => "Media for “" + q + "”:",
+      nothing: (q) => "I found nothing for “" + q + "” this time.",
+      failed: "The search failed. Try again.",
+      tapPlay: "To listen, tap play:",
+      kinds: { radio: "Radio", track: "Music", podcast: "Podcast", cimage: "Image", cvideo: "Video", caudio: "Audio", archive: "Archive", other: "Media" },
+      direct: "Direct stream",
+      themes: { info: "News", culture: "Culture", rock: "Rock", classique: "Classical", jazz: "Jazz", electro: "Electronic", pop: "Pop", hits: "Hits", humour: "Comedy", soul: "Soul & Funk", metal: "Metal", ambient: "Ambient", rap: "Rap & Hip-hop", varietes: "Variety" },
+      ui: { buttonTitle: "Radios, music, videos, images, archives", buttonAria: "Search media", placeholder: "Radio, music, video, image, archive…", search: "Search", tabs: ["All", "Radios", "Music", "Videos", "Images", "Archives"], tip: "Tip: “jazz radio”, “belgian radios”, “world radios”, “find me some music …”.", min2: "Type at least two letters.", searching2: "Searching…", none: (q) => "Nothing found for “" + q + "”.", results: (n) => n + " result(s).", toChat: "Put in chat" }
+    },
+    es: {
+      searching: (q) => "Buscando «" + q + "»…",
+      radio: (q) => "He puesto la radio para «" + q + "» — toca reproducir:",
+      music: (q) => "Esto para «" + q + "» — fragmentos y episodios reproducibles aquí:",
+      image: (q) => "Imágenes libres para «" + q + "»:",
+      archive: (q) => "En Internet Archive para «" + q + "»:",
+      all: (q) => "Medios para «" + q + "»:",
+      nothing: (q) => "No he encontrado nada para «" + q + "» esta vez.",
+      failed: "La búsqueda ha fallado. Inténtalo de nuevo.",
+      tapPlay: "Para escucharlo, toca reproducir:",
+      kinds: { radio: "Radio", track: "Música", podcast: "Podcast", cimage: "Imagen", cvideo: "Vídeo", caudio: "Audio", archive: "Archivo", other: "Medio" },
+      direct: "Emisión directa",
+      themes: { info: "Noticias", culture: "Cultura", rock: "Rock", classique: "Clásica", jazz: "Jazz", electro: "Electrónica", pop: "Pop", hits: "Éxitos", humour: "Humor", soul: "Soul y Funk", metal: "Metal", ambient: "Ambient", rap: "Rap y Hip-hop", varietes: "Variedades" },
+      ui: { buttonTitle: "Radios, música, vídeos, imágenes, archivos", buttonAria: "Buscar medios", placeholder: "Radio, música, vídeo, imagen, archivo…", search: "Buscar", tabs: ["Todo", "Radios", "Música", "Vídeos", "Imágenes", "Archivos"], tip: "Consejo: «radio de jazz», «radios belgas», «radios del mundo», «búscame música …».", min2: "Escribe al menos dos letras.", searching2: "Buscando…", none: (q) => "Nada encontrado para «" + q + "».", results: (n) => n + " resultado(s).", toChat: "Poner en el chat" }
+    },
+    it: {
+      searching: (q) => "Cerco «" + q + "»…",
+      radio: (q) => "Ho messo la radio per «" + q + "» — tocca riproduci:",
+      music: (q) => "Ecco per «" + q + "» — estratti ed episodi riproducibili qui:",
+      image: (q) => "Immagini libere per «" + q + "»:",
+      archive: (q) => "In Internet Archive per «" + q + "»:",
+      all: (q) => "Media per «" + q + "»:",
+      nothing: (q) => "Non ho trovato nulla per «" + q + "» questa volta.",
+      failed: "La ricerca non è riuscita. Riprova.",
+      tapPlay: "Per ascoltarla, tocca riproduci:",
+      kinds: { radio: "Radio", track: "Musica", podcast: "Podcast", cimage: "Immagine", cvideo: "Video", caudio: "Audio", archive: "Archivio", other: "Media" },
+      direct: "Flusso diretto",
+      themes: { info: "Notizie", culture: "Cultura", rock: "Rock", classique: "Classica", jazz: "Jazz", electro: "Elettronica", pop: "Pop", hits: "Successi", humour: "Umorismo", soul: "Soul e Funk", metal: "Metal", ambient: "Ambient", rap: "Rap e Hip-hop", varietes: "Varietà" },
+      ui: { buttonTitle: "Radio, musica, video, immagini, archivi", buttonAria: "Cerca media", placeholder: "Radio, musica, video, immagine, archivio…", search: "Cerca", tabs: ["Tutto", "Radio", "Musica", "Video", "Immagini", "Archivi"], tip: "Suggerimento: «radio jazz», «radio belghe», «radio del mondo», «cercami della musica …».", min2: "Scrivi almeno due lettere.", searching2: "Ricerca in corso…", none: (q) => "Nulla trovato per «" + q + "».", results: (n) => n + " risultato(i).", toChat: "Metti in chat" }
+    }
+  };
+  function MT() { return MEDIA_TXT[mediaLang()] || MEDIA_TXT.en; }
   const COUNTRY_API = {
     "France": "France",
     "Suisse": "Switzerland",
@@ -358,7 +448,8 @@ export function attachMedias(App) {
     return mediaNode({ kind: "cvideo", title: w.v.title, thumb: w.v.thumb, file: "", page: w.v.url });
   }
   function kindLabel(m) {
-    return m.kind === "radio" ? "Radio" : m.kind === "track" ? "Musique" : m.kind === "podcast" ? "Podcast" : m.kind === "cimage" ? "Image" : m.kind === "cvideo" ? "Vidéo" : m.kind === "caudio" ? "Audio" : m.kind === "archive" ? "Archive" : "Média";
+    const k = MT().kinds;
+    return m.kind === "radio" ? k.radio : m.kind === "track" ? k.track : m.kind === "podcast" ? k.podcast : m.kind === "cimage" ? k.cimage : m.kind === "cvideo" ? k.cvideo : m.kind === "caudio" ? k.caudio : m.kind === "archive" ? k.archive : k.other;
   }
   function mediaNode(m) {
     const card = document.createElement("div");
@@ -432,7 +523,7 @@ export function attachMedias(App) {
     if (m.themes && m.themes.length) {
       const tc = document.createElement("div");
       tc.className = "svideo-chan";
-      tc.textContent = m.themes.map((k) => THEME_LABEL[k] || k).join(" · ");
+      tc.textContent = m.themes.map((k) => (MT().themes[k] || THEME_LABEL[k] || k)).join(" · ");
       meta.appendChild(tc);
     }
     if (m.desc) {
@@ -509,6 +600,28 @@ export function attachMedias(App) {
         } catch (e) {}
       }
     } catch (e) {}
+    // Demande de CRÉATION (et pas d'écoute) : « mach mir ein Lied »,
+    // « crée-moi une chanson », « make me a song »… La radio ne doit pas
+    // voler ces messages (le seul mot « metal » déclenchait « Metal
+    // Detector ») : c'est Sofia qui écrit/chante, via le Core.
+    try {
+      const nrm = " " + normStation(t) + " ";
+      if (/\b(cree\w*|compose\w*|compos\w*|ecris|ecriv\w*|chante\w*|make\w*|creat\w*|sing\w*|write\w*|writ\w*|canta\w*|escrib\w*|escriv\w*|scriv\w*|compon\w*|fais\w*|fait\w*|fair\w*|donn\w*|stworz\w*|zrob\w*|skomponuj|skomponow\w*|napisz|napis\w*|zaspiewaj|spiewaj\w*|utworz\w*|uloz\w*)\b[^?!;]{0,40}\b(lied\w*|songs?|musik\w*|melod\w*|chanson\w*|musique\w*|morceau\w*|music\w*|tunes?|anthem\w*|cancion\w*|canzone\w*|brano\w*|piosen\w*|muzyk\w*|utwor\w*|melodi\w*)\b/.test(nrm)) return null;
+      if (/\bmach\w*\b[^?!;]{0,20}\b(mir|uns|ein\w*|neue\w*|eigen\w*)\b[^?!;]{0,20}\b(lied\w*|songs?|musik\w*|melodie\w*)\b/.test(nrm)) return null;
+      if (/\b(lied\w*|songs?|musik\w*)\b[^?!;]{0,30}\b(mach\w*|erstell\w*|komponier\w*|schreib\w*|dicht\w*)\b/.test(nrm)) return null;
+      try {
+        let V = "作って|作る|書いて|書く|歌って|歌う|創って|創る|作曲|创作|創作|作詞|作词|编曲|編曲|写|寫|唱|编|編|来一首|來一首|만들어줘|만들어|써줘|지어줘|불러줘|작곡해줘|작곡|지어|써|불러";
+        let N = "メロディー|メロディ|音楽|ソング|歌曲|歌|曲|音乐|音樂|曲子|旋律|멜로디|음악|노래|곡";
+        if (new RegExp("(" + V + ")[^?!;。！？]{0,40}(" + N + ")|(" + N + ")[^?!;。！？]{0,40}(" + V + ")").test(t)) return null;
+      } catch (eCjk) {}
+    } catch (eCreate) {}
+    try {
+      var A2 = (typeof App !== "undefined" ? App : window.App) || null;
+      if (A2 && A2.AppLang && typeof A2.AppLang.detect === "function") {
+        var _ld = null; try { _ld = A2.AppLang.detect(t); } catch (eD) {}
+        if (_ld && _ld.code) return null;
+      }
+    } catch (eLang) {}
     const hasWordChar = (s) => /[a-z0-9àâäéèêëîïôöùûüç]/i.test(s);
     let m = t.match(/^\/(radio|musique|music|podcast|image|images|photo|archive)\s+(.+)/i);
     if (m) {
@@ -543,11 +656,11 @@ export function attachMedias(App) {
       else if (/musique|music|chanson/i.test(t)) type = "music";
       else if (/image|photo/i.test(t)) type = "image";
       else if (/archive|livre audio/i.test(t)) type = "archive";
-      const qm = t.match(/(?:mets?|mettez|joue?|jouer|lance|lancer|lis|lire|lisez|écoute|écouter|cherche|chercher|trouve|trouver|montre|montrer|passe|passer|balance)\s+(?:moi\s+|une\s+|un\s+|des\s+|la\s+|le\s+|les\s+|l\s+)?(?:radio\s+|station\s+|musique\s+|music\s+|chanson\s+|podcast\s+|image\s+|photo\s+)?(.{2,120})/i);
+      const qm = t.match(/(?:^|[^a-zàâäéèêëîïôöùûüç'-])(?:mets?|mettez|joue?|jouer|lance|lancer|lis|lire|lisez|écoute|écouter|cherche|chercher|trouve|trouver|montre|montrer|passe(?!\s+(?:de\s|du\s|des\s|d['’])(?:[\wàâäéèêëîïôöùûüç'-]+\s+){0,2}(?:moment|temps|jour|soir|vacance|semaine|matin|nuit|instant|ann|apres))|passer(?!\s+(?:de\s|du\s|des\s|d['’])(?:[\wàâäéèêëîïôöùûüç'-]+\s+){0,2}(?:moment|temps|jour|soir|vacance|semaine|matin|nuit|instant|ann|apres))|balance)\s+(?:moi\s+|une\s+|un\s+|des\s+|la\s+|le\s+|les\s+|l\s+)?(?:radio\s+|station\s+|musique\s+|music\s+|chanson\s+|podcast\s+|image\s+|photo\s+)?(.{2,120})/i);
       let q = qm ? cleanRadioQuery(qm[1].replace(/\s*(sur\s+)?(youtube|peertube|vimeo|archive|spotify)\s*$/i, "")) : "";
       if (q.length >= 2 && hasWordChar(q)) return { type: type, q: q };
     }
-    const qm2 = t.match(/(?:mets?|mettez|joue?|jouer|lance|lancer|lis|lire|lisez|écoute|écouter|passe|passer|balance)\s+(?:moi\s+|une\s+|un\s+|des\s+|du\s+|de\s+la\s+|de\s+|la\s+|le\s+|les\s+|l\s+)?(.{2,60})/i);
+    const qm2 = t.match(/(?:^|[^a-zàâäéèêëîïôöùûüç'-])(?:mets?|mettez|joue?|jouer|lance|lancer|lis|lire|lisez|écoute|écouter|passe(?!\s+(?:de\s|du\s|des\s|d['’])(?:[\wàâäéèêëîïôöùûüç'-]+\s+){0,2}(?:moment|temps|jour|soir|vacance|semaine|matin|nuit|instant|ann|apres))|passer(?!\s+(?:de\s|du\s|des\s|d['’])(?:[\wàâäéèêëîïôöùûüç'-]+\s+){0,2}(?:moment|temps|jour|soir|vacance|semaine|matin|nuit|instant|ann|apres))|balance)\s+(?:moi\s+|une\s+|un\s+|des\s+|du\s+|de\s+la\s+|de\s+|la\s+|le\s+|les\s+|l\s+)?(.{2,60})/i);
     if (qm2) {
       const q2 = cleanRadioQuery(qm2[1].replace(/\s*(sur\s+)?(youtube|peertube|vimeo|archive|spotify)\s*$/i, ""));
       if (/^(je|j'|tu|il|elle|on|nous|vous|ils|elles|ce|cette|ça)\b/i.test(q2.trim())) return null;
@@ -563,29 +676,30 @@ export function attachMedias(App) {
   }
   async function answerMedia(type, q) {
     if (!q) return;
-    postMedia("Je cherche « " + q + " »…", []);
+    const T = MT();
+    postMedia(T.searching(q), []);
     const list = document.querySelector("#messageListEl");
     try {
       let items = [];
       let label = "";
-      if (type === "radio") { items = await searchRadios(q, 4); label = "J'ai mis la radio pour « " + q + " » — touche lecture :"; }
-      else if (type === "music" || type === "podcast") { items = await searchMusic(q, 6); label = "Voilà pour « " + q + " » — extraits et épisodes lisibles ici :"; }
-      else if (type === "image") { items = await searchCommons(q, "bitmap", 6); label = "Images libres pour « " + q + " » :"; }
-      else if (type === "archive") { items = await searchArchive(q, "", 5); label = "Dans Internet Archive pour « " + q + " » :"; }
+      if (type === "radio") { items = await searchRadios(q, 4); label = T.radio(q); }
+      else if (type === "music" || type === "podcast") { items = await searchMusic(q, 6); label = T.music(q); }
+      else if (type === "image") { items = await searchCommons(q, "bitmap", 6); label = T.image(q); }
+      else if (type === "archive") { items = await searchArchive(q, "", 5); label = T.archive(q); }
       else {
         const all = await searchAllMedia(q, 2);
         items = [...all.radios.slice(0, 1), ...all.music.slice(0, 2), ...all.commons.slice(0, 2), ...all.archive.slice(0, 1)];
-        label = "Médias pour « " + q + " » :";
+        label = T.all(q);
       }
       if (list && list.lastChild) list.lastChild.remove();
-      if (!items.length) { postMedia("Je n'ai rien trouvé pour « " + q + " » cette fois.", []); return; }
+      if (!items.length) { postMedia(T.nothing(q), []); return; }
       if (type === "radio") lastRadios = items.slice(0, 6);
       const words = q.toLowerCase().split(/[^a-zàâäéèêëîïôöùûüç0-9]+/).filter(Boolean);
       items.sort((a, b) => scoreMedia(b, words) - scoreMedia(a, words));
       postMedia(label, items.slice(0, 6));
     } catch (e) {
       if (list && list.lastChild) list.lastChild.remove();
-      postMedia("La recherche a échoué. Réessaie.", []);
+      postMedia(T.failed, []);
     }
   }
   function enrichMedia(scope) {
@@ -609,7 +723,7 @@ export function attachMedias(App) {
         }
         if (/creacast|icecast|shoutcast|radionomy|listen\.|\/stream(\/|$|\?)|:\d{4,5}\//i.test(href)) {
           a.dataset.smediaDone = "1";
-          const card = mediaNode({ kind: "radio", title: (a.textContent || "").trim().slice(0, 140) || href, sub: "Flux direct", stream: href, page: href, tags: "" });
+          const card = mediaNode({ kind: "radio", title: (a.textContent || "").trim().slice(0, 140) || href, sub: MT().direct, stream: href, page: href, tags: "" });
           a.after(card);
         }
       } catch (e) {}
@@ -630,10 +744,35 @@ export function attachMedias(App) {
             const txt = n.innerText || n.textContent || "";
             if (lastRadios.length && isListenFollowup(txt) && !cmdMedia(txt)) {
               n.dataset.smediaAnswered = "1";
-              postMedia("Pour l'écouter, touche lecture :", lastRadios);
+              postMedia(MT().tapPlay, lastRadios);
               continue;
             }
-            const c = cmdMedia(txt);
+            const c = (function () {
+              // Bascule de langue (src/langswitch.js) AVANT la radio : "mets Sofia
+              // en allemand" n'est pas une demande de station. Les vieux doublons
+              // d'historique sont avalés sans rien faire (ni langue, ni radio).
+              try {
+                if (App && App.LangSwitch) {
+                  let quiet = false;
+                  try { quiet = Date.now() < (App.LangSwitch._quietUntil || 0); } catch (eQ) {}
+                  if (!quiet && typeof App.LangSwitch.detect === "function") {
+                    const sw = App.LangSwitch.detect(txt);
+                    if (sw && sw.code) {
+                      n.dataset.smediaAnswered = "1";
+                      try { App.LangSwitch.apply(sw.code); } catch (eSA) {}
+                      return "langswitch";
+                    }
+                  }
+                  try {
+                    if (typeof App.LangSwitch.claims === "function" && App.LangSwitch.claims(txt)) {
+                      n.dataset.smediaAnswered = "1";
+                      return "langswitch";
+                    }
+                  } catch (eC) {}
+                }
+              } catch (eSW) {}
+              return cmdMedia(txt);
+            })();
             if (c && c.q) {
               n.dataset.smediaAnswered = "1";
               answerMedia(c.type, c.q);
@@ -677,6 +816,8 @@ export function attachMedias(App) {
     b.addEventListener("click", () => {
       const pop = document.getElementById("smediaPop");
       if (!pop) return;
+      const opening = pop.hidden;
+      if (opening) { try { paintMediaUi(); } catch (e) {} }
       pop.hidden = !pop.hidden;
       if (!pop.hidden) { const i = document.getElementById("smediaInput"); if (i) i.focus(); }
     });
@@ -694,6 +835,19 @@ export function attachMedias(App) {
     const go = pop.querySelector("#smediaGo");
     const res = pop.querySelector("#smediaRes");
     const status = pop.querySelector("#smediaStatus");
+    // Repeint tous les libellés dans la langue active à chaque ouverture.
+    function paintMediaUi() {
+      const U = MT().ui;
+      try { b.title = U.buttonTitle; b.setAttribute("aria-label", U.buttonAria); } catch (e) {}
+      try { input.placeholder = U.placeholder; go.textContent = U.search; } catch (e) {}
+      try {
+        const tabs = pop.querySelectorAll("[data-tab]");
+        const order = ["all", "radios", "music", "videos", "commons", "archive"];
+        tabs.forEach((el) => { const i = order.indexOf(el.dataset.tab); if (i >= 0 && U.tabs[i]) el.textContent = U.tabs[i]; });
+      } catch (e) {}
+      try { status.textContent = U.tip; } catch (e) {}
+    }
+    try { paintMediaUi(); } catch (e) {}
     let tab = "all";
     pop.querySelectorAll(".svideo-tab").forEach((t) => t.addEventListener("click", () => {
       pop.querySelectorAll(".svideo-tab").forEach((x) => x.classList.remove("on"));
@@ -702,8 +856,9 @@ export function attachMedias(App) {
     }));
     const run = async () => {
       const q = input.value.trim();
-      if (q.length < 2) { status.textContent = "Écris au moins deux lettres."; return; }
-      status.textContent = "Recherche en cours…";
+      const U = MT().ui;
+      if (q.length < 2) { status.textContent = U.min2; return; }
+      status.textContent = U.searching2;
       res.innerHTML = "";
       try {
         let list = [];
@@ -726,27 +881,27 @@ export function attachMedias(App) {
             const add = document.createElement("button");
             add.type = "button";
             add.className = "svideo-tab";
-            add.textContent = "Mettre dans le chat";
+            add.textContent = MT().ui.toChat;
             add.addEventListener("click", () => { try { if (App.Videos && App.Videos.post) App.Videos.post("", [w.v]); else postMedia("", [w.v]); } catch (eA) {} });
             wrap.appendChild(add);
             res.appendChild(wrap);
           }
         }
-        if (!list.length && !(vids && vids.length)) { status.textContent = "Rien trouvé pour « " + q + " »."; return; }
-        if (list.length) status.textContent = (list.length + (vids && vids.length ? vids.length : 0)) + " résultat(s).";
+        if (!list.length && !(vids && vids.length)) { status.textContent = U.none(q); return; }
+        if (list.length) status.textContent = U.results(list.length + (vids && vids.length ? vids.length : 0));
         for (const mm of list) {
           const wrap = document.createElement("div");
           wrap.appendChild(mediaNode(mm));
           const add = document.createElement("button");
           add.type = "button";
           add.className = "svideo-tab";
-          add.textContent = "Mettre dans le chat";
+          add.textContent = MT().ui.toChat;
           add.addEventListener("click", () => { postMedia("", [mm]); });
           wrap.appendChild(add);
           res.appendChild(wrap);
         }
       } catch (e) {
-        status.textContent = "La recherche a échoué. Réessaie.";
+        status.textContent = MT().failed;
       }
     };
     go.addEventListener("click", run);
@@ -757,7 +912,7 @@ export function attachMedias(App) {
       pop.hidden = true;
     });
   }
-  App.Medias = { searchRadios: searchRadios, searchMusic: searchMusic, searchVideos: searchVideosMedia, searchCommons: searchCommons, searchArchive: searchArchive, searchAll: searchAllMedia, answer: answerMedia, post: postMedia };
+  App.Medias = { searchRadios: searchRadios, searchMusic: searchMusic, searchVideos: searchVideosMedia, searchCommons: searchCommons, searchArchive: searchArchive, searchAll: searchAllMedia, answer: answerMedia, post: postMedia, match: cmdMedia, txt: MT, lang: mediaLang };
   try { globalThis.SofiaMedias = App.Medias; } catch (e) {}
   try {
     ensureMediaUi();

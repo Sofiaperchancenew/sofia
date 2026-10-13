@@ -1,6 +1,8 @@
 {
  "note": "Register des Bestands im Haus (Runde 198). Was Sofia WIRKLICH vorliegen hat: die 24 Kodexe im amtlichen Wortlaut (je Nummer, Weg und Fassungsdatum) und die Text-Bestaende der Dokumente, die der Eigentuemer gegeben hat. Jede Frage sucht in DIESEM Bestand, nicht im Modellwissen. Wichtig: das Feld 'domaine' muss dem Namen der Tuere in App.Corpus.MEMO entsprechen (sexo, maths, web, anatomie, python, dico, med, metier, droit, gbd, code), nicht dem Ordnernamen.",
  "date": "2026-09-22",
+ "stand": "Runde-198-Stand (24 Kodexe im Haus). Der Live-Bestand ist seither gewachsen: src/droit/remote.json v4 (78 Kodexe + EU-Vertraege, 04.10.2026 prueft App.DroitLookup live 82 Codes). Diese Datei bleibt das Register der Haus-Dateien; fuer aktuelle Zaehler remote.json und den Live-Boot-Log lesen, nicht diese Datei.",
+ "politique": "src/COPIE-INTEGRALE.md — volonte commune (octobre 2026) : tout document remis, tous sujets, est garde en copie integrale verbatim (SHA-256), jamais resume.",
  "droit": {
   "label": "Droit francais — codes en vigueur",
   "codes": 24,

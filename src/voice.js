@@ -54,7 +54,7 @@ export function attachVoice(App, deps = {}) {
     ur: "سلام، میں صوفیہ ہوں۔ میری آواز ایسی ہے۔",
     hi: "नमस्ते, मैं सोफिया हूँ। मेरी आवाज़ ऐसी है।",
     bn: "হ্যালো, আমি সোফিয়া। আমার কণ্ঠস্বর এমন।",
-    zh: "你好，我是 Sofia。这就是我的声音。",
+    zh: "你好，我是 Sofia。這就是我的聲音。",
     ja: "こんにちは、Sofiaです。これが私の声です。",
     ko: "안녕하세요, 저는 Sofia입니다. 제 목소리는 이렇습니다.",
     vi: "Xin chào, tôi là Sofia. Giọng tôi nghe như thế này.",
@@ -731,6 +731,14 @@ export function attachVoice(App, deps = {}) {
       if (this._activeBtn && this._activeBtn === btn && btn) { this.stop(); return; }
       let clean = this._cleanText(rawText);
       if (!clean) return;
+      if (!btn && this._spokeThisTurn && this._spokenSents) {
+        try {
+          let chk = this._splitSentences(clean, true).sentences;
+          let anySpoken = false;
+          for (const s of chk) { try { if (this._wasSpoken(this._cleanText(s))) { anySpoken = true; break; } } catch (eW) {} }
+          if (anySpoken) { try { this.speakRemainder(rawText); } catch (eR) {} return; }
+        } catch (eC) {}
+      }
       this._lastSpokenText = clean;
       this.stop();
       let finish = () => {
@@ -1000,7 +1008,8 @@ export function attachVoice(App, deps = {}) {
       }
       this._streamBuf = "";
       this._streamLastText = "";
-      this._spokenSents = {};
+      // Les phrases deja prononcees restent marquees : le nouveau bloc
+      // ne relit jamais deux fois la meme phrase.
       // Les mises à jour rAF tardives du bloc précédent ne doivent pas relancer la lecture du
       // nouveau bloc depuis le début (sinon le texte se répète).
       this._streamStale = before;
@@ -1336,9 +1345,10 @@ export function attachVoice(App, deps = {}) {
     },
     _normSent(s) {
       return String(s == null ? "" : s)
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]+/g, " ")
         .replace(/\s+/g, " ")
-        .replace(/^[\s«»“”„"'’\-–—•]+/, "")
-        .replace(/[\s«»“”„"'’]+$/, "")
         .trim();
     },
     // Ronde 142 : Le signe pulsant en bas à gauche indique qu'une parole est en cours.
@@ -1362,11 +1372,25 @@ export function attachVoice(App, deps = {}) {
       let sp = this._spokenSents || (this._spokenSents = {});
       if (sp[c]) return true;
       if (c.length < 14) return false;
+      let cw = c.split(" ").filter(Boolean);
       for (let k in sp) {
         if (!k || k.length < 14) continue;
-        if (k.indexOf(c) === -1 && c.indexOf(k) === -1) continue;
-        let lo = Math.min(k.length, c.length), hi = Math.max(k.length, c.length);
-        if (hi > 0 && lo / hi >= 0.8) return true;
+        if (k === c) return true;
+        if (k.indexOf(c) !== -1 || c.indexOf(k) !== -1) {
+          let lo = Math.min(k.length, c.length), hi = Math.max(k.length, c.length);
+          if (hi > 0 && lo / hi >= 0.8) return true;
+        }
+        if (cw.length >= 3) {
+          let kw = k.split(" ").filter(Boolean);
+          if (kw.length >= 3) {
+            let set = {};
+            for (const w of kw) set[w] = 1;
+            let hit = 0;
+            for (const w of cw) if (set[w]) hit++;
+            let small = Math.min(cw.length, kw.length);
+            if (small >= 3 && hit / small >= 0.75) return true;
+          }
+        }
       }
       return false;
     },
@@ -1384,9 +1408,22 @@ export function attachVoice(App, deps = {}) {
       for (const p of parts) {
         if (this._wasSpoken(p)) continue;
         let n = this._normSent(p);
+        let nw = n.split(" ").filter(Boolean);
         let dup = false;
         for (let i = 0; i < q.length; i++) {
-          if (this._normSent(this._cleanText(q[i])) === n) { dup = true; break; }
+          let m = this._normSent(this._cleanText(q[i]));
+          if (m === n) { dup = true; break; }
+          if (nw.length >= 3) {
+            let mw = m.split(" ").filter(Boolean);
+            if (mw.length >= 3) {
+              let set = {};
+              for (const w of mw) set[w] = 1;
+              let hit = 0;
+              for (const w of nw) if (set[w]) hit++;
+              let small = Math.min(nw.length, mw.length);
+              if (small >= 3 && hit / small >= 0.75) { q[i] = p; dup = true; break; }
+            }
+          }
         }
         if (dup) continue;
         q.push(p);
