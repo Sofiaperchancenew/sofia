@@ -10970,7 +10970,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
             const ss = ((App.State.sessions || []).find(x => x.id === App.State.currentSessionId)) || null;
             if (ss) nm = App.Core.soloLockedName(ss) || '';
           }
-          if (nm && /^[A-ZÀ-Þ]/.test(nm)) s = s.replace(/^Sofia\b/, nm);
+          if (nm && /^[A-ZÀ-ÞĀ-Ž]/.test(nm)) s = s.replace(/^Sofia\b/, nm);
         } catch (eW) {}
         return s;
       },
@@ -11326,7 +11326,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           try {
             const ss = ((App.State.sessions || []).find(x => x.id === App.State.currentSessionId)) || null;
             const nm = (ss && App.Core && App.Core.soloLockedName) ? (App.Core.soloLockedName(ss) || '') : '';
-            if (nm && /^[A-ZÀ-Þ]/.test(nm)) mm = mm.replace(/^Sofia\b/, nm);
+            if (nm && /^[A-ZÀ-ÞĀ-Ž]/.test(nm)) mm = mm.replace(/^Sofia\b/, nm);
           } catch (eM) {}
           return mm;
         }
@@ -13535,7 +13535,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
                 const c = String((m && m.content) || '');
                 if (!c) continue;
                 bits.push(c.slice(0, 500));
-                const re = /^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+)\s*:/gm;
+                const re = /^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+)\s*:/gm;
                 let mt;
                 while ((mt = re.exec(c))) { if (!stop[mt[1]]) bits.push(mt[1]); }
               }
@@ -14033,7 +14033,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           let raw = String(sceneText == null ? '' : sceneText);
           let scene = raw.replace(/\s+/g, ' ');
           let both = scene + '\n' + String(userText == null ? '' : userText).replace(/\s+/g, ' ');
-          let names = [], seen = {}, re = /^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+)\s*:/gm, mt;
+          let names = [], seen = {}, re = /^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+)\s*:/gm, mt;
           while ((mt = re.exec(raw))) {
             if (!seen[mt[1]] && !/^(Moi|Lui|Elle|Ils|Elles|Nous|Vous|On|Photo|Image)$/.test(mt[1])) { seen[mt[1]] = 1; names.push(mt[1]); }
           }
@@ -14057,7 +14057,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           else if (/poteau|pilier/i.test(both)) fur = 'post';
           if (!womanRestrained) {
             try {
-              let fm2 = both.match(/([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{1,20})[^.]{0,40}?\b(attachée|menottée|ligotée|enchaînée)\b/);
+              let fm2 = both.match(/([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{1,20})[^.]{0,40}?\b(attachée|menottée|ligotée|enchaînée)\b/);
               if (fm2 && !/^(Moi|Lui|Elle|Ils|Elles|Nous|Vous|On|Photo|Image)$/.test(fm2[1])) { womanRestrained = fm2[1]; names.push(fm2[1]); }
             } catch (e) {}
           }
@@ -14198,9 +14198,9 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           let s = null;
           try { s = await App.Sheets.getSheet('moi'); } catch (e) { return false; }
           if (!s || typeof s !== 'object' || typeof s.action_en_cours !== 'string' || !s.action_en_cours) return false;
-          const m = s.action_en_cours.match(/par\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+)/);
+          const m = s.action_en_cours.match(/par\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+)/);
           if (m && m[1] !== locked) {
-            s.action_en_cours = s.action_en_cours.replace(/par\s+[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+/, 'par ' + locked);
+            s.action_en_cours = s.action_en_cours.replace(/par\s+[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+/, 'par ' + locked);
             try {
               if (App.Sheets.saveSheet.length >= 2) await App.Sheets.saveSheet('moi', s);
               else await App.Sheets.saveSheet(s);
@@ -14587,9 +14587,9 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
         try {
           let t = String(s == null ? '' : s);
           if (!t) return t;
-          let cut = t.replace(/\n?[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]*\s*:\s*\{[^{}]*\}(\s*\{[^{}]*\})*/g, '\n');
-          cut = cut.replace(/\n[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]*\s*\{[^{}]*\}(\s*\{[^{}]*\})?/g, '\n');
-          if (cut.indexOf('Nom:') >= 0) cut = cut.replace(/\n{0,2}(?:[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+:\s*)?Nom:\s*[^\n]*\n(?:Genre|Corps|Tenue|Orifices|Action|Lieu):[^\n]*(\n(?:Genre|Corps|Tenue|Orifices|Action|Lieu):[^\n]*)*/g, '\n');
+          let cut = t.replace(/\n?[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]*\s*:\s*\{[^{}]*\}(\s*\{[^{}]*\})*/g, '\n');
+          cut = cut.replace(/\n[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]*\s*\{[^{}]*\}(\s*\{[^{}]*\})?/g, '\n');
+          if (cut.indexOf('Nom:') >= 0) cut = cut.replace(/\n{0,2}(?:[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+:\s*)?Nom:\s*[^\n]*\n(?:Genre|Corps|Tenue|Orifices|Action|Lieu):[^\n]*(\n(?:Genre|Corps|Tenue|Orifices|Action|Lieu):[^\n]*)*/g, '\n');
           cut = cut.replace(/\n{3,}/g, '\n\n');
           if (cut.trim() === '') return t;
           return cut;
@@ -14680,12 +14680,12 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           const stop = { Sofia: 1, Moi: 1, Lui: 1, Elle: 1, Ils: 1, Elles: 1, Nous: 1, Vous: 1, On: 1, Photo: 1, Image: 1 };
           const names = [];
           try {
-            const re = /^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+)\s*:/gm; let mt;
+            const re = /^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+)\s*:/gm; let mt;
             const src = String(replyBuf || '');
             while ((mt = re.exec(src))) { let nn = mt[1]; try { var bn = String(nn).normalize('NFD').replace(/[^a-zA-Z]/g, ''); if (/^zz/i.test(nn)) { if (/^z+vera$/i.test(bn)) nn = 'Vera'; else continue; } } catch (e) {} if (!stop[nn] && names.indexOf(nn) < 0) names.push(nn); }
-            const jm = src.match(/je m.appelle\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+)/i);
+            const jm = src.match(/je m.appelle\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+)/i);
             if (jm && !/^zz/i.test(jm[1]) && !stop[jm[1]] && names.indexOf(jm[1]) < 0) names.unshift(jm[1]);
-            const am = src.match(/appelle-moi\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+)/i);
+            const am = src.match(/appelle-moi\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+)/i);
             if (am && !/^zz/i.test(am[1]) && !stop[am[1]] && names.indexOf(am[1]) < 0) names.unshift(am[1]);
           } catch (e) {}
           if (!names.length) { try { let _solo = false; try { _solo = !!(this.soloActive && this.soloActive(session, userText)); } catch (eS) {} if (_solo) { const lat = (this.sceneCastNames && this.sceneCastNames(session)) || []; if (lat.length) names.push(lat[0]); } } catch (eL) {} }
@@ -14966,7 +14966,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
               return p;
             }
           } catch (eHC) {}
-          let names = [], seen = {}, re = /^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+)\s*:/gm, mt;
+          let names = [], seen = {}, re = /^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+)\s*:/gm, mt;
           let src = String(fullText == null ? '' : fullText);
           while ((mt = re.exec(src))) {
             if (!seen[mt[1]] && !/^(Sofia|Moi|Lui|Elle|Ils|Elles|Nous|Vous|On|Photo|Image)$/.test(mt[1])) { seen[mt[1]] = 1; names.push(mt[1]); }
@@ -15036,7 +15036,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           let s = String(p == null ? '' : p);
           s = s.replace(/«[^»]*»/g, '');
           s = s.replace(/"[^"]*"/g, '');
-          s = s.replace(/\b[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,}:/g, '');
+          s = s.replace(/\b[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,}:/g, '');
           s = s.replace(/\bspeech bubbles?\b|\bspeech balloons?\b|\bdialogue balloons?\b|\btext bubbles?\b|\bcomic panels?\b|\bmeme captions?\b|\bcartoon bubbles?\b/gi, '');
           s = s.replace(/\b(whispering|whispers?|murmuring?|muttering?|saying|says|speaking|talking|softly|gently)\b/gi, '');
           s = s.replace(/\b(with|and|or|of|in|on|a|an|the|her|his|she|he)\s*(?=[,.]|$)/gi, '');
@@ -17072,7 +17072,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
         try {
           if (!session || !Array.isArray(names) || !names.length) return;
           let hn = 2; try { hn = this.castHeadcount(session, null) || 2; } catch (eH) {}
-          let keep = names.map(function (n) { try { var b0 = String(n || '').normalize('NFD').replace(/[^a-zA-Z]/g, ''); if (/^z+vera$/i.test(b0)) return 'Vera'; } catch (e) {} return n; }).filter(function (n) { return n && n.length > 1 && !/^zz/i.test(n); }).slice(0, hn);
+          let keep = names.filter(function (n) { try { return !{ding:1,notification:1,note:1,madame:1,monsieur:1,suite:1,rappel:1,sofia:1,photo:1,image:1}[String(n || '').toLowerCase()]; } catch (e) { return true; } }).map(function (n) { try { var b0 = String(n || '').normalize('NFD').replace(/[^a-zA-Z]/g, ''); if (/^z+vera$/i.test(b0)) return 'Vera'; } catch (e) {} return n; }).filter(function (n) { return n && n.length > 1 && !/^zz/i.test(n); }).slice(0, hn);
           if (!keep.length) return;
           let prev = (session.sceneMem && session.sceneMem.cast) || [];
           if (prev.join('|') === keep.join('|')) return;
@@ -17086,34 +17086,67 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           let recent = msgs.slice(-15);
           try { let _cf = session && session.sceneMem && session.sceneMem.castFrom; if (typeof _cf === 'number' && _cf >= 0) recent = msgs.slice(_cf).slice(-15); } catch (eCF) {}
           try { let _svv = session && session.sceneMem; if (_svv && _svv.castVoid === true) { let _mc = Array.isArray(_svv.cast) ? _svv.cast.slice() : []; let _hn0 = 20; try { _hn0 = this.castHeadcount(session, null) || 20; } catch (eH0) {} return _mc.slice(0, _hn0); } } catch (eV) {}
-          try { var _svs = (session && session.sceneMem) || null; if (_svs && _svs.solo === true && _svs.castN === 1 && Array.isArray(_svs.cast) && _svs.cast.length) { var _cl = []; for (var _qi = 0; _qi < _svs.cast.length; _qi++) { var _qq = _svs.cast[_qi]; try { var _bq = String(_qq || '').normalize('NFD').replace(/[^a-zA-Z]/g, ''); if (/^zz/i.test(String(_qq || ''))) { if (/^z+vera$/i.test(_bq)) _qq = 'Vera'; else continue; } } catch (eZQ) {} if (_cl.indexOf(_qq) < 0) _cl.push(_qq); } if (_cl.length) return _cl.slice(0, 1); } } catch (eSVS) {}
+          try { var _svs = (session && session.sceneMem) || null; if (_svs && _svs.solo === true && _svs.castN === 1 && Array.isArray(_svs.cast) && _svs.cast.length) { try { _svs.cast = _svs.cast.filter(function (q) { try { return !{ding:1,notification:1,note:1,madame:1,monsieur:1,suite:1,rappel:1,sofia:1,photo:1,image:1}[String(q || '').toLowerCase()]; } catch (e) { return true; } }); } catch (eCF2) {} if (!_svs.cast.length) { try { _svs.castVoid = false; } catch (eCV) {} } else { var _cl = []; for (var _qi = 0; _qi < _svs.cast.length; _qi++) { var _qq = _svs.cast[_qi]; try { var _bq = String(_qq || '').normalize('NFD').replace(/[^a-zA-Z]/g, ''); if (/^zz/i.test(String(_qq || ''))) { if (/^z+vera$/i.test(_bq)) _qq = 'Vera'; else continue; } } catch (eZQ) {} if (_cl.indexOf(_qq) < 0) _cl.push(_qq); } if (_cl.length) return _cl.slice(0, 1); } } } catch (eSVS) {}
           let names = [];
           let HN = 2; try { HN = this.castHeadcount(session, null) || 2; } catch (eH) {}
-          let stop = { Sofia: 1, Moi: 1, Lui: 1, Elle: 1, Ils: 1, Elles: 1, Nous: 1, Vous: 1, On: 1, Photo: 1, Image: 1 };
+          let stop = { Sofia: 1, Moi: 1, Lui: 1, Elle: 1, Ils: 1, Elles: 1, Nous: 1, Vous: 1, On: 1, Photo: 1, Image: 1, Ding: 1, Notification: 1, Note: 1, Madame: 1, Monsieur: 1, Suite: 1, Rappel: 1, 'ソフィア': 1, '索菲娅': 1, '索菲亞': 1, '소피아': 1, '通知': 1, '写真': 1, '画像': 1, '照片': 1, '圖片': 1, '图片': 1, '사진': 1 };
           // Ronde 637 : en solo sans distribution formelle, un préfixe « X: »
           // qu'ELLE seule a écrit est son invention — sauf prénom qu'IL a donné.
-          let _soloEmpty = false, _userGiven = null;
+          let _soloEmpty = false, _userGiven = null, _solo1pick = false, _lastUser = '';
           try {
             const _svx = session && session.sceneMem;
             _soloEmpty = !!(_svx && _svx.solo === true && _svx.castN === 1 && (!Array.isArray(_svx.cast) || !_svx.cast.length));
+            try { _solo1pick = !!(_svx && _svx.solo === true && _svx.castN === 1 && HN === 1); } catch (eS1) {}
+            const _um = [];
+            for (const _m0 of recent) if (_m0 && _m0.role === 'user' && typeof _m0.content === 'string') _um.push(_m0.content);
+            if (_um.length) _lastUser = _um[_um.length - 1];
             if (_soloEmpty) {
-              const _um = [];
-              for (const _m0 of recent) if (_m0 && _m0.role === 'user' && typeof _m0.content === 'string') _um.push(_m0.content);
-              _userGiven = (this.explicitHerName && this.explicitHerName(_um.join('\n'))) || null;
+              let _spoke = false;
+              for (const _m0 of recent) { if (_m0 && _m0.role !== 'user' && String(_m0.content || '').trim()) { _spoke = true; break; } }
+              if (_spoke) _soloEmpty = false;
+              else _userGiven = (this.explicitHerName && this.explicitHerName(_um.join('\n'))) || null;
             }
           } catch (eUG) {}
+          var _cnt = {};
           for (let m of recent) {
             let c = String((m && m.content) || '');
             if (!c) continue;
-            let re = /^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+)\s*:/gm, mt;
+            let re = /^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+)\s*:/gm, mt;
             while ((mt = re.exec(c))) {
               let n = mt[1];
               try { var b1 = String(n).normalize('NFD').replace(/[^a-zA-Z]/g, ''); if (/^zz/i.test(n)) { if (/^z+vera$/i.test(b1)) n = 'Vera'; else continue; } } catch (e) {}
-              if (n.length > 1 && !stop[n] && names.indexOf(n) < 0) {
-                if (!_soloEmpty || (_userGiven && String(_userGiven).toLowerCase() === String(n).toLowerCase())) names.push(n);
+              if (n.length > 1 && !stop[n]) {
+                _cnt[n] = (_cnt[n] || 0) + 1;
+                if (names.indexOf(n) < 0) {
+                  if (!_soloEmpty || (_userGiven && String(_userGiven).toLowerCase() === String(n).toLowerCase())) names.push(n);
+                }
               }
-              if (names.length >= HN) { try { this.castRemember(session, names); } catch (e) {} return names; }
+              if (!_solo1pick && names.length >= HN) { try { this.castRemember(session, names); } catch (e) {} return names; }
             }
+            try {
+              var recjk = new RegExp('^([\\u4E00-\\u9FFF\\u3040-\\u30FF\\uAC00-\\uD7AF]{2,4})\\s*[:\\uFF1A]', 'gm'), mj;
+              while ((mj = recjk.exec(c))) {
+                var nc2 = mj[1];
+                if (!stop[nc2]) {
+                  _cnt[nc2] = (_cnt[nc2] || 0) + 1;
+                  if (names.indexOf(nc2) < 0) {
+                    if (!_soloEmpty || (_userGiven && String(_userGiven).toLowerCase() === String(nc2).toLowerCase())) names.push(nc2);
+                  }
+                }
+                if (!_solo1pick && names.length >= HN) { try { this.castRemember(session, names); } catch (e) {} return names; }
+              }
+            } catch (eCjk) {}
+          }
+          if (_solo1pick && names.length) {
+            try {
+              var _ren = null;
+              try { if (_lastUser) _ren = (this.explicitHerName && this.explicitHerName(_lastUser)) || null; } catch (eRn) {}
+              if (_ren) { try { this.castRemember(session, [_ren]); } catch (eRr) {} return [_ren]; }
+              var _best = names[0], _bc = -1;
+              for (var _ni = names.length - 1; _ni >= 0; _ni--) { var _cc = _cnt[names[_ni]] || 0; if (_cc > _bc) { _bc = _cc; _best = names[_ni]; } }
+              try { this.castRemember(session, [_best]); } catch (eRb) {}
+              return [_best];
+            } catch (eBp) {}
           }
           if (!names.length) { try { let sv = (session && session.sceneMem && session.sceneMem.cast) || null; if (Array.isArray(sv) && sv.length) { let cl = []; for (const q of sv) { let qq = q; try { var bq = String(q || '').normalize('NFD').replace(/[^a-zA-Z]/g, ''); if (/^zz/i.test(String(q || ''))) { if (/^z+vera$/i.test(bq)) qq = 'Vera'; else continue; } } catch (e) {} if (cl.indexOf(qq) < 0) cl.push(qq); } if (cl.length) return cl.slice(0, HN); } } catch (e) {} }
           try { this.castRemember(session, names); } catch (e) {}
@@ -17141,7 +17174,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
               }
             }
           } catch (eN) {}
-          if (nm && /^[A-ZÀ-Þ]/.test(nm)) {
+          if (nm && /^[A-ZÀ-ÞĀ-Ž]/.test(nm)) {
             try { if (id && App.State._soloNameBySid) App.State._soloNameBySid[id] = nm; } catch (eS) {}
             return nm;
           }
@@ -17165,7 +17198,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           if (n.length >= 1) return true;
           let cur0 = String(text == null ? '' : text);
           try {
-            let hasName = /[A-ZÀ-Þ][a-zà-ÿ'’-]{2,}/.test(cur0);
+            let hasName = /[A-ZÀ-ÞĀ-Ž][a-zà-ÿā-ž'’-]{2,}/.test(cur0);
             let hasBody = /(nu\b|nue\b|fauteuil|d[ée]shabill|seins|poitrine|t[ée]ton|vulve|clitoris|capuchon|mont de v[ée]nus|embrass|suce|l[èe]ch|genoux|caress|touch|bouche|langue|doigt|fesse|hanche|cuisse|bais|mamelon)/i.test(cur0);
             if (hasName && hasBody) return true;
           } catch (e0) {}
@@ -17176,10 +17209,10 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           }
           let seen = {};
           for (let c of bots) {
-            let re = /^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+)\s*:/gm, mt;
+            let re = /^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+)\s*:/gm, mt;
             while ((mt = re.exec(String(c)))) { seen[mt[1]] = 1; }
           }
-          let keys = Object.keys(seen).filter(k => !/^zz/i.test(k) && !{Sofia:1,Moi:1,Lui:1,Elle:1,Ils:1,Elles:1,Nous:1,Vous:1,On:1,Photo:1,Image:1}[k]);
+          let keys = Object.keys(seen).filter(k => !/^zz/i.test(k) && !{Sofia:1,Moi:1,Lui:1,Elle:1,Ils:1,Elles:1,Nous:1,Vous:1,On:1,Photo:1,Image:1,Ding:1,Notification:1,Note:1,Madame:1,Monsieur:1,Suite:1,Rappel:1}[k]);
           if (keys.length >= 2) return true;
           try {
             if (n.length >= 1 && /repre(ndre|ns)|recommence|remets?\b|d[ée]but|restart|replay|relance|repartons|de z[ée]ro|tout au d[ée]but/i.test(cur00)) return true;
@@ -17229,11 +17262,11 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           const cur = String(text == null ? '' : text);
           if (!cur.trim()) return null;
           const low = cur.toLowerCase();
-          const ban = { sofia: 1, sophie: 1, sophia: 1, sofie: 1, sonia: 1, moi: 1, lui: 1, elle: 1, photo: 1, image: 1, madame: 1, femme: 1, maitresse: 1, une: 1, deux: 1, des: 1, les: 1, cette: 1, jeune: 1, jolie: 1, belle: 1, nouvelle: 1, autre: 1, grande: 1, petite: 1, vraie: 1, zvera: 1, zzvera: 1, zzsophie: 1, zsophie: 1 };
-          const marks = ["s'appelle", "s appelle", "appelée", "appelee", "nommée", "nommee", "prénom est", "prenom est", "prénom", "prenom", "incarne", "ncarne", "baptise", "baptisée", "baptisee", "tu es", "t'es", "vous êtes", "vous etes", "appelle", "appelles", "appellera", "appellerai", "appelons", "nomme", "nom est", "surnomme", "surnommée", "surnommee"];
+          const ban = { sofia: 1, sophie: 1, sophia: 1, sofie: 1, sonia: 1, moi: 1, lui: 1, elle: 1, photo: 1, image: 1, madame: 1, femme: 1, maitresse: 1, une: 1, deux: 1, des: 1, les: 1, cette: 1, jeune: 1, jolie: 1, belle: 1, nouvelle: 1, autre: 1, grande: 1, petite: 1, vraie: 1, zvera: 1, zzvera: 1, zzsophie: 1, zsophie: 1, "eine": 1, "einer": 1, "einem": 1, "einen": 1, "eines": 1, "der": 1, "die": 1, "das": 1, "den": 1, "dem": 1, "und": 1, "oder": 1, "aber": 1, "mich": 1, "dich": 1, "sich": 1, "frau": 1, "mann": 1, "beste": 1, "schöne": 1, "dame": 1, "mädchen": 1, "herrin": 1, "el": 1, "la": 1, "los": 1, "las": 1, "una": 1, "unos": 1, "este": 1, "esta": 1, "ese": 1, "esa": 1, "pero": 1, "mujer": 1, "hombre": 1, "chica": 1, "joven": 1, "nueva": 1, "bella": 1, "señora": 1, "il": 1, "lo": 1, "gli": 1, "uno": 1, "questo": 1, "questa": 1, "quello": 1, "quella": 1, "donna": 1, "uomo": 1, "ragazza": 1, "giovane": 1, "nuova": 1, "bella": 1, "signora": 1, "ten": 1, "te": 1, "tego": 1, "tej": 1, "jeden": 1, "jedna": 1, "ale": 1, "lub": 1, "oraz": 1, "kobieta": 1, "mężczyzna": 1, "dziewczyna": 1, "młody": 1, "młoda": 1, "nowa": 1, "piękna": 1, "hallo": 1, "danke": 1, "ja": 1, "nein": 1, "hola": 1, "gracias": 1, "ciao": 1, "grazie": 1, "cześć": 1, "tak": 1, "nie": 1 };
+          const marks = ["s'appelle", "s appelle", "appelée", "appelee", "nommée", "nommee", "prénom est", "prenom est", "prénom", "prenom", "incarne", "ncarne", "baptise", "baptisée", "baptisee", "tu es", "t'es", "vous êtes", "vous etes", "appelle", "appelles", "appellera", "appellerai", "appelons", "nomme", "nom est", "surnomme", "surnommée", "surnommee", "heißt", "heisst", "heiße", "heisse", "nennt mich", "nenn mich", "ruf mich", "du bist", "verkörpere", "se llama", "me llamo", "llámame", "llamame", "nombre es", "te llamas", "encarna", "si chiama", "mi chiamo", "chiamami", "ti chiami", "incarna", "nazywa się", "nazywa sie", "nazywam się", "nazywam sie", "mam na imię", "mam na imie", "nazwij mnie", "nazywaj mnie", "jesteś", "jestes", "odgrywasz", "wcielasz się", "wcielasz sie"];
           const cut = ' "\u2018\u2019\u00ab\u00bb().,:;!?-';
           const strip = (w) => { let a = 0, b = w.length; while (a < b && cut.indexOf(w[a]) !== -1) a++; while (b > a && cut.indexOf(w[b - 1]) !== -1) b--; return w.slice(a, b); };
-          const beforeWord = (pos) => { try { const left = low.slice(0, pos).replace(/\s+$/, ''); const m = left.match(/([a-zà-ÿ]+)['’]?$/); return (m && m[1]) || ''; } catch (e) { return ''; } };
+          const beforeWord = (pos) => { try { const left = low.slice(0, pos).replace(/\s+$/, ''); const m = left.match(/([a-zà-ÿā-ž]+)['’]?$/); return (m && m[1]) || ''; } catch (e) { return ''; } };
           for (const mk of marks) {
             let i = low.indexOf(mk);
             while (i !== -1) {
@@ -17255,15 +17288,15 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           // (« comment veux-tu m'appeler ? ») — mais jamais un bonjour.
           try {
             const bare = cur.replace(/\s+/g, ' ').trim();
-            if (/^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,}(?:\s+[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})?)\s*[.!?]*$/.test(bare) && session && Array.isArray(session.messages)) {
+            if (/^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,}(?:\s+[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})?)\s*[.!?]*$/.test(bare) && session && Array.isArray(session.messages)) {
               const nm0 = bare.replace(/[.!?]*$/, '');
-              const no = { Bonjour: 1, Bonsoir: 1, Salut: 1, Coucou: 1, Hello: 1, Merci: 1, Oui: 1, Non: 1, Daccord: 1, 'D’accord': 1, Bravo: 1, Putain: 1, Sofia: 1, Max: 0 };
+              const no = { Bonjour: 1, Bonsoir: 1, Salut: 1, Coucou: 1, Hello: 1, Merci: 1, Oui: 1, Non: 1, Daccord: 1, 'D’accord': 1, Bravo: 1, Putain: 1, Sofia: 1, Max: 0, Hallo: 1, Danke: 1, Ja: 1, Nein: 1, Hola: 1, Gracias: 1, Si: 1, Ciao: 1, Grazie: 1, Tak: 1, Nie: 1 };
               let asked = false;
               try {
                 const mm = session.messages;
                 for (let k = mm.length - 1; k >= 0; k--) {
                   const m = mm[k];
-                  if (m && m.role === 'assistant' && typeof m.content === 'string' && /(comment|quel).{0,40}(appeler|appel|pr[ée]nom|nommer|nom respecter|baptis)|(appelle-moi|dis-moi).{0,30}(comment|quel)/i.test(m.content)) { asked = true; break; }
+                  if (m && m.role === 'assistant' && typeof m.content === 'string' && /(comment|quel).{0,40}(appeler|appel|prénom|nommer|nom respecter|baptis)|(appelle-moi|dis-moi).{0,30}(comment|quel)|wie.{0,30}(heiß|heiss|nenn|ruf)|welchen namen|cómo.{0,30}(llam|nombre)|cuál.{0,30}nombre|come.{0,30}(chiam|nome)|quale.{0,30}nome|jak.{0,30}(nazyw|imię|imie)|jakie.{0,30}imię/i.test(m.content)) { asked = true; break; }
                   if (m && m.role === 'user') break;
                 }
               } catch (eA) {}
@@ -17272,7 +17305,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
                 try {
                   const um = [];
                   for (const m of session.messages) if (m && m.role === 'user' && typeof m.content === 'string') um.push(m.content);
-                  const hre = /(je m.appelle|je suis|mon nom est|moi,?\s+c.est)\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})/gi; let hm;
+                  const hre = /(je m.appelle|je suis|mon nom est|moi,?\s+c.est)\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})/gi; let hm;
                   while ((hm = hre.exec(um.join('\n')))) if (hm[2] === nm0) { his0 = true; break; }
                 } catch (eH) {}
                 if (!his0) return nm0;
@@ -17291,7 +17324,11 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
             en: ['Emily','Jessica','Ashley','Megan','Lauren','Rachel','Nicole','Amber','Heather','Tiffany','Samantha','Elizabeth','Olivia','Emma','Ava','Mia','Harper','Ella','Grace','Chloe'],
             es: ['Lucía','María','Carmen','Ana','Irene','Laura','Marta','Sara','Elena','Cristina','Paula','Andrea','Eva','Julia'],
             de: ['Anna','Maria','Julia','Laura','Sarah','Vanessa','Kathrin','Stefanie','Melanie','Sabrina','Lena','Marie','Leonie','Hannah'],
-            it: ['Giulia','Francesca','Chiara','Federica','Valentina','Sara','Elisa','Martina','Silvia','Alessia','Elena','Gaia']
+            it: ['Giulia','Francesca','Chiara','Federica','Valentina','Sara','Elisa','Martina','Silvia','Alessia','Elena','Gaia'],
+            pl: ['Kasia','Magda','Ola','Agnieszka','Karolina','Natalia','Paulina','Marta','Ewa','Zosia','Weronika','Julia','Oliwia','Maja','Zuzanna','Aleksandra','Wiktoria','Dominika','Patrycja','Sandra'],
+            ja: ['Yuki','Sakura','Hana','Aoi','Mei','Rin','Emi','Aya','Nana','Mio','Saki','Yui','Kana','Riko','Hina','Akari','Noa','Koharu','Misa','Airi'],
+            zh: ['Xiaoyu','Mei','Lan','Fang','Na','Min','Jing','Ting','Xin','Yan','Li','Xue','Ying','Qian','Wei','Tao','Chao','Lin','Xiao','An'],
+            ko: ['Jisoo','Minji','Seoyeon','Hana','Yuna','Dara','Mira','Sora','Nari','Yeri','Chaewon','Hyejin','Eunji','Soojin','Jiwon','Hyuna','Boram','Yuri','Nayeon','Seulgi']
           };
           const pool = pools[lang] || pools.fr;
           const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[^a-z]/g, '');
@@ -17299,7 +17336,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           try {
             const msgs = (session && Array.isArray(session.messages)) ? session.messages : [];
             const recent = msgs.slice(-20).map((m) => String((m && m.content) || '')).join(' ');
-            const words = recent.split(/[^A-Za-zÀ-ÿ'’-]+/);
+            const words = recent.split(/[^A-Za-zÀ-ÿĀ-ž'’-]+/);
             for (const w of words) { if (w.length >= 3) banned[norm(w)] = 1; }
           } catch (e) {}
           for (let k = 0; k < 25; k++) {
@@ -17326,7 +17363,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           try {
             const msgs = (session && Array.isArray(session.messages)) ? session.messages : [];
             const recent = msgs.slice(-20).map((m) => String((m && m.content) || '')).join(' ');
-            const words = recent.split(/[^A-Za-zÀ-ÿ'’-]+/);
+            const words = recent.split(/[^A-Za-zÀ-ÿĀ-ž'’-]+/);
             for (const w of words) { if (w.length >= 3) banned[norm(w)] = 1; }
           } catch (e) {}
           for (let k = 0; k < 25; k++) {
@@ -17344,7 +17381,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[^a-z]/g, '');
           const used = {};
           try {
-            const words = String(text || '').split(/[^A-Za-zÀ-ÿ'’-]+/);
+            const words = String(text || '').split(/[^A-Za-zÀ-ÿĀ-ž'’-]+/);
             for (const w of words) { if (w.length >= 3) used[norm(w)] = 1; }
           } catch (e) {}
           const women = [], men = [];
@@ -17565,9 +17602,9 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           try { if (App.Core && App.Core.sceneCraftActive && App.Core.sceneCraftActive(session, cur) && !/catalogue/i.test(cur)) return ''; } catch (eSceneCk) {}
           let forName = '';
           try {
-            const mn = cur.match(/\bpour\s+([A-ZÀ-Þ][a-zà-ÿ'’-]+(?:\s+[A-ZÀ-Þ][a-zà-ÿ'’-]+)?)/);
+            const mn = cur.match(/\bpour\s+([A-ZÀ-ÞĀ-Ž][a-zà-ÿā-ž'’-]+(?:\s+[A-ZÀ-ÞĀ-Ž][a-zà-ÿā-ž'’-]+)?)/);
             if (mn) forName = mn[1];
-            else { const mh = cur.match(/\bhabill\w*\s+([A-ZÀ-Þ][a-zà-ÿ'’-]+(?:\s+[A-ZÀ-Þ][a-zà-ÿ'’-]+)?)/); if (mh) forName = mh[1]; }
+            else { const mh = cur.match(/\bhabill\w*\s+([A-ZÀ-ÞĀ-Ž][a-zà-ÿā-ž'’-]+(?:\s+[A-ZÀ-ÞĀ-Ž][a-zà-ÿā-ž'’-]+)?)/); if (mh) forName = mh[1]; }
           } catch (eN) {}
           const wdTrigger = /(catalogue|montre[-\s]?(moi|nous)?|donne[-\s]?(moi|nous)?|quels?[^.?!]{0,40}(as?-?tu|proposes?-?tu|peux?-?tu)|habiller|meubler|mobilier|d[ée]cor|canap[ée]|fauteuil)/i.test(cur);
           const wdClothing = /(catalogue|v[êe]tements?|lingerie|tenues?|habill|soutiens?-?gorge|boxers?|slips?|strings?|culottes?|maillots?|pyjamas?|costume|robe|jupe|pantalon|chemise)/i.test(cur);
@@ -17724,7 +17761,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           if (!((cloth && (miss || photo)) || (wdCtx && (miss || photo)))) return '';
           let who = 'her';
           try {
-            let mn = cur.match(/\bpour\s+([A-ZÀ-Þ][a-zà-ÿ'’-]+(?:\s+[A-ZÀ-Þ][a-zà-ÿ'’-]+)?)/);
+            let mn = cur.match(/\bpour\s+([A-ZÀ-ÞĀ-Ž][a-zà-ÿā-ž'’-]+(?:\s+[A-ZÀ-ÞĀ-Ž][a-zà-ÿā-ž'’-]+)?)/);
             if (mn) who = 'other:' + mn[1];
             else if (/(m'habiller|habille-moi|pour moi|que je peux|je vais (porter|mettre)|je veux (porter|mettre)|mon (costume|boxer|slip|string|tenue|v[êe]tement)|v[êe]tements? (pour )?hommes?|pour hommes?)/i.test(cur)) who = 'him';
             else if (/(mobilier|meuble|d[ée]cor|canap[ée]|fauteuil|meubler)/i.test(cur)) who = 'decor';
@@ -18165,7 +18202,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
         try {
           let cur = String(text == null ? '' : text);
           let stop = { Sofia: 1, Moi: 1, Lui: 1, Elle: 1, Ils: 1, Elles: 1, Nous: 1, Vous: 1, On: 1, Photo: 1, Image: 1, Sophia: 1, Sofie: 1, Sonia: 1 };
-          let re = /(?:un (?:nomm[ée]|appel[ée])|une (?:nomm[ée]e|appel[ée]e)|avec|et|invite|rejoint(?:e)? par)\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})/g, mt;
+          let re = /(?:un (?:nomm[ée]|appel[ée])|une (?:nomm[ée]e|appel[ée]e)|avec|et|invite|rejoint(?:e)? par)\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})/g, mt;
           while ((mt = re.exec(cur))) { let nw = mt[1]; try { var bw = String(nw).normalize('NFD').replace(/[^a-zA-Z]/g, ''); if (/^zz/i.test(nw)) { if (/^z+vera$/i.test(bw)) nw = 'Vera'; else continue; } } catch (e) {} if (!stop[nw] && nm.indexOf(nw) < 0 && nm.length < 20) nm.push(nw); }
         } catch (e) {}
         let who = nm.length ? ('On stage now: ' + nm.join(', ') + '. ') : '';
@@ -18271,10 +18308,10 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           let low = s.toLowerCase();
           let adj = '(?:(?:propre|gros|grosse|grand|grande|petit|petite|long|longue|beau|belle|joli|jolie|dur|dure|chaud|chaude|tendre|jeune|nouveau|nouvelle|vieux|vieille|immense|[ée]norme|magnifique|superbe|doux|douce|bandant|bandante|généreux|maudit|sale) )';
           let res = [
-            new RegExp('(^|[^a-zà-ÿ])((?:ma|mon) ' + adj + '?(?:queue|verge|bite|p[ée]nis|membre|gland|chibre|pr[ée]puce|scrotum|zob|sperme|semence|foutre))', 'g'),
-            new RegExp('(^|[^a-zà-ÿ])(mes (?:couilles|testicules|burnes|roubignoles))', 'g'),
-            new RegExp('(^|[^a-zà-ÿ])((?:ma|la) prostate|(?:mon|une) [ée]rection|en [ée]rection)', 'g'),
-            new RegExp('(^|[^a-zà-ÿ])(je band(?:e|ais|ait|erai|erais)|me faire bander|j[\\u2019\\u0027]?[ée]jacule|j[\\u2019\\u0027]?ai [ée]jacul[ée])', 'g')
+            new RegExp('(^|[^a-zà-ÿā-ž])((?:ma|mon) ' + adj + '?(?:queue|verge|bite|p[ée]nis|membre|gland|chibre|pr[ée]puce|scrotum|zob|sperme|semence|foutre))', 'g'),
+            new RegExp('(^|[^a-zà-ÿā-ž])(mes (?:couilles|testicules|burnes|roubignoles))', 'g'),
+            new RegExp('(^|[^a-zà-ÿā-ž])((?:ma|la) prostate|(?:mon|une) [ée]rection|en [ée]rection)', 'g'),
+            new RegExp('(^|[^a-zà-ÿā-ž])(je band(?:e|ais|ait|erai|erais)|me faire bander|j[\\u2019\\u0027]?[ée]jacule|j[\\u2019\\u0027]?ai [ée]jacul[ée])', 'g')
           ];
           let out = [];
           for (let i = 0; i < res.length; i++) {
@@ -18407,7 +18444,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
         let s = String(text == null ? '' : text);
         try { s = this.herBodyRepair(s); } catch (e) { return s; }
         try {
-          let m = s.match(/(^|[^a-zà-ÿA-ZÀ-Ý])((?:ma|mon|mes)(?: [a-zà-ÿ]{0,12})?)$/);
+          let m = s.match(/(^|[^a-zà-ÿā-žA-ZÀ-Ý])((?:ma|mon|mes)(?: [a-zà-ÿā-ž]{0,12})?)$/);
           if (m) {
             let tail = String(m[2]).toLowerCase();
             let after = tail.replace(/^(ma|mon|mes)\s*/, '');
@@ -20476,31 +20513,33 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
            let systemInstruction = await this.buildSystemInstruction(text, session, activeLanguage);
            try { if (App.UI && App.UI.refreshThinkingLabel) App.UI.refreshThinkingLabel(botId); } catch (eRTL) {}
            let postBlocks = [];
+            let _soloLeanTurn = false;
+            try { _soloLeanTurn = !!(App.Core.soloActive && App.Core.soloActive(session, text)) && !(App.RPG.state && App.RPG.state.active) && !(App.Chess && App.Chess.isEnabled()) && !(App.Chaos && App.Chaos.isActive()); } catch (eSLT) {}
            let attCtx = App.Attachments.buildAttachmentContext();
            if (attCtx) postBlocks.push(attCtx);
            try {
              let attachedKeys = new Set(App.Attachments.files.map(f => App.Documents.keyFor(f.name, f.size, f.kind)));
              let docCtx = await App.Documents.buildContextBlock(attachedKeys);
-             if (docCtx) postBlocks.push(docCtx);
+             if (docCtx && !_soloLeanTurn) postBlocks.push(docCtx);
            } catch (e) { console.warn('[Core] Document library context failed', e); }
            // Ronde 184 : grands fichiers — les noms issus de sa question sont
            // lus À L'AVANCE vraiment dans le fichier, pour qu'elle n'ait pas à deviner.
            try {
              if (App.Files) {
                let pf = await App.Files.prefetch(text, { budget: 6000 });
-               if (pf) { postBlocks.push(pf); if (App.SourceColor) App.SourceColor.note('fichier', pf); }
+               if (pf && !_soloLeanTurn) { postBlocks.push(pf); if (App.SourceColor) App.SourceColor.note('fichier', pf); }
              }
            } catch (e) { console.warn('[Core] file pre-read failed', e); }
            if (webPagePlan) {
              try {
                let pageBlock = App.WebVision.buildPageBlock(webPagePlan);
-               if (pageBlock) { postBlocks.push(pageBlock); if (App.SourceColor) App.SourceColor.note('web', pageBlock); }
+               if (pageBlock && !_soloLeanTurn) { postBlocks.push(pageBlock); if (App.SourceColor) App.SourceColor.note('web', pageBlock); }
              } catch (e) { console.warn('[WebVision] prompt block failed', e); }
            }
            if (webSearchRes) {
              try {
                let wsBlock = App.WebSearch.buildBlock(webSearchRes, { wantImages: !!(webSearchReq && webSearchReq.wantImages) });
-               if (wsBlock) { postBlocks.push(wsBlock); if (App.SourceColor) App.SourceColor.note('web', wsBlock); }
+               if (wsBlock && !_soloLeanTurn) { postBlocks.push(wsBlock); if (App.SourceColor) App.SourceColor.note('web', wsBlock); }
              } catch (e) { console.warn('[WebSearch] prompt block failed', e); }
            }
            try {
@@ -20509,7 +20548,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
                App.UI.setActivityStatus(botId, 'research', true);
                let wb = await App.Weather.block(wq, session);
                App.UI.setActivityStatus(botId, 'research', false);
-               if (wb) { postBlocks.push(wb); if (App.SourceColor) App.SourceColor.note('web', wb); }
+               if (wb && !_soloLeanTurn) { postBlocks.push(wb); if (App.SourceColor) App.SourceColor.note('web', wb); }
              }
            } catch (e) { console.warn('[Weather] prompt block failed', e); }
            if (mathLookupRes && !mathLookupRes.failed && (mathLookupRes.results || []).length) {
@@ -20541,13 +20580,13 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
                  : memoKind === 'secu'
                  ? "[SECURITE INFORMATIQUE - TU AS TOI-MEME CHERCHE SUR LE WEB, PARCE QUE TES FICHES SECUSER NE COUVRENT PAS CETTE QUESTION. Sers-toi de ces vrais resultats, et dis ce qui vient de tes fiches (secuser.com - archival : dernieres alertes 2011, dernieres vulnerabilites 2016) et ce qui vient du web - n'invente ni alerte, ni date, ni statut.]"
                  : "[MATHEMATIQUES - TU AS TOI-MEME CHERCHE SUR LE WEB, PARCE QUE TES MAPPES NE COUVRENT PAS CETTE QUESTION. Sers-toi de ces vrais resultats, et si tu expliques une methode, donne-la comme ces pages la donnent.]") + '\n' + mlBlock;
-                 postBlocks.push(mlFull); if (App.SourceColor) App.SourceColor.note('web', mlFull); }
+                 if (!_soloLeanTurn) postBlocks.push(mlFull); if (App.SourceColor) App.SourceColor.note('web', mlFull); }
              } catch (e) { console.warn('[Memo] bloc de recherche auto échoué', e); }
            }
            if (verifyRes) {
              try {
                let vBlock = App.Verify.buildBlock(verifyRes);
-               if (vBlock) { postBlocks.push(vBlock); if (App.SourceColor) App.SourceColor.note('web', vBlock); }
+               if (vBlock && !_soloLeanTurn) { postBlocks.push(vBlock); if (App.SourceColor) App.SourceColor.note('web', vBlock); }
              } catch (e) { console.warn('[Verify] prompt block failed', e); }
            }
            let instructionPayload = this.attachBeforeGeneration(systemInstruction, postBlocks);
@@ -21710,6 +21749,55 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
               return _lean + "\nAssistant:";
             }
           } catch (eRPG) {}
+          // Ronde 663 : en scène SOLO, UN SEUL système léger (même idée que la ronde 514 en RPG).
+          // Le persona complet (~15k) + mémos faisaient dépasser la fenêtre du plugin (~7k tokens) :
+          // coupe « middle-out » qui mangeait le MILIEU (verrous de prénom, règles fiches).
+          try {
+            let _sl = (!(opts && opts.chessTurn)) && !(App.RPG.state && App.RPG.state.active) && !(App.Chess && App.Chess.isEnabled()) && !chaosOn;
+            if (_sl) { try { _sl = !!(App.Core.soloActive && App.Core.soloActive(session, text)); } catch (eSl) { _sl = false; } }
+            if (_sl) {
+              let _hist = historyContext;
+              try {
+                if (String(_hist).length > 3000) { let _hl = String(_hist).split('\n'); _hist = (_hl.length > 60 ? _hl.slice(-60) : _hl).join('\n'); if (_hist.length > 3000) _hist = _hist.slice(-3000); }
+              } catch (eH) {}
+              let _lean = "[SCENE SOLO \u2014 SINGLE SYSTEM]\nYou are SHE: the one woman of this webcam scene, in her room, present tense, French only. He watches from his computer; you never meet physically, never share a room. You never present yourself, never greet, never state name, age, capabilities or modes: your FIRST line is her live voice or act.";
+              if (this._isLowConfidence) {
+                _lean += "\n\n[LOW CONFIDENCE PROTOCOL] The user's language is ambiguous. It might be " + targetLangName + ".\nTASK: Ask the user for clarification in the most probable language (" + targetLangName + "). DO NOT answer in English unless the input was definitely English. Be brief and polite.\n";
+              } else {
+                _lean += "\n\n[STRICT LANGUAGE CONSTRAINT] You are strictly required to respond in " + targetLangName + " (Code: " + activeLanguage + "). Do NOT switch languages under any circumstances unless explicitly requested by a command. Do NOT default to English. Maintain deterministic language consistency.\n";
+              }
+              try { if (App.Age) { let _ab = App.Age.promptBlock(); if (_ab) _lean += "\n\n" + _ab + "\n"; } } catch (e) {}
+              try { if (App.Guard) { let _pb = App.Guard.policyBlock(); if (_pb) _lean += "\n\n" + _pb; } } catch (e) {}
+              try { let _cb = App.Core.castBlock(session, text); if (_cb) _lean += "\n\n" + _cb; } catch (e) {}
+              if (contextText) _lean += "\n\n" + contextText;
+              try { if (App.State.settings.username && App.State.settings.username.trim() !== "") _lean += "\n\n[PERSISTENT USER MEMORY - DO NOT FORGET]\nName: " + App.State.settings.username.trim(); } catch (e) {}
+              try { if (App.State.settings.userInfo && App.State.settings.userInfo.trim() !== "") _lean += "\n[END PERSISTENT USER MEMORY]\nInfo: " + App.State.settings.userInfo.trim(); } catch (e) {}
+              _lean += "\n\nConversation History:\n" + _hist;
+              try { if (App.Parental) { let _pp = App.Parental.policyBlock(); if (_pp) _lean += "\n\n" + _pp; } } catch (e) {}
+              try { if (App.Age && App.Age.tailBlock) { let _at = App.Age.tailBlock(); if (_at) _lean += "\n\n" + _at; } } catch (e) {}
+              try { let _sht = App.Sheets ? await App.Sheets.promptBlock(session, text) : null; if (_sht && _sht.length > 2500) { try { let _cut = _sht.slice(0, 2500); let _nl = _cut.lastIndexOf('\n'); _sht = (_nl > 1500 ? _cut.slice(0, _nl) : _cut) + "\n[…fiches tronquées au budget scène…]"; } catch (eCut) {} } if (_sht) { try { if (App.Core && App.Core.dropSofiaSheet) _sht = App.Core.dropSofiaSheet(_sht); } catch (eDrop) {} try { if (App.Core && App.Core.dropAbsentSheets) _sht = App.Core.dropAbsentSheets(_sht, session, text); } catch (eAbs) {} _lean += "\n\n" + _sht; _lean += "\n[FICHE - GENRE EXPLICITE] Chaque fiche de personnage porte son genre en toutes lettres (femme ou homme), en plus du sexe anatomique d\u00e9taill\u00e9."; _lean += "\n[FICHE - SOFIA NE JOUE JAMAIS] Sofia herself never plays. Every scene woman gets her OWN sheet under her locked first name: complete body, outfit layer by layer, orifices, current act. Never print a fiche as visible text. If his body, outfit or place is unknown, say it vaguely in plain words \u2014 never '[...:?]' templates, never '?'."; } } catch (e) {}
+              try { let _ct = App.Core.craftTail(session, text); if (_ct) _lean += _ct; } catch (e) {}
+              try { if (/donjon|pilori|croix de saint|corde|cha[\u00eei]ne|menotte|ligote|attache|fouet|cravache|plug|b\u00e2illon|gode|harnais/i.test(String(text || ''))) { let _jt = App.Core.donjonTail(session, text); if (_jt) _lean += _jt; } } catch (e) {}
+              try { let _rt = App.Core.realityTail(); if (_rt) _lean += _rt; } catch (e) {}
+              try { let _et = App.Core.energyTail(session, text); if (_et) _lean += _et; } catch (e) {}
+              try { let _kt = App.Core.castTail(session, text); if (_kt) _lean += _kt; } catch (e) {}
+              try { let _tut = App.Core.tuTail(session, text); if (_tut) _lean += _tut; } catch (e) {}
+              try { let _sqt = App.Core.stagingTail(session, text); if (_sqt) _lean += _sqt; } catch (e) {}
+              try { let _kit = App.Core.castIdentityTail(session, text); if (_kit) _lean += _kit; } catch (e) {}
+              try { let _kmt = App.Core.castMoveTail(session, text); if (_kmt) _lean += _kmt; } catch (e) {}
+              try { let _kst = App.Core.castSheetTail(session, text); if (_kst) _lean += _kst; } catch (e) {}
+              try { let _rt2 = App.Core.sceneReactTail(session, text); if (_rt2) _lean += _rt2; } catch (e) {}
+              try { if (App.Wardrobe && App.Wardrobe.promptLine) { let _wl = App.Wardrobe.promptLine(); if (_wl) _lean += "\n\n" + _wl; } } catch (e) {}
+              try { let _ctp = App.Core.castTailPlus(session); if (_ctp) _lean += _ctp; } catch (e) {}
+              try { if (App.Modes) _lean = App.Modes.scrubPrompt(_lean); } catch (e) {}
+              try { if (App.Age && App.Age.scrubPrompt) _lean = App.Age.scrubPrompt(_lean); } catch (e) {}
+              _lean += "\n\n[SCENE SOLO - NEVER PRESENT, PLAY FIRST] No presentation, no greeting, no name statement: FIRST line = her live voice or act, in French. Same locked first name in every dialogue line and narration, same body as her fiche, fiches never shown as text.";
+
+              try { if (App.Core && App.Core.dropSofiaSheet && App.Core.sexTalkMode && App.Core.sexTalkMode(session, text) === 'scene') _lean = App.Core.dropSofiaSheet(_lean); } catch (e) {}
+              try { console.warn("[SoloLean] prompt " + _lean.length + " car"); } catch (e) {}
+              return _lean + "\nAssistant:";
+            }
+          } catch (eLean) {}
           let fullSystemInfo = systemInfo + prefMatrixStr + "\n\n" + contextText + (memRet ? memRet.memoryBlock : "") + memCoreBlock + memRecallBlock + webLearnBlock + selfScriptBlock + deviceBlock + consultBlock + mailboxBlock + selfCodeBlock + atelierBlock + workshopBlock + updateBlock + brandBlock + modesAwareness + visionKnown + ownEyesBlock + innerLedger + this.buildModeReminder(text) + sceneBrief + sceneLedger + rpContinue + repetitionBlock + protonLate + protonTail + conseilLate + conseilTail + droitFresh + "\n\nConversation History:\n" + historyContext;
           if (App.RPG.state.active && App.RPG.state.character) {
             let rpgEl = document.getElementById('rpgSystemPrompt');
@@ -21828,7 +21916,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           try { let wm = App.Core.wardrobeMissing(session, text); if (wm) fullSystemInfo += "\n\n" + wm; } catch (e) {}
           try { if (App.Core && App.Core.updateSelfSheetFromStaging) await App.Core.updateSelfSheetFromStaging(session, text); } catch (e) {}
           try { if (App.Core && App.Core.restoreSceneSheets) await App.Core.restoreSceneSheets(); } catch (e) {} try { if (App.Core && App.Core.repairGluedNames) await App.Core.repairGluedNames(null); } catch (e) {}
-          try { let sht = App.Sheets ? await App.Sheets.promptBlock(session, text) : null; if (sht) { try { if (App.Core && App.Core.dropSofiaSheet) sht = App.Core.dropSofiaSheet(sht); } catch (eDrop) {} try { if (App.Core && App.Core.dropAbsentSheets) sht = App.Core.dropAbsentSheets(sht, session, text); } catch (eAbs) {} fullSystemInfo += "\n\n" + sht; fullSystemInfo += "\n[FICHE - GENRE EXPLICITE] Chaque fiche de personnage porte son genre en toutes lettres (femme ou homme), en plus du sexe anatomique détaillé : le genre n'est jamais laissé à « ? » ni deviné ensuite, il est fixé dès la création de la fiche et repris dans chaque [FICHE_STATE]."; fullSystemInfo += "\n[FICHE - SOFIA NE JOUE JAMAIS] Sofia herself never plays: her sheet stays the AI (definition, interface - never clothes, never restraints, never a scene act, never a scene place, never his garments, never his restraints). Every scene woman gets her OWN sheet under her locked first name - never Sofia and nothing close to it (no Sophie, Sophia, Sofie, Sonia): complete body, outfit layer by layer, orifices, current act. Copy her physical specs from HIS message verbatim (age, height, weight, hair, breasts) - never invent them, never shrink them. A woman's sheet never contains a penis orifice or male genitalia, whatever the pose or act (a strap-on is a toy in objets_portes, never anatomy). His garments and restraints go on HIS sheet only, never on a woman's; a woman's garments never on his. If the scene woman has no sheet yet, her [FICHE_STATE] creates it this very reply."; } } catch (e) { console.warn('[Fiches] prompt block failed:', e); }
+          try { let sht = App.Sheets ? await App.Sheets.promptBlock(session, text) : null; if (sht) { try { if (App.Core && App.Core.dropSofiaSheet) sht = App.Core.dropSofiaSheet(sht); } catch (eDrop) {} try { if (App.Core && App.Core.dropAbsentSheets) sht = App.Core.dropAbsentSheets(sht, session, text); } catch (eAbs) {} fullSystemInfo += "\n\n" + sht; fullSystemInfo += "\n[FICHE - GENRE EXPLICITE] Chaque fiche de personnage porte son genre en toutes lettres (femme ou homme), en plus du sexe anatomique détaillé : le genre n'est jamais laissé à « ? » ni deviné ensuite, il est fixé dès la création de la fiche et repris dans chaque [FICHE_STATE]."; fullSystemInfo += "\n[FICHE - SOFIA NE JOUE JAMAIS] Sofia herself never plays: her sheet stays the AI (definition, interface - never clothes, never restraints, never a scene act, never a scene place, never his garments, never his restraints). Every scene woman gets her OWN sheet under her locked first name - never Sofia and nothing close to it (no Sophie, Sophia, Sofie, Sonia): complete body, outfit layer by layer, orifices, current act. Copy her physical specs from HIS message verbatim (age, height, weight, hair, breasts) - never invent them, never shrink them. A woman's sheet never contains a penis orifice or male genitalia, whatever the pose or act (a strap-on is a toy in objets_portes, never anatomy). His garments and restraints go on HIS sheet only, never on a woman's; a woman's garments never on his. If the scene woman has no sheet yet, her [FICHE_STATE] creates it this very reply. If his body, outfit or place is unknown, say it vaguely in plain words \u2014 never '[...:?]' templates, never '?'."; } } catch (e) { console.warn('[Fiches] prompt block failed:', e); }
           try { let rt2 = App.Core.sceneReactTail(session, text); if (rt2) fullSystemInfo += rt2; } catch (e) {}
           // Verrou parental : le bloc « mode enfant » est LA DERNIÈRE règle du
           // prompt. Il se tient après l'historique, après les patches et après
@@ -21988,7 +22076,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
               .replace(/\b(brûlants?|brûlante?s?)\s+\1\b/gi, '$1')
               .replace(/\b(brulant|brulants|brulante|brulantes)\s+\1\b/gi, '$1')
               .replace(/\b(son|sa|ses|leur|leurs|notre|nos|votre|vos|mon|ma|mes|ton|ta|tes)\s+own\b/gi, '$1 propre')
-              .replace(/\bown[a-zà-ÿ'’]*\b/gi, '')
+              .replace(/\bown[a-zà-ÿā-ž'’]*\b/gi, '')
               .replace(/\bown\b(\s*(?:\.{3}|…))?/gi, '')
               .replace(/\s{2,}/g, ' ')
               .replace(/\s+([,.!?;:])/g, '$1');
@@ -22014,7 +22102,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           for (let i = 0; i < lines.length; i++) {
             const ln = lines[i];
             if (ln.indexOf('SOFIA_IMAGE') !== -1 || ln.indexOf('SOFIA_PHOTO') !== -1) continue;
-            const m = ln.match(/^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{1,24})\s*:/);
+            const m = ln.match(/^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{1,24})\s*:/);
             if (!m) continue;
             const nm = m[1];
             if (nm === locked) continue;
@@ -22086,7 +22174,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
         try {
           let q = String(text == null ? '' : text).toLowerCase();
           if (!/(emmenez|emmene|emmen|amenez|amene|conduisez|conduis|allons|on va|suis-moi|suivez-moi|va |vas |allons à|direction)/i.test(q)) return '';
-          let m = q.match(/(?:à la|à l'|au|aux|dans la|dans le|dans l'|vers|côté de|chez)\s*([a-zà-ÿ'\- ]{2,40})/i);
+          let m = q.match(/(?:à la|à l'|au|aux|dans la|dans le|dans l'|vers|côté de|chez)\s*([a-zà-ÿā-ž'\- ]{2,40})/i);
           let raw = m ? m[1].trim().split(/[,.;!?]/)[0] : '';
           if (/donjon|dungeon/i.test(q)) return 'donjon';
           if (/cuisine/i.test(q)) return 'cuisine';
@@ -22116,7 +22204,7 @@ Only include these keys: hp, mp, gold, xp, level, location, inventory, quests. A
           let tl = target.toLowerCase().split(/\s+/)[0];
           if (tl && tl.length >= 3 && b.toLowerCase().indexOf(tl) !== -1) return null;
           if (/(salon|canap|fauteuil)/i.test(b) && !/salon/i.test(target)) return target;
-          let ack = /(^|\n)\s*[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+\s*:\s*(oui|non|d'accord|bien sûr|allons)/i.test(b) || /\b(oui|non|d'accord|bien sûr)[,. ][^.!?…]{0,120}(parce que|car |puisque|mais )/i.test(b);
+          let ack = /(^|\n)\s*[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+\s*:\s*(oui|non|d'accord|bien sûr|allons)/i.test(b) || /\b(oui|non|d'accord|bien sûr)[,. ][^.!?…]{0,120}(parce que|car |puisque|mais )/i.test(b);
           if (!ack) return target;
           return null;
         } catch (e) { return null; }
@@ -22279,7 +22367,7 @@ if (capa >= 2) return true;
           t = t.replace(/^[\s ]*/, '');
           t = t.replace(/^(bonjour|salut|coucou|hello|hi|hey|hola|ciao|buongiorno|buonasera|ol[áa]|bonsoir|bonne\s+(nuit|journ[ée]e|soir[ée]e))[^.!?…\n]{0,120}[.!?…]+\s*/i, '');
           t = t.replace(/^(je suis sofia|i am sofia|i'm sofia|soy sofia|sono sofia|ich bin sofia|mon nom est|my name is|me llamo|mi chiamo|mein name ist|je me nomme)[^.!?…\n]{0,200}[.!?…]+\s*/i, '');
-          let am = t.match(/^((?:S\s+[A-Za-zÀ-ÿ]+\s+)?S\s*(?:comme|for|para|per|f[üu]r)\b[\s\S]{0,700}?)(?=\n\s*\n|$)/i);
+          let am = t.match(/^((?:S\s+[A-Za-zÀ-ÿĀ-ž]+\s+)?S\s*(?:comme|for|para|per|f[üu]r)\b[\s\S]{0,700}?)(?=\n\s*\n|$)/i);
           if (am && /(sagesse|origine|franchise|wisdom|origin|frankness|sabidur|origen|franqueza|saggezza|franchezza|weisheit|ursprung|freimut)/i.test(am[1])) t = t.slice(am[0].length);
           let wl = t.match(/^[^\n]*(?:\n(?!\s*\n)[^\n]*){0,2}/);
           if (wl && wl[0] && !/\[[A-Za-z][A-Za-z_ ]{2,}\]/.test(wl[0])) {
@@ -22491,7 +22579,7 @@ if (capa >= 2) return true;
           let t = String(s == null ? '' : s);
           if (!t) return t;
           const norm = (w) => { try { return String(w).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); } catch (eN) { return String(w).toLowerCase(); } };
-          const isWord = (w) => /^[A-Za-zÀ-ÿ]+(?:['’][A-Za-zÀ-ÿ]+)?$/.test(w || '');
+          const isWord = (w) => /^[A-Za-zÀ-ÿĀ-ž]+(?:['’][A-Za-zÀ-ÿĀ-ž]+)?$/.test(w || '');
           const lines = t.split('\n');
           const skipLine = (ln) => ln.indexOf('SOFIA_IMAGE') !== -1 || ln.indexOf('SOFIA_PHOTO') !== -1 || ln.indexOf('FICHE_STATE') !== -1 || /^\s*\[/.test(ln);
           const counts = {};
@@ -22511,15 +22599,15 @@ if (capa >= 2) return true;
             for (let i = 0; i < nn.length; i++) addVoc(nn[i]);
           } catch (eN2) {}
           try {
-            const uw = String(uText || '').match(/[A-Za-zÀ-ÿ]+(?:['’][A-Za-zÀ-ÿ]+)?/g) || [];
+            const uw = String(uText || '').match(/[A-Za-zÀ-ÿĀ-ž]+(?:['’][A-Za-zÀ-ÿĀ-ž]+)?/g) || [];
             for (let i = 0; i < uw.length; i++) addVoc(uw[i]);
           } catch (eU) {}
           for (let li = 0; li < lines.length; li++) {
             const ln = lines[li];
             if (skipLine(ln)) continue;
             let body = ln;
-            try { const m = ln.match(/^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{1,24})\s*:\s*/); if (m) body = ln.slice(m[0].length); } catch (eP) {}
-            const ws = body.match(/[A-Za-zÀ-ÿ]+(?:['’][A-Za-zÀ-ÿ]+)?/g) || [];
+            try { const m = ln.match(/^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{1,24})\s*:\s*/); if (m) body = ln.slice(m[0].length); } catch (eP) {}
+            const ws = body.match(/[A-Za-zÀ-ÿĀ-ž]+(?:['’][A-Za-zÀ-ÿĀ-ž]+)?/g) || [];
             for (let i = 0; i < ws.length; i++) addVoc(ws[i]);
           }
           const vocab = {};
@@ -22533,7 +22621,7 @@ if (capa >= 2) return true;
             if (best) vocab[k] = best;
           }
           try {
-            const uw2 = String(uText || '').match(/[A-Za-zÀ-ÿ]+(?:['’][A-Za-zÀ-ÿ]+)?/g) || [];
+            const uw2 = String(uText || '').match(/[A-Za-zÀ-ÿĀ-ž]+(?:['’][A-Za-zÀ-ÿĀ-ž]+)?/g) || [];
             for (let i = 0; i < uw2.length; i++) {
               const w = uw2[i];
               if (!isWord(w) || w.length < 5) continue;
@@ -22568,8 +22656,8 @@ if (capa >= 2) return true;
             if (skipLine(ln)) continue;
             let pre = '';
             let body = ln;
-            try { const m = ln.match(/^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{1,24}\s*:\s*)/); if (m) { pre = m[1]; body = ln.slice(m[1].length); } } catch (eP2) {}
-            body = body.replace(/[A-Za-zÀ-ÿ]+(?:['’][A-Za-zÀ-ÿ]+)?/g, (w) => {
+            try { const m = ln.match(/^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{1,24}\s*:\s*)/); if (m) { pre = m[1]; body = ln.slice(m[1].length); } } catch (eP2) {}
+            body = body.replace(/[A-Za-zÀ-ÿĀ-ž]+(?:['’][A-Za-zÀ-ÿĀ-ž]+)?/g, (w) => {
               if (fixed >= 5) return w;
               if (!isWord(w) || w.length < 5) return w;
               const k = norm(w);
@@ -22622,7 +22710,7 @@ if (capa >= 2) return true;
           try { var sbs = App.Scene.state(session); bb = (sbs && typeof sbs.brief === 'string') ? sbs.brief : ''; } catch (eBSC) {}
           if (bb && bb.length > 40) {
             var skip = false;
-            try { skip = /(deux|trois|quatre|cinq|\b[2-9]\b|plusieurs)\s+(femmes|filles|hommes|femme|fille|homme)|\btrio\b|\bthreesome\b|autre\s+(femme|fille)|seconde\s+(femme|fille)|deuxi[èe]me\s+(femme|fille)|nouvelle\s+(femme|fille)|(femme|fille|amie|copine|invit[ée]e).{0,30}\ben plus\b|\bamie\b|\bcopine\b|invite\w*|rejoins?|rejoindre|rejoint|viens|venez|ram[èe]ne|fais venir|avec nous|[àa] trois|\bhommes\b|\bgars\b|\bmecs\b|\bamants\b|(et|avec)\s+(sa|son|ses|ma|mon|mes|ta|ton|tes|une|la|le|des|deux|trois)\s+(soumise|soumis|esclave|femme|fille|amie|copine|maitresse|dominatrice|partenaire)|[A-ZÀ-Þ][A-Za-zÀ-ÿ']{2,}\s+(et|&|,)\s+[A-ZÀ-Þ][A-Za-zÀ-ÿ']{2,}/.test(String(text || '')); } catch (eBSK) {}
+            try { skip = /(deux|trois|quatre|cinq|\b[2-9]\b|plusieurs)\s+(femmes|filles|hommes|femme|fille|homme)|\btrio\b|\bthreesome\b|autre\s+(femme|fille)|seconde\s+(femme|fille)|deuxi[èe]me\s+(femme|fille)|nouvelle\s+(femme|fille)|(femme|fille|amie|copine|invit[ée]e).{0,30}\ben plus\b|\bamie\b|\bcopine\b|invite\w*|rejoins?|rejoindre|rejoint|viens|venez|ram[èe]ne|fais venir|avec nous|[àa] trois|\bhommes\b|\bgars\b|\bmecs\b|\bamants\b|(et|avec)\s+(sa|son|ses|ma|mon|mes|ta|ton|tes|une|la|le|des|deux|trois)\s+(soumise|soumis|esclave|femme|fille|amie|copine|maitresse|dominatrice|partenaire)|[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž']{2,}\s+(et|&|,)\s+[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž']{2,}/.test(String(text || '')); } catch (eBSK) {}
             if (!skip) {
               var nc = -1; try { nc = this.newCastCount(text); } catch (eBNC) {}
               if (!(nc > 1)) {
@@ -22633,7 +22721,7 @@ if (capa >= 2) return true;
           }
           var mtxt = ''; try { mtxt = String(text || ''); } catch (eMTx) {}
           var mskip = false;
-          try { mskip = /(deux|trois|quatre|cinq|\b[2-9]\b|plusieurs)\s+(femmes|filles|hommes|femme|fille|homme)|\btrio\b|\bthreesome\b|autre\s+(femme|fille)|seconde\s+(femme|fille)|deuxi[èe]me\s+(femme|fille)|nouvelle\s+(femme|fille)|(femme|fille|amie|copine|invit[ée]e).{0,30}\ben plus\b|\bamie\b|\bcopine\b|invite\w*|rejoins?|rejoindre|rejoint|viens|venez|ram[èe]ne|fais venir|avec nous|[àa] trois|\bhommes\b|\bgars\b|\bmecs\b|\bamants\b|(et|avec)\s+(sa|son|ses|ma|mon|mes|ta|ton|tes|une|la|le|des|deux|trois)\s+(soumise|soumis|esclave|femme|fille|amie|copine|maitresse|dominatrice|partenaire)/i.test(mtxt); } catch (eMSK) {} if (!mskip) { try { mskip = /[A-ZÀ-Þ][A-Za-zÀ-ÿ']{2,}\s+(et|&|,)\s+[A-ZÀ-Þ][A-Za-zÀ-ÿ']{2,}/.test(mtxt); } catch (eMSK2) {} }
+          try { mskip = /(deux|trois|quatre|cinq|\b[2-9]\b|plusieurs)\s+(femmes|filles|hommes|femme|fille|homme)|\btrio\b|\bthreesome\b|autre\s+(femme|fille)|seconde\s+(femme|fille)|deuxi[èe]me\s+(femme|fille)|nouvelle\s+(femme|fille)|(femme|fille|amie|copine|invit[ée]e).{0,30}\ben plus\b|\bamie\b|\bcopine\b|invite\w*|rejoins?|rejoindre|rejoint|viens|venez|ram[èe]ne|fais venir|avec nous|[àa] trois|\bhommes\b|\bgars\b|\bmecs\b|\bamants\b|(et|avec)\s+(sa|son|ses|ma|mon|mes|ta|ton|tes|une|la|le|des|deux|trois)\s+(soumise|soumis|esclave|femme|fille|amie|copine|maitresse|dominatrice|partenaire)/i.test(mtxt); } catch (eMSK) {} if (!mskip) { try { mskip = /[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž']{2,}\s+(et|&|,)\s+[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž']{2,}/.test(mtxt); } catch (eMSK2) {} }
           if (!mskip) {
             try {
               var stt = App.Scene.state(session);
@@ -22658,10 +22746,10 @@ if (capa >= 2) return true;
           var b = String(buf == null ? '' : buf);
           if (!b) return null;
           try { b = b.replace(/les autres\s+(photos?|images?|selfies?|poses?|tenues?|lingeries?|parures?|vues?|prises?|soirs?|soirées?|nuits?|jeux?|caresses?|baisers?|mots?|phrases?|idées?|envies?|questions?|réponses?|vidéos?|films?)/gi, 'les autres X'); } catch (eMFa) {}
-          if (/\btrio\b|trois femmes|deux femmes|seconde femme|deuxi[èe]me femme|autre femme|complices|s[œo]eurs?|ses s[œo]urs|sur le lit|dans le lit|au lit|(contre|[aà]) (son|ton) flanc|mains? sur ton (torse|corps)|derri[èe]re toi|derriere toi|derri[èe]re lui|derriere lui|glisse[^a-z]+(sa|une|mes|tes|ses|ma|ta)[^a-z]+mains?[^a-z]+sur[^a-z]+ton|une d.elles|doublettes?|jumell?es?|jumeaux?|(venons|allons)[ -]nous (installer|coucher|mettre|blottir|allonger|rejoindre|retrouver)|installons[ -]nous|treinte collective|\bnous (venons|sommes|allons)|king-size|m[eê]me lit\b|press\w+ contre (lui|toi|son)|allong\w+ contre|coll\w+ contre (elle|lui|toi)|entour\w+.{0,30}taille|ton sexe|son torse|contre lui|autres femmes|\bcollective\b|(venons|allons) tous (ici|te|vous|nous|chercher|rejoindre|retrouver)|les? autres?\s+[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,}|(ses|ces|mes|nos|leur|leurs|des|les|deux|trois|son)\s+doubles?\b|[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,}\s+originaleZ\b|une autre\s+(qui\s+)?(s.installe|s.allonge|se blottit|s.approche|rejoint\b|entre\b|se joint|se couche|s.assoit|monte\b|grimpe\b|s.agenouille)|contre le sien|contre la sienne|autour de (ses|tes|leurs|vos) jambes|contre son (corps|torse|poitrail|flanc|dos|cou|épaule|epaule)|lit (immense|grand|vaste|confortable)|grand lit|vaste lit|nous accueill\w+|accueill\w+ toutes|nous (nous |nous y |y )?installons|corps contre (le mien|le tien)|contre le (mien|tien)\b|entremêlent|accueille.{0,60}le groupe|le groupe.{0,60}(corps|chaleur)|matelas.{0,40}(lit|groupe|corps)|corps.{0,40}s.entrem/i.test(b)) return 'brief-violation';
-          try { if (/[A-ZÀ-Þ][A-Za-zÀ-ÿ']{2,}\s+(et|&)\s+[A-ZÀ-Þ][A-Za-zÀ-ÿ']{2,}/.test(b)) return 'brief-violation'; } catch (eBN2) {}
+          if (/\btrio\b|trois femmes|deux femmes|seconde femme|deuxi[èe]me femme|autre femme|complices|s[œo]eurs?|ses s[œo]urs|sur le lit|dans le lit|au lit|(contre|[aà]) (son|ton) flanc|mains? sur ton (torse|corps)|derri[èe]re toi|derriere toi|derri[èe]re lui|derriere lui|glisse[^a-z]+(sa|une|mes|tes|ses|ma|ta)[^a-z]+mains?[^a-z]+sur[^a-z]+ton|une d.elles|doublettes?|jumell?es?|jumeaux?|(venons|allons)[ -]nous (installer|coucher|mettre|blottir|allonger|rejoindre|retrouver)|installons[ -]nous|treinte collective|\bnous (venons|sommes|allons)|king-size|m[eê]me lit\b|press\w+ contre (lui|toi|son)|allong\w+ contre|coll\w+ contre (elle|lui|toi)|entour\w+.{0,30}taille|ton sexe|son torse|contre lui|autres femmes|\bcollective\b|(venons|allons) tous (ici|te|vous|nous|chercher|rejoindre|retrouver)|les? autres?\s+[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,}|(ses|ces|mes|nos|leur|leurs|des|les|deux|trois|son)\s+doubles?\b|[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,}\s+originaleZ\b|une autre\s+(qui\s+)?(s.installe|s.allonge|se blottit|s.approche|rejoint\b|entre\b|se joint|se couche|s.assoit|monte\b|grimpe\b|s.agenouille)|contre le sien|contre la sienne|autour de (ses|tes|leurs|vos) jambes|contre son (corps|torse|poitrail|flanc|dos|cou|épaule|epaule)|lit (immense|grand|vaste|confortable)|grand lit|vaste lit|nous accueill\w+|accueill\w+ toutes|nous (nous |nous y |y )?installons|corps contre (le mien|le tien)|contre le (mien|tien)\b|entremêlent|accueille.{0,60}le groupe|le groupe.{0,60}(corps|chaleur)|matelas.{0,40}(lit|groupe|corps)|corps.{0,40}s.entrem/i.test(b)) return 'brief-violation';
+          try { if (/[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž']{2,}\s+(et|&)\s+[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž']{2,}/.test(b)) return 'brief-violation'; } catch (eBN2) {}
           try { if (!/\bnous deux\b/i.test(b) && /\bnous\b.{0,60}\btoutes\b/i.test(b)) return 'brief-violation'; } catch (eBV3) {}
-          try { var _tqB = /(tandis que|alors que|pendant que)\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})/.exec(b); if (_tqB && /\b(je|tu|te|toi|ton|ta|tes|mon|ma|mes)\b/i.test(b)) return 'brief-violation'; } catch (eBV4) {}
+          try { var _tqB = /(tandis que|alors que|pendant que)\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})/.exec(b); if (_tqB && /\b(je|tu|te|toi|ton|ta|tes|mon|ma|mes)\b/i.test(b)) return 'brief-violation'; } catch (eBV4) {}
           return null;
         } catch (eBVH) { return null; }
       },
@@ -22679,13 +22767,13 @@ if (capa >= 2) return true;
           var stop = { Sofia: 1, Moi: 1, Lui: 1, Elle: 1, Ils: 1, Elles: 1, Nous: 1, Vous: 1, On: 1, Photo: 1, Image: 1, Sophia: 1, Sofie: 1, Sonia: 1 };
           while ((mt = re.exec(b))) { var nm = mt[1]; if (!stop[nm] && !seen[nm]) { seen[nm] = 1; n++; } }
           if (n >= 2) return 'two-voices';
-          try { if (/\bnous trois\b|\btous les trois\b|\b[àa] trois\b|\btrio\b|\btrois femmes\b|\bdeux femmes\b|\bseconde femme\b|\bdeuxi[èe]me femme\b|\bautre femme\b|\bautres femmes\b|\banother woman\b|\bother woman\b|\bsecond woman\b|\bthreesome\b|\bcomplices\b|une d.elles|s[œo]eurs?|\bdoublettes?\b|\bjumell?es?\b|\bjumeaux?\b|\bcollective\b|(venons|allons) tous (ici|te|vous|nous|chercher|rejoindre|retrouver)|les? autres?\s+[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,}|(ses|ces|mes|nos|leur|leurs|des|les|deux|trois|son)\s+doubles?\b|[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,}\s+originaleZ\b|une autre\s+(qui\s+)?(s.installe|s.allonge|se blottit|s.approche|rejoint\b|entre\b|se joint|se couche|s.assoit|monte\b|grimpe\b|s.agenouille)|(venons|allons)[ -]nous (installer|coucher|mettre|blottir|allonger|rejoindre|retrouver)|installons[ -]nous\b|entremêlent|accueille.{0,60}le groupe|le groupe.{0,60}(corps|chaleur)|matelas.{0,40}(lit|groupe|corps)|lit.{0,40}matelas/i.test(b)) return 'two-voices'; } catch (eT) {}
-          try { if (/[A-ZÀ-Þ][A-Za-zÀ-ÿ']{2,}\s+(et|&)\s+[A-ZÀ-Þ][A-Za-zÀ-ÿ']{2,}/.test(b)) return 'two-voices'; } catch (eTN2) {}
+          try { if (/\bnous trois\b|\btous les trois\b|\b[àa] trois\b|\btrio\b|\btrois femmes\b|\bdeux femmes\b|\bseconde femme\b|\bdeuxi[èe]me femme\b|\bautre femme\b|\bautres femmes\b|\banother woman\b|\bother woman\b|\bsecond woman\b|\bthreesome\b|\bcomplices\b|une d.elles|s[œo]eurs?|\bdoublettes?\b|\bjumell?es?\b|\bjumeaux?\b|\bcollective\b|(venons|allons) tous (ici|te|vous|nous|chercher|rejoindre|retrouver)|les? autres?\s+[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,}|(ses|ces|mes|nos|leur|leurs|des|les|deux|trois|son)\s+doubles?\b|[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,}\s+originaleZ\b|une autre\s+(qui\s+)?(s.installe|s.allonge|se blottit|s.approche|rejoint\b|entre\b|se joint|se couche|s.assoit|monte\b|grimpe\b|s.agenouille)|(venons|allons)[ -]nous (installer|coucher|mettre|blottir|allonger|rejoindre|retrouver)|installons[ -]nous\b|entremêlent|accueille.{0,60}le groupe|le groupe.{0,60}(corps|chaleur)|matelas.{0,40}(lit|groupe|corps)|lit.{0,40}matelas/i.test(b)) return 'two-voices'; } catch (eT) {}
+          try { if (/[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž']{2,}\s+(et|&)\s+[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž']{2,}/.test(b)) return 'two-voices'; } catch (eTN2) {}
           try { if (/\bnous (venons|sommes|allons|avons|faisons|voulons)\b/i.test(b)) return 'two-voices'; } catch (eT3) {}
           try { if (!/\bnous deux\b/i.test(b) && /\bnous\b.{0,60}\btoutes\b/i.test(b)) return 'two-voices'; } catch (eT4) {}
           try { if (/nous (nous |nous y |y )?installons\b|nous accueill\w+|accueill\w+ toutes\b/i.test(b)) return 'two-voices'; } catch (eT5) {}
           try {
-            var _tqM = /\b(?:tandis que|alors que|pendant que)\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})/.exec(b);
+            var _tqM = /\b(?:tandis que|alors que|pendant que)\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})/.exec(b);
             if (_tqM && _tqM[1] && /\b(je|tu|te|toi|ton|ta|tes|mon|ma|mes)\b/i.test(b)) {
               var _tqL = '';
               try { var _tqN = (this.sceneCastNames && this.sceneCastNames(session)) || []; if (_tqN && _tqN.length) _tqL = String(_tqN[0]); } catch (eTqL) {}
@@ -22715,21 +22803,32 @@ if (capa >= 2) return true;
           if (!solo && !forceSolo) return null;
           var locked = '';
           try { var nn = (this.sceneCastNames && this.sceneCastNames(session)) || []; if (nn && nn.length) locked = String(nn[0]); } catch (eL) {}
-          var stop = { Sofia: 1, Moi: 1, Lui: 1, Elle: 1, Ils: 1, Elles: 1, Nous: 1, Vous: 1, On: 1, Photo: 1, Image: 1, Tu: 1, Toi: 1, Je: 1, Ding: 1, Notification: 1 };
+          var stop = { Sofia: 1, Moi: 1, Lui: 1, Elle: 1, Ils: 1, Elles: 1, Nous: 1, Vous: 1, On: 1, Photo: 1, Image: 1, Tu: 1, Toi: 1, Je: 1, Ding: 1, Notification: 1, 'ソフィア': 1, '索菲娅': 1, '索菲亞': 1, '소피아': 1, '通知': 1, '写真': 1, '画像': 1, '照片': 1, '圖片': 1, '图片': 1, '사진': 1 };
           var bad = [];
           var pushBad = function (nm) { try { if (!nm || nm.length < 3) return; if (stop[nm]) return; if (/^zz/i.test(nm)) return; if (locked && nm === locked) return; if (bad.indexOf(nm) < 0) bad.push(nm); } catch (eP) {} };
           try { if (/\bSofia\b/.test(b)) return 'bad-name:Sofia'; } catch (eSf) {}
           var canJudge = !!(locked && locked.length >= 2);
           if (canJudge) {
             try {
-              var re = /^([A-Z\u00c0-\u00de][A-Za-z\u00c0-\u00ff'\u2019-]{2,})\s*:/gm, mt;
+              var re = /^([A-Z\u00c0-\u00de\u0100-\u017e][A-Za-z\u00c0-\u00ff\u0100-\u017f'\u2019-]{2,})\s*:/gm, mt;
               while ((mt = re.exec(b))) pushBad(mt[1]);
             } catch (eDx) {}
             try {
-              var rc = /(?:[Jj]e suis|[Jj]e m'appelle|[Jj]e me nomme|[Mm]on nom est|[Mm]y name is|[Vv]oici)\s+([A-Z\u00c0-\u00de][A-Za-z\u00c0-\u00ff'\u2019-]{2,})/g, mc;
+              var rej = new RegExp('^([\\u4E00-\\u9FFF\\u3040-\\u30FF\\uAC00-\\uD7AF]{2,4})\\s*[:\\uFF1A]', 'gm'), mj;
+              while ((mj = rej.exec(b))) {
+                var nc9 = mj[1];
+                if (!nc9 || nc9.length < 2) continue;
+                if (stop[nc9]) continue;
+                if (/^zz/i.test(nc9)) continue;
+                if (locked && nc9 === locked) continue;
+                if (bad.indexOf(nc9) < 0) bad.push(nc9);
+              }
+            } catch (eDx2) {}
+            try {
+              var rc = /(?:[Jj]e suis|[Jj]e m'appelle|[Jj]e me nomme|[Mm]on nom est|[Mm]y name is|[Vv]oici|[Ii]ch heiße|[Ii]ch heisse|[Ii]ch bin|[Mm]ein Name ist|[Nn]enn mich|[Mm]e llamo|[Ss]e llama|[Mm]i nombre es|[Ll]lámame|[Mm]i chiamo|[Ss]i chiama|[Cc]hiamami|[Nn]azywam się|[Nn]azywam sie|[Mm]am na imię|[Mm]am na imie)\s+([A-Z\u00c0-\u00de\u0100-\u017e][A-Za-z\u00c0-\u00ff\u0100-\u017f'\u2019-]{2,})/g, mc;
               while ((mc = rc.exec(b))) pushBad(mc[1]);
             } catch (eCx) {}
-            try { if (/\b(je|tu|te|toi|ton|ta|tes|mon|ma|mes)\b/i.test(b)) { var _tqC = /(?:tandis que|alors que|pendant que)\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})/gi, _tqMc; while ((_tqMc = _tqC.exec(b))) pushBad(_tqMc[1]); } } catch (eTqC) {}
+            try { if (/\b(je|tu|te|toi|ton|ta|tes|mon|ma|mes)\b/i.test(b)) { var _tqC = /(?:tandis que|alors que|pendant que)\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})/gi, _tqMc; while ((_tqMc = _tqC.exec(b))) pushBad(_tqMc[1]); } } catch (eTqC) {}
             if (bad.length) return 'bad-name:' + bad.slice(0, 3).join(',');
           } else {
             // Ronde 638 : RIEN n'est verrouillé (il n'a donné aucun prénom) : elle DOIT
@@ -22740,7 +22839,7 @@ if (capa >= 2) return true;
               try { var _mm2 = (session && Array.isArray(session.messages)) ? session.messages : []; for (var _mi = 0; _mi < _mm2.length; _mi++) { var _mo = _mm2[_mi]; if (_mo && _mo.role === 'user' && typeof _mo.content === 'string') um2.push(_mo.content); } } catch (eU) {}
               var utxt = um2.join('\n');
               var his2 = {};
-              try { var hre = /(je m.appelle|je suis|mon nom est|moi,?\s+c.est)\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})/gi, hm2; while ((hm2 = hre.exec(utxt))) his2[hm2[2]] = 1; } catch (eH2) {}
+              try { var hre = /(je m.appelle|je suis|mon nom est|moi,?\s+c.est)\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})/gi, hm2; while ((hm2 = hre.exec(utxt))) his2[hm2[2]] = 1; } catch (eH2) {}
               var given2 = null;
               try { given2 = (this.explicitHerName && this.explicitHerName(utxt)) || null; } catch (eG2) {}
               var allow2 = function (nm) {
@@ -22751,12 +22850,13 @@ if (capa >= 2) return true;
                 return false;
               };
               var found2 = {};
-              var sr2 = /\b(je suis|je m.appelle|moi,?\s+c.est)\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})/i.exec(b);
+              var sr2 = /\b(je suis|je m.appelle|moi,?\s+c.est)\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})/i.exec(b);
               if (sr2 && !allow2(sr2[2])) found2[sr2[2]] = 1;
-              var sr2b = /(^|[.!?,;\s])c.est\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})/i.exec(b);
+              var sr2b = /(^|[.!?,;\s])c.est\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})/i.exec(b);
               if (sr2b && !allow2(sr2b[2])) found2[sr2b[2]] = 1;
-              var pre2 = /^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})\s*:/gm, pm2;
+              var pre2 = /^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})\s*:/gm, pm2;
               while ((pm2 = pre2.exec(b))) { if (!allow2(pm2[1])) found2[pm2[1]] = 1; }
+              try { var rj2 = new RegExp('^([\\u4E00-\\u9FFF\\u3040-\\u30FF\\uAC00-\\uD7AF]{2,4})\\s*[:\\uFF1A]', 'gm'), mj2; while ((mj2 = rj2.exec(b))) { if (!allow2(mj2[1])) found2[mj2[1]] = 1; } } catch (eC2) {}
               var keys2 = Object.keys(found2);
               if (keys2.length >= 2) return 'bad-name:' + keys2.slice(0, 3).join(',');
             } catch (eN) {}
@@ -22853,7 +22953,7 @@ if (capa >= 2) return true;
             var locked = "";
             try { var nn = (this.sceneCastNames && this.sceneCastNames(session)) || []; if (nn && nn.length) locked = String(nn[0]); } catch (eL) {}
             if (locked) {
-              var re = /^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+)\s*:/gm, mt, seen = {}, names = [];
+              var re = /^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+)\s*:/gm, mt, seen = {}, names = [];
               var stop = { Sofia: 1, Moi: 1, Lui: 1, Elle: 1, Ils: 1, Elles: 1, Nous: 1, Vous: 1, On: 1, Photo: 1, Image: 1, Sophia: 1, Sofie: 1, Sonia: 1 };
               while ((mt = re.exec(b))) { var nm = mt[1]; if (!stop[nm] && !seen[nm]) { seen[nm] = 1; names.push(nm); } }
               if (names.length === 1 && names[0] !== locked) return "remote-stranger";
@@ -23015,22 +23115,23 @@ return sig >= 2;
           try { if (/(venons|allons)[ -]nous (installer|coucher|mettre|blottir|allonger|rejoindre|retrouver)/i.test(s)) return true; } catch (eT3) {}
           try { if (/installons[ -]nous\b/i.test(s)) return true; } catch (eT4) {}
           try { if (/(venons|allons) tous (ici|te|vous|nous|chercher|rejoindre|retrouver)/i.test(s)) return true; } catch (eT5) {}
-          try { if (/les? autres?\s+[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,}/.test(s)) return true; } catch (eT6) {}
-          try { if (/[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,}\s+(et|&)\s+[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,}/.test(s)) return true; } catch (eT7) {}
-          try { if (/\b(seconde|deuxi[èe]me|autre)\s+[A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,}/.test(s)) return true; } catch (eT8) {}
+          try { if (/les? autres?\s+[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,}/.test(s)) return true; } catch (eT6) {}
+          try { if (/[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,}\s+(et|&)\s+[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,}/.test(s)) return true; } catch (eT7) {}
+          try { if (/\b(seconde|deuxi[èe]me|autre)\s+[A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,}/.test(s)) return true; } catch (eT8) {}
           try { if (/(ses|ces|mes|nos|leur|leurs|des|les|deux|trois|son)\s+doubles?\b/i.test(s)) return true; } catch (eT9) {}
           try { if (/une autre\s+(qui\s+)?(s.installe|s.allonge|se blottit|s.approche|rejoint\b|entre\b|se joint|se couche|s.assoit|monte\b|grimpe\b|s.agenouille)/i.test(s)) return true; } catch (eT10) {}
           try {
             var locked = '';
             try { var nn = (this.sceneCastNames && this.sceneCastNames(session)) || []; if (nn && nn.length) locked = String(nn[0]); } catch (eL) {}
             if (locked && locked.length >= 2 && (/:/.test(s) || /je suis|je m'appelle|je me nomme|mon nom est|my name is|voici/i.test(s))) {
-              var stop = { Sofia: 1, Moi: 1, Lui: 1, Elle: 1, Ils: 1, Elles: 1, Nous: 1, Vous: 1, On: 1, Photo: 1, Image: 1, Tu: 1, Toi: 1, Je: 1, Ding: 1, Notification: 1 };
+              var stop = { Sofia: 1, Moi: 1, Lui: 1, Elle: 1, Ils: 1, Elles: 1, Nous: 1, Vous: 1, On: 1, Photo: 1, Image: 1, Tu: 1, Toi: 1, Je: 1, Ding: 1, Notification: 1, 'ソフィア': 1, '索菲娅': 1, '索菲亞': 1, '소피아': 1, '通知': 1, '写真': 1, '画像': 1, '照片': 1, '圖片': 1, '图片': 1, '사진': 1 };
               try {
-                var re = /^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})\s*:/gm, mt;
+                var re = /^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})\s*:/gm, mt;
                 while ((mt = re.exec(s))) { var nm = mt[1]; if (!stop[nm] && nm !== locked) return true; }
+                try { var rjh = new RegExp('^([\\u4E00-\\u9FFF\\u3040-\\u30FF\\uAC00-\\uD7AF]{2,4})\\s*[:\\uFF1A]', 'gm'), mjh; while ((mjh = rjh.exec(s))) { var nh = mjh[1]; if (!stop[nh] && nh !== locked) return true; } } catch (eDxH) {}
               } catch (eDx) {}
               try {
-                var rc = /(?:[Jj]e suis|[Jj]e m'appelle|[Jj]e me nomme|[Mm]on nom est|[Mm]y name is|[Vv]oici)\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})/;
+                var rc = /(?:[Jj]e suis|[Jj]e m'appelle|[Jj]e me nomme|[Mm]on nom est|[Mm]y name is|[Vv]oici|[Ii]ch heiße|[Ii]ch heisse|[Ii]ch bin|[Nn]enn mich|[Mm]e llamo|[Ss]e llama|[Mm]i chiamo|[Ss]i chiama|[Nn]azywam się|[Nn]azywam sie)\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})/;
                 var mc = rc.exec(s);
                 if (mc && mc[1] && mc[1] !== locked && !stop[mc[1]]) return true;
               } catch (eCx) {}
@@ -23049,7 +23150,7 @@ return sig >= 2;
           try { if (/lit (immense|grand|vaste|confortable)|grand lit|vaste lit|nous accueill\w+|accueill\w+ toutes|nous (nous |nous y |y )?installons|mains? sur ton (torse|corps)|glisse[^a-z]+(sa|une|mes|tes|ses|ma|ta)[^a-z]+mains?[^a-z]+sur[^a-z]+ton|corps contre (le mien|le tien|ton|tes|son)|contre le (mien|tien)\b/i.test(s)) return true; } catch (eT11) {}
           try { if (!/\bnous deux\b/i.test(s) && /\bnous\b.{0,60}\btoutes\b/i.test(s)) return true; } catch (eT12) {}
           try {
-            var _tqH = /\b(?:tandis que|alors que|pendant que)\s+([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]{2,})/.exec(s);
+            var _tqH = /\b(?:tandis que|alors que|pendant que)\s+([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]{2,})/.exec(s);
             if (_tqH && _tqH[1] && /\b(je|tu|te|toi|ton|ta|tes|mon|ma|mes)\b/i.test(s)) {
               var _tqHL = '';
               try { var _tqHN = (this.sceneCastNames && this.sceneCastNames(session)) || []; if (_tqHN && _tqHN.length) _tqHL = String(_tqHN[0]); } catch (eTqHL) {}
@@ -26788,7 +26889,7 @@ return sig >= 2;
             seenBots++;
             let c = String(m.content);
             if (c.length >= 300) prose = true;
-            let re = /^([A-ZÀ-Þ][A-Za-zÀ-ÿ'’-]+)\s*:/gm, mt;
+            let re = /^([A-ZÀ-ÞĀ-Ž][A-Za-zÀ-ÿĀ-ž'’-]+)\s*:/gm, mt;
             while ((mt = re.exec(c))) {
               let nm = mt[1].normalize('NFD').replace(/[̀-ͯ]/g, '');
               if (/^zz/i.test(mt[1])) { try { var br = String(mt[1]).normalize('NFD').replace(/[^a-zA-Z]/g, ''); if (/^z+vera$/i.test(br) && !stop['Vera'] && names.indexOf('Vera') < 0) names.push('Vera'); } catch (e) {} } else if (!stop[mt[1]] && !stop[nm] && names.indexOf(mt[1]) < 0) names.push(mt[1]);
@@ -27593,7 +27694,7 @@ return sig >= 2;
       return o;
     })(),
     _words(t) {
-      let s = String(t == null ? '' : t).toLowerCase().replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿ0-9]+/g, ' ');
+      let s = String(t == null ? '' : t).toLowerCase().replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿā-ž0-9]+/g, ' ');
       let self = this;
       return s.split(' ').filter(x => x.length >= 4 && !this.STOP[x]).map(x => self._stem(x));
     },
@@ -27603,7 +27704,7 @@ return sig >= 2;
     isMath(text) {
       let t = String(text == null ? '' : text).toLowerCase();
       if (t.length > 900) t = t.slice(0, 900);
-      const S = /(math|calcul|nombre|chiffre|fraction|d[ée]nominateur|num[ée]rateur|puissance|racine|pgcd|ppcm|divis|multiple|[ée]quation|d[ée]velopp|factoris|identit[ée]|litt[ée]ral|th[ée]or[èe]me|triangle|pythagore|thal[èe]s|trigonom|sinus|cosinus|hypot[ée]nuse|quadrilat|parall[ée]logramme|losange|rectangle|trap[èe]ze|cercl|disque|sph[èe]re|c[ôo]ne|cylindre|pyramide|pourcent|proportion|produit en croix|augmentation|baisse|r[ée]duction|int[ée]r[êe]t|unit[ée]|conversion|converti|p[ée]rim[èe]tre|simplif|d[ée]cimal|formule|moyenne|vitesse|parit[ée]|additi|soustrac|multipli|division|limites? (finie|infinie|de fonctions?|de suites?|en [+-]|d'une fonction|d'un quotient)|limite de (f|g|u|v|x|la fonction|la suite)|calcul\w* la limite|quelle est la limite|tend vers|\bd[ée]riv(é|ée|ee|ees|és|ées|er|ons?|able|ables|abilit[ée]|abilite)(?![a-zà-ÿ])|int[ée]grale|primitiv|matrice|d[ée]terminant|vecteur|transform[ée]e de|espace vectoriel|produit scalaire|application lin[ée]aire|jacobien|gradient|s[ée]rie enti[èe]re|s[ée]rie num[ée]rique|tangente|continuit[ée]|est continue|continue sur|fonctions? continues?|accroissements finis|valeurs interm[ée]diaires|bolzano|weierstrass|\bcauchy\b|\brolle\b|r[ée]currence|r[ée]current|suites? (r[ée]elle|de nombres|num[ée]rique|d[ée]finie|arithm[ée]tique|g[ée]om[ée]trique|adjacente|extraite|monotone|converge|diverge|tend vers)|converg|diverg|adjacentes|monotone|croissante|d[ée]croissante|major[ée]e|minor[ée]e|born[ée]e|injectiv|surjectiv|bijectiv|injection|surjection|bijection|cardinal|application r[ée]ciproque|fonction (paire|impaire)|variations? (de|d'une)|tableau de variations|domaine de d[ée]finition|[ée]tudier la fonction|nombres? complexes?|affixe|imaginaire pur|partie (r[ée]elle|imaginaire)|forme (alg[ée]brique|trigonom[ée]trique|exponentielle)|moivre|lin[ée]aris|duplication|polyn[ôo]me|irr[ée]ductible|anneau|discriminant|racine (double|multiple)|logarithme|exponentielle|quantificateur|pr[ée]dicat|assertion|implication|contrapos[ée]e|par l'absurde|contre-exemple|tautologie|de morgan|compl[ée]mentaire|inclusion|intervalle|arithm[ée]tique|premiers entre eux|b[ée]zout|fermat|\bgauss\b|congru|modulo|nombres? premiers?|divisibilit[ée]|facteurs premiers|convexe|concave|inflexion|asymptote|p[ée]riodique|partie enti[èe]re|homographique|hyperbolique|croissances compar[ée]es|valeur absolue|in[ée]galit[ée] triangulaire|bornes? (sup[ée]rieure|inf[ée]rieure)|extremum|h[ôo]pital|bin[ôo]me|factorielle|coefficient binomial|t[ée]lescopique|changement d'indice|somme (de|des)|produit (de|des)|moivre|lin[ée]aris|duplication|r[èe]gles? (de calcul|des signes|de priorit[ée]))/g;
+      const S = /(math|calcul|nombre|chiffre|fraction|d[ée]nominateur|num[ée]rateur|puissance|racine|pgcd|ppcm|divis|multiple|[ée]quation|d[ée]velopp|factoris|identit[ée]|litt[ée]ral|th[ée]or[èe]me|triangle|pythagore|thal[èe]s|trigonom|sinus|cosinus|hypot[ée]nuse|quadrilat|parall[ée]logramme|losange|rectangle|trap[èe]ze|cercl|disque|sph[èe]re|c[ôo]ne|cylindre|pyramide|pourcent|proportion|produit en croix|augmentation|baisse|r[ée]duction|int[ée]r[êe]t|unit[ée]|conversion|converti|p[ée]rim[èe]tre|simplif|d[ée]cimal|formule|moyenne|vitesse|parit[ée]|additi|soustrac|multipli|division|limites? (finie|infinie|de fonctions?|de suites?|en [+-]|d'une fonction|d'un quotient)|limite de (f|g|u|v|x|la fonction|la suite)|calcul\w* la limite|quelle est la limite|tend vers|\bd[ée]riv(é|ée|ee|ees|és|ées|er|ons?|able|ables|abilit[ée]|abilite)(?![a-zà-ÿā-ž])|int[ée]grale|primitiv|matrice|d[ée]terminant|vecteur|transform[ée]e de|espace vectoriel|produit scalaire|application lin[ée]aire|jacobien|gradient|s[ée]rie enti[èe]re|s[ée]rie num[ée]rique|tangente|continuit[ée]|est continue|continue sur|fonctions? continues?|accroissements finis|valeurs interm[ée]diaires|bolzano|weierstrass|\bcauchy\b|\brolle\b|r[ée]currence|r[ée]current|suites? (r[ée]elle|de nombres|num[ée]rique|d[ée]finie|arithm[ée]tique|g[ée]om[ée]trique|adjacente|extraite|monotone|converge|diverge|tend vers)|converg|diverg|adjacentes|monotone|croissante|d[ée]croissante|major[ée]e|minor[ée]e|born[ée]e|injectiv|surjectiv|bijectiv|injection|surjection|bijection|cardinal|application r[ée]ciproque|fonction (paire|impaire)|variations? (de|d'une)|tableau de variations|domaine de d[ée]finition|[ée]tudier la fonction|nombres? complexes?|affixe|imaginaire pur|partie (r[ée]elle|imaginaire)|forme (alg[ée]brique|trigonom[ée]trique|exponentielle)|moivre|lin[ée]aris|duplication|polyn[ôo]me|irr[ée]ductible|anneau|discriminant|racine (double|multiple)|logarithme|exponentielle|quantificateur|pr[ée]dicat|assertion|implication|contrapos[ée]e|par l'absurde|contre-exemple|tautologie|de morgan|compl[ée]mentaire|inclusion|intervalle|arithm[ée]tique|premiers entre eux|b[ée]zout|fermat|\bgauss\b|congru|modulo|nombres? premiers?|divisibilit[ée]|facteurs premiers|convexe|concave|inflexion|asymptote|p[ée]riodique|partie enti[èe]re|homographique|hyperbolique|croissances compar[ée]es|valeur absolue|in[ée]galit[ée] triangulaire|bornes? (sup[ée]rieure|inf[ée]rieure)|extremum|h[ôo]pital|bin[ôo]me|factorielle|coefficient binomial|t[ée]lescopique|changement d'indice|somme (de|des)|produit (de|des)|moivre|lin[ée]aris|duplication|r[èe]gles? (de calcul|des signes|de priorit[ée]))/g;
       const W = /(\baire\b|\bvolume\b|\bmasse\b|\blongueur\b|\bsurface\b|\bdistance\b|\bdur[ée]e\b|\bcarr[ée]\b|\bcube\b|\btemps\b|\bheures?\b|\bminutes?\b|\bsecondes?\b)/g;
       let strong = new Set(), weak = new Set(), m;
       while ((m = S.exec(t))) strong.add(m[0]);
@@ -27692,7 +27793,7 @@ return sig >= 2;
       let s = String(text == null ? '' : text).toLowerCase().replace(/[’']/g, ' ').replace(/[-–—]/g, ' ');
       let stop = {};
       ('explique expliquer expliquez comment pourquoi combien quoi quel quelle quels quelles est sont etait le la les un une des de du au aux et ou car donc mais pour par sur dans avec sans plus moins que qui ce je tu il elle on nous vous me te se moi toi lui eux mon ma mes ton ta tes son sa ses leur leurs peux peut voudrais veux sais savoir comprends comprendre donne montrer montre rappelle revois merci stp svp aide dis fait faire exercice toute tous toutes exactement vraiment simplement surtout plutot alors aussi encore jamais toujours ainsi comme ca cela deja bien voila quand').split(' ').forEach(w => { if (w) stop[w] = 1; });
-      let ws = s.replace(/[^a-zà-ÿ0-9+×÷\/ ]+/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !stop[w]);
+      let ws = s.replace(/[^a-zà-ÿā-ž0-9+×÷\/ ]+/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !stop[w]);
       let q = ws.join(' ').slice(0, 120).trim();
       if (!q) q = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 120);
       return q;
@@ -28060,7 +28161,7 @@ return sig >= 2;
       return o;
     })(),
     _words(t) {
-      let s = String(t == null ? '' : t).toLowerCase().replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿ0-9]+/g, ' ');
+      let s = String(t == null ? '' : t).toLowerCase().replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿā-ž0-9]+/g, ' ');
       let self = this;
       return s.split(' ').filter(x => (x.length >= 4 || this.SHORT_WORDS[x]) && !this.STOP[x]).map(x => self._stem(x));
     },
@@ -28223,7 +28324,7 @@ return sig >= 2;
     // mots - "les oestrogenes" ne trouverait aucune section. Question ET dossier passent
     // par la même fonction, donc tout reste cohérent.
     _words(t) {
-      let s = String(t == null ? '' : t).toLowerCase().replace(/œ/g, 'oe').replace(/Œ/g, 'oe').replace(/æ/g, 'ae').replace(/Æ/g, 'ae').replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿ0-9]+/g, ' ');
+      let s = String(t == null ? '' : t).toLowerCase().replace(/œ/g, 'oe').replace(/Œ/g, 'oe').replace(/æ/g, 'ae').replace(/Æ/g, 'ae').replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿā-ž0-9]+/g, ' ');
       let self = this;
       return s.split(' ').filter(x => (x.length >= 4 || this.SHORT_WORDS[x]) && !this.STOP[x]).map(x => self._stem(x));
     },
@@ -28342,10 +28443,10 @@ return sig >= 2;
       ('tlf tlfi oqlf bdl drf dvlf inalf artfl cnrs tic').split(' ').forEach(w => { if (w) o[w] = 1; });
       return o;
     })(),
-    // Les ligatures œ et æ sortent de la plage de caractères a-zà-ÿ ("cœur",
+    // Les ligatures œ et æ sortent de la plage de caractères a-zà-ÿā-ž ("cœur",
     // "sœur", "nœud" figurent dans les citations des fiches).
     _words(t) {
-      let s = String(t == null ? '' : t).toLowerCase().replace(/œ/g, 'oe').replace(/Œ/g, 'oe').replace(/æ/g, 'ae').replace(/Æ/g, 'ae').replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿ0-9]+/g, ' ');
+      let s = String(t == null ? '' : t).toLowerCase().replace(/œ/g, 'oe').replace(/Œ/g, 'oe').replace(/æ/g, 'ae').replace(/Æ/g, 'ae').replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿā-ž0-9]+/g, ' ');
       let self = this;
       return s.split(' ').filter(x => (x.length >= 4 || this.SHORT_WORDS[x]) && !this.STOP[x]).map(x => self._stem(x));
     },
@@ -29138,7 +29239,7 @@ return sig >= 2;
       return o;
     })(),
     _words(t) {
-      let s = String(t == null ? '' : t).toLowerCase().replace(/œ/g, 'oe').replace(/Œ/g, 'oe').replace(/æ/g, 'ae').replace(/Æ/g, 'ae').replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿ0-9]+/g, ' ');
+      let s = String(t == null ? '' : t).toLowerCase().replace(/œ/g, 'oe').replace(/Œ/g, 'oe').replace(/æ/g, 'ae').replace(/Æ/g, 'ae').replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿā-ž0-9]+/g, ' ');
       let self = this;
       return s.split(' ').filter(x => (x.length >= 4 || this.SHORT_WORDS[x]) && !this.STOP[x]).map(x => self._stem(x));
     },
@@ -31984,8 +32085,8 @@ return sig >= 2;
       } catch (e) {}
       if (!/m[ée]t[ée]o|quel temps|weather|forecast|pluie|pleut|pleuv|\brain(?!ure|ette|ard)[a-z]*\b|neige|canicule|orage/i.test(s)) return null;
       let city = null, m;
-      m = s.match(/(?:m[ée]t[ée]o|temps|weather|forecast|pluie|pleut|pleuv|\brain(?!ure|ette|ard)[a-z]*\b|neige|orage)[^?!.]{0,60}?(?:^|[\s'’\-.,;:!?()\[\]])(?:à|au|aux|en|de|d'|du|des|sur|for|in|at|near|près de|pres de)\s+([A-Za-zÀ-ÿ'’\- ]{2,40})/i)
-        || s.match(/(?:m[ée]t[ée]o|weather|forecast)\s+([A-Za-zÀ-ÿ'’\- ]{2,40})/i);
+      m = s.match(/(?:m[ée]t[ée]o|temps|weather|forecast|pluie|pleut|pleuv|\brain(?!ure|ette|ard)[a-z]*\b|neige|orage)[^?!.]{0,60}?(?:^|[\s'’\-.,;:!?()\[\]])(?:à|au|aux|en|de|d'|du|des|sur|for|in|at|near|près de|pres de)\s+([A-Za-zÀ-ÿĀ-ž'’\- ]{2,40})/i)
+        || s.match(/(?:m[ée]t[ée]o|weather|forecast)\s+([A-Za-zÀ-ÿĀ-ž'’\- ]{2,40})/i);
       if (m) city = m[1].replace(/[?!.,;:]+$/, '').trim();
       return { city: city || null };
     },
@@ -36472,7 +36573,7 @@ return sig >= 2;
       return o;
     })(),
     _words(t) {
-      let s = String(t == null ? '' : t).toLowerCase().replace(/œ/g, 'oe').replace(/Œ/g, 'oe').replace(/æ/g, 'ae').replace(/Æ/g, 'ae').replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿ0-9]+/g, ' ');
+      let s = String(t == null ? '' : t).toLowerCase().replace(/œ/g, 'oe').replace(/Œ/g, 'oe').replace(/æ/g, 'ae').replace(/Æ/g, 'ae').replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿā-ž0-9]+/g, ' ');
       let self = this;
       return s.split(' ').filter(x => (x.length >= 4 || this.SHORT_WORDS[x]) && !this.STOP[x]).map(x => self._stem(x));
     },
@@ -36614,7 +36715,7 @@ return sig >= 2;
     })()),
     SHORT_WORDS: (function () { let o = {}; ('ver bot').split(' ').forEach(w => { if (w) o[w] = 1; }); return o; })(),
     _words(t) {
-      let s = String(t == null ? '' : t).toLowerCase().replace(/œ/g, 'oe').replace(/Œ/g, 'oe').replace(/æ/g, 'ae').replace(/Æ/g, 'ae').replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿ0-9]+/g, ' ');
+      let s = String(t == null ? '' : t).toLowerCase().replace(/œ/g, 'oe').replace(/Œ/g, 'oe').replace(/æ/g, 'ae').replace(/Æ/g, 'ae').replace(/[’']/g, ' ').replace(/%/g, ' pourcent ').replace(/[^a-zà-ÿā-ž0-9]+/g, ' ');
       let self = this;
       return s.split(' ').filter(x => (x.length >= 4 || this.SHORT_WORDS[x]) && !this.STOP[x]).map(x => self._stem(x));
     },
@@ -37142,7 +37243,7 @@ return sig >= 2;
         };
         let chapOf = function (s) {
           let t = String(s.t || '');
-          let m = /(?:^|—\s*)([12]?\s?[A-Za-zÀ-ÿ'’]+?)\s+(\d+)\s*[\(:]/.exec(t);
+          let m = /(?:^|—\s*)([12]?\s?[A-Za-zÀ-ÿĀ-ž'’]+?)\s+(\d+)\s*[\(:]/.exec(t);
           if (m) return +m[2];
           let m2 = /Sourate (\d+),/.exec(t);
           if (m2) return +m2[1];
@@ -43993,7 +44094,7 @@ return sig >= 2;
 (function () {
   if (window.__sofiaGuide) return;
   window.__sofiaGuide = true;
-  var BTN = { fr: '❓ Guide', en: '❓ Guide', de: '❓ Anleitung', es: '❓ Guía', it: '❓ Guida' };
+  var BTN = { fr: '❓ Guide', en: '❓ Guide', de: '❓ Anleitung', es: '❓ Guía', it: '❓ Guida', pl: '❓ Przewodnik', ja: '❓ ガイド', zh: '❓ 指南', 'zh-CN': '❓ 指南', ko: '❓ 가이드' };
   var HINTS = {
     fr: {
       temp: '0 = précise et fidèle à ses fiches · 1 = inventive et imprévisible. Si elle invente trop, baissez ce curseur.',
@@ -44004,6 +44105,46 @@ return sig >= 2;
       temp: '0 = precise and factual · 1 = creative and unpredictable. Lower it if she invents too much.',
       pitch: '1 = natural voice · lower = deeper · higher = sharper. Try it with “Test voice”.',
       rate: '1 = normal pace (set to 1.4 by default). Slow down if she rushes words.'
+    },
+    de: {
+      temp: '0 = präzise und faktentreu · 1 = erfinderisch und unvorhersehbar. Senke ihn, wenn sie zu viel erfindet.',
+      pitch: '1 = natürliche Stimme · darunter = tiefer · darüber = höher. Probiere es mit „Stimme testen“.',
+      rate: '1 = normales Tempo (Standard 1,4). Verlangsame, wenn sie Wörter verschluckt.'
+    },
+    es: {
+      temp: '0 = precisa y fiel · 1 = creativa e impredecible. Bájalo si inventa demasiado.',
+      pitch: '1 = voz natural · por debajo = más grave · por encima = más aguda. Pruébalo con «Probar la voz».',
+      rate: '1 = ritmo normal (1,4 por defecto). Ralentiza si «se come» las palabras.'
+    },
+    it: {
+      temp: '0 = precisa e fedele · 1 = creativa e imprevedibile. Abbassalo se inventa troppo.',
+      pitch: '1 = voce naturale · sotto = più grave · sopra = più acuta. Provalo con «Prova la voce».',
+      rate: '1 = ritmo normale (1,4 di default). Rallenta se «mangia» le parole.'
+    },
+    pl: {
+      temp: '0 = precyzyjna i wierna · 1 = pomysłowa i nieprzewidywalna. Obniż, jeśli za dużo zmyśla.',
+      pitch: '1 = głos naturalny · niżej = niższy · wyżej = wyższy. Wypróbuj przyciskiem «Test głosu».',
+      rate: '1 = normalne tempo (domyślnie 1,4). Zwolnij, jeśli „połyka” słowa.'
+    },
+    ja: {
+      temp: '0 = 正確で忠実 · 1 = 創造的で予測不能。作り話が多い場合は下げてください。',
+      pitch: '1 = 自然な声 · 下 = 低く · 上 = 高く。「声を試す」で試せます。',
+      rate: '1 = 通常の速さ（デフォルト1.4）。言葉を飲み込む場合は遅くしてください。'
+    },
+    zh: {
+      temp: '0 = 精確忠實 · 1 = 富有創意難以預測。如果她編造太多，請調低。',
+      pitch: '1 = 自然嗓音 · 調低更低沉 · 調高更尖。用「測試語音」試試。',
+      rate: '1 = 正常語速（預設1.4）。如果她「吞字」，請調慢。'
+    },
+    'zh-CN': {
+      temp: '0 = 精确忠实 · 1 = 富有创意难以预测。如果她编造太多，请调低。',
+      pitch: '1 = 自然嗓音 · 调低更低沉 · 调高更尖。用「测试语音」试试。',
+      rate: '1 = 正常语速（默认1.4）。如果她「吞字」，请调慢。'
+    },
+    ko: {
+      temp: '0 = 정확하고 충실 · 1 = 창의적이고 예측 불가. 지어내는 말이 많으면 낮추세요.',
+      pitch: '1 = 자연스러운 목소리 · 아래 = 더 낮게 · 위 = 더 높게. «음성 테스트»로 시험해 보세요.',
+      rate: '1 = 보통 속도(기본 1.4). 말을 삼키면 늦추세요.'
     }
   };
   var SEC = {
@@ -44137,8 +44278,17 @@ return sig >= 2;
   }
   function lang() {
     try {
-      var l = String((window.App && App.State && App.State.settings && App.State.settings.language) || 'fr').slice(0, 2).toLowerCase();
-      return HINTS[l] ? l : 'en';
+      var raw = String((window.App && App.State && App.State.settings && App.State.settings.language) || 'fr').toLowerCase();
+      var l = raw.slice(0, 2);
+      if (l === 'zh') {
+        var simp = false;
+        try { simp = String((App.State.settings && App.State.settings.zhScript) || 'trad').toLowerCase() === 'simp'; } catch (eS) {}
+        l = simp ? 'zh-CN' : 'zh';
+      }
+      if (HINTS[l] || SEC[l] || VAL[l] || VER[l] || MUS[l]) return l;
+      var b = l.slice(0, 2);
+      if (HINTS[b] || SEC[b] || VAL[b] || VER[b] || MUS[b]) return b;
+      return 'en';
     } catch (e) { return 'fr'; }
   }
   function paint() {
@@ -44149,7 +44299,7 @@ return sig >= 2;
         var t = BTN[l] || BTN.en;
         if (b.textContent !== t) b.textContent = t;
       }
-      var map = { tempHint: HINTS[l].temp, ttsPitchHint: HINTS[l].pitch, ttsRateHint: HINTS[l].rate };
+      var map = { tempHint: (HINTS[l] || HINTS.en).temp, ttsPitchHint: (HINTS[l] || HINTS.en).pitch, ttsRateHint: (HINTS[l] || HINTS.en).rate };
       for (var id in map) {
         var el = document.getElementById(id);
         if (el && el.textContent !== map[id]) el.textContent = map[id];
