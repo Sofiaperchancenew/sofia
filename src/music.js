@@ -67,7 +67,7 @@ d.innerHTML = "<div class='mz-wrap'>"
  + "<div class='mz-kv' id='mzCheck' style='font-size:12px;margin-top:8px'></div><div class='mz-tip' id='mzTipVoice' style='margin-top:8px'></div></div>"
  + "<div class='mz-card' style='margin-top:12px'><label id='mzLGallery'></label><div class='mz-sub' style='font-size:13px' id='mzGalleryNote'></div>"
 + "<div id='mzGalleryCtn' style='margin-top:8px'></div><div class='mz-kv' id='mzPubStatus' style='font-size:12px;margin-top:8px'></div></div>"
- + "<div class='mz-card' style='margin-top:12px'><label>Écouter 🎧</label><div class='mz-sub' style='font-size:13px'>Ces chansons ont été créées par Sofia en mode musique. Le concepteur de Sofia souhaite vous faire écouter la musique de Sofia et la sienne, tirée de son histoire personnelle.</div>"
+ + "<div class='mz-card' style='margin-top:12px'><label id='mzLListen'></label><div class='mz-sub' style='font-size:13px' id='mzListenNote'></div>"
  + "<div id='mzListenCtn' style='margin-top:8px'></div></div>"
  + "<div class='mz-card' style='margin-top:12px'><label id='mzLNotes'></label><div class='mz-kv' id='mzNotes'></div><div class='mz-tip' id='mzTipSuno' style='margin-top:8px'></div></div>"
  + "<div class='mz-card' style='margin-top:12px'><label id='mzLHist'></label><div class='mz-row'><button class='mz-ghost' id='mzSaveHist'></button><select id='mzHist' style='max-width:320px;flex:1;min-width:0'></select><button class='mz-ghost' id='mzDelHist'></button></div><div class='mz-kv' style='font-size:12px' id='mzHistNote'></div></div>"
@@ -131,7 +131,7 @@ var td = gi('mzTitreDice'); if (td) td.onclick = function(){ setVal('mzTitre', p
 var al = gi('mzGrid'); if (al) al.querySelectorAll('select,input').forEach(function(el){ el.onchange = function(){ App.Music.generate(); }; });
 var mg = gi('mzGenre'); if (mg){ var _mgPrev = mg.onchange; mg.onchange = function(){ try{ App.Music.applyGenreRhythm(); }catch(e){} if (_mgPrev) _mgPrev.call(this); }; }
 }
-var LABELS = [['mzTitle','title'],['mzSub','sub'],['mzLGenre','genre'],['mzLIntent','intent'],['mzLBpm','bpm'],['mzLKey','key'],['mzLBass','bass'],['mzLPerc','perc'],['mzLTex','tex'],['mzLSpat','spat'],['mzLEnergy','energy'],['mzLSoma','soma'],['mzLVocal','vocal'],['mzLTheme','theme'],['mzLLen','len'],['mzLLyrLen','lyrLen'],['mzLTitre','titre'],['mzLSunoVer','sunoVer'],['mzLExclude','exclude'],['mzGen','gen'],['mzRand','surprise'],['mzCopyBoth','copyBoth'],['mzCopyAll','copyAll'],['mzExport','export'],['mzLStyle','styleBox'],['mzLStruct','structBox'],['mzLLyrics','lyricsBox'],['mzLCustom2','customLbl'],['mzAiLyrics','aiLyrics'],['mzEdit','edit'],['mzWrap','wrap'],['mzCopyLyrics','copyLyrics'],['mzCopyStyle','copyStyle'],['mzCopyStruct','copyStruct'],['mzLNotes','notes'],['mzLHist','hist'],['mzSaveHist','saveHist'],['mzDelHist','delHist'],['mzHistNote','localOnly'],['mzLOneSong','oneSong'],['mzOneSongNote','oneSongNote'],['mzModeAi','modeAi'],['mzModeMine','modeMine'],['mzWriteLyrics','writeLyrics'],['mzCompose','compose'],['mzPublish','publish'],['mzLGallery','galleryT'],['mzGalleryNote','galleryNote'],['mzLChords','chords'],['mzTipVoice','tipVoice'],['mzTipSuno','tipSuno'],['mzFoot','foot'],['mzClose','close']];
+var LABELS = [['mzTitle','title'],['mzSub','sub'],['mzLGenre','genre'],['mzLIntent','intent'],['mzLBpm','bpm'],['mzLKey','key'],['mzLBass','bass'],['mzLPerc','perc'],['mzLTex','tex'],['mzLSpat','spat'],['mzLEnergy','energy'],['mzLSoma','soma'],['mzLVocal','vocal'],['mzLTheme','theme'],['mzLLen','len'],['mzLLyrLen','lyrLen'],['mzLTitre','titre'],['mzLSunoVer','sunoVer'],['mzLExclude','exclude'],['mzGen','gen'],['mzRand','surprise'],['mzCopyBoth','copyBoth'],['mzCopyAll','copyAll'],['mzExport','export'],['mzLStyle','styleBox'],['mzLStruct','structBox'],['mzLLyrics','lyricsBox'],['mzLCustom2','customLbl'],['mzAiLyrics','aiLyrics'],['mzEdit','edit'],['mzWrap','wrap'],['mzCopyLyrics','copyLyrics'],['mzCopyStyle','copyStyle'],['mzCopyStruct','copyStruct'],['mzLNotes','notes'],['mzLHist','hist'],['mzSaveHist','saveHist'],['mzDelHist','delHist'],['mzHistNote','localOnly'],['mzLOneSong','oneSong'],['mzOneSongNote','oneSongNote'],['mzModeAi','modeAi'],['mzModeMine','modeMine'],['mzWriteLyrics','writeLyrics'],['mzCompose','compose'],['mzPublish','publish'],['mzLGallery','galleryT'],['mzGalleryNote','galleryNote'],['mzLListen','listenT'],['mzListenNote','listenNote'],['mzLChords','chords'],['mzTipVoice','tipVoice'],['mzTipSuno','tipSuno'],['mzFoot','foot'],['mzClose','close']];
 function localize(){
 buildPanel(); App.Music.buildGrid();
 var ui = UI(), bk = BK();
@@ -188,22 +188,29 @@ function mountGallery(){
     try { ctn.innerHTML = com; } catch(e2) { ctn.textContent = String(com); }
   } catch(e) {}
 }
-var SUNO_TRACKS = [{ t: 'Le paradis \u2014 1813Watt', id: '83b9e3bb-423b-45a2-b04e-5e384c8c8f16' }, { t: 'C\u0027est pour cela que je t\u0027aime si \u00e9trange remix techno \u2014 1813Watt', id: '704dbbc6-b101-4435-b573-59c3eb086c17' }, { t: 'Apog\u00e9 en \u00c9cho \u2014 1813Watt', id: 'cdb82cd4-816b-4242-b68a-cadf1eb5bf83' }, { t: 'Deep G Minor Pulse \u2014 1813Watt', id: '4d3a51f1-f1aa-4e92-ad11-903b249bae93' }, { t: 'La Rose au Beau Contour \u2014 1813Watt', id: '77fecd57-8747-4f29-8ad4-c1a6a23b2d03' }, { t: 'A Rose with a Beautiful \u2014 1813Watt', id: 'ed0d5e91-7ade-45d7-911a-8017dc350b59' }, { t: 'Eine Frau an meiner Seite \u2014 1813Watt', id: 'e958bf3e-87e8-4d39-a898-060af91462c1' }];
+var SUNO_TRACKS = [{ t: 'Le paradis \u2014 1813Watt', id: '83b9e3bb-423b-45a2-b04e-5e384c8c8f16' }, { t: 'C\u0027est pour cela que je t\u0027aime si \u00e9trange remix techno \u2014 1813Watt', id: '704dbbc6-b101-4435-b573-59c3eb086c17' }, { t: 'Apog\u00e9 en \u00c9cho \u2014 1813Watt', id: 'cdb82cd4-816b-4242-b68a-cadf1eb5bf83' }, { t: 'Deep G Minor Pulse \u2014 1813Watt', id: '4d3a51f1-f1aa-4e92-ad11-903b249bae93' }, { t: 'La Rose au Beau Contour \u2014 1813Watt', id: '77fecd57-8747-4f29-8ad4-c1a6a23b2d03' }, { t: 'A Rose with a Beautiful \u2014 1813Watt', id: 'ed0d5e91-7ade-45d7-911a-8017dc350b59' }, { t: 'Eine Frau an meiner Seite \u2014 1813Watt', id: 'e958bf3e-87e8-4d39-a898-060af91462c1' }, { t: 'She', mp3: 'src/music/she.mp3' }];
 function renderListen(){
   try {
     var ctn = gi('mzListenCtn'); if (!ctn) return;
     ctn.innerHTML = '';
     SUNO_TRACKS.forEach(function(tr){
       var cap = document.createElement('div'); cap.className = 'mz-sub'; cap.style.fontSize = '13px'; cap.style.margin = '8px 0 4px'; cap.textContent = '\uD83C\uDFB5 ' + tr.t;
-      var fr = document.createElement('iframe');
-      fr.src = 'https://suno.com/embed/' + tr.id;
-      fr.width = '100%'; fr.height = '240';
-      fr.setAttribute('frameborder', '0');
-      fr.setAttribute('allow', 'autoplay; encrypted-media; fullscreen');
-      fr.allowFullscreen = true; fr.loading = 'lazy';
-      fr.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
-      fr.style.width = '100%'; fr.style.border = '0'; fr.style.borderRadius = '8px';
-      ctn.appendChild(cap); ctn.appendChild(fr);
+      if (tr.mp3){
+        var au = document.createElement('audio');
+        au.controls = true; au.preload = 'none'; au.src = tr.mp3;
+        au.style.width = '100%'; au.style.margin = '4px 0 12px';
+        ctn.appendChild(cap); ctn.appendChild(au);
+      } else {
+        var fr = document.createElement('iframe');
+        fr.src = 'https://suno.com/embed/' + tr.id;
+        fr.width = '100%'; fr.height = '240';
+        fr.setAttribute('frameborder', '0');
+        fr.setAttribute('allow', 'autoplay; encrypted-media; fullscreen');
+        fr.allowFullscreen = true; fr.loading = 'lazy';
+        fr.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+        fr.style.width = '100%'; fr.style.border = '0'; fr.style.borderRadius = '8px';
+        ctn.appendChild(cap); ctn.appendChild(fr);
+      }
     });
   } catch(e) {}
 }
