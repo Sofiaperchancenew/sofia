@@ -111,7 +111,7 @@ export function attachWardrobe(App) {
   }
   // Ronde 635 : un choix vestiaire collait au localStorage SANS discussion ni
   // personnage — une tenue d'essai (jean + pull...) habillait ensuite TOUTES
-  // les photos, y compris Nina en dentelle noire de sa fiche. Chaque choix est
+  // les photos, y compris l'héroïne en dentelle noire de sa fiche. Chaque choix est
   // tamponne (discussion + heroine) et ignore des qu'il vient d'ailleurs.
   function curSid() { try { return (App && App.State && App.State.currentSessionId) || ''; } catch (e) { return ''; } }
   function normNm(s) { try { return String(s || '').toLowerCase().normalize('NFD').replace(/[^a-z]+/g, ' ').trim(); } catch (e) { return ''; } }

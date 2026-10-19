@@ -606,13 +606,16 @@ export function attachMedias(App) {
     // Detector ») : c'est Sofia qui écrit/chante, via le Core.
     try {
       const nrm = " " + normStation(t) + " ";
-      if (/\b(cree\w*|compose\w*|compos\w*|ecris|ecriv\w*|chante\w*|make\w*|creat\w*|sing\w*|write\w*|writ\w*|canta\w*|escrib\w*|escriv\w*|scriv\w*|compon\w*|fais\w*|fait\w*|fair\w*|donn\w*|stworz\w*|zrob\w*|skomponuj|skomponow\w*|napisz|napis\w*|zaspiewaj|spiewaj\w*|utworz\w*|uloz\w*)\b[^?!;]{0,40}\b(lied\w*|songs?|musik\w*|melod\w*|chanson\w*|musique\w*|morceau\w*|music\w*|tunes?|anthem\w*|cancion\w*|canzone\w*|brano\w*|piosen\w*|muzyk\w*|utwor\w*|melodi\w*)\b/.test(nrm)) return null;
+      if (/\b(cree\w*|compose\w*|compos\w*|ecris|ecriv\w*|chante\w*|make\w*|creat\w*|sing\w*|write\w*|writ\w*|canta\w*|escrib\w*|escriv\w*|scriv\w*|compon\w*|fais\w*|fait\w*|fair\w*|donn\w*|stworz\w*|zrob\w*|skomponuj|skomponow\w*|napisz|napis\w*|zaspiewaj|spiewaj\w*|utworz\w*|uloz\w*|banao|likho|gao|sunao)\b[^?!;]{0,40}\b(lied\w*|songs?|musik\w*|melod\w*|chanson\w*|musique\w*|morceau\w*|music\w*|tunes?|anthem\w*|cancion\w*|canzone\w*|brano\w*|piosen\w*|muzyk\w*|utwor\w*|melodi\w*|gana|geet|sangeet)\b/.test(nrm)) return null;
       if (/\bmach\w*\b[^?!;]{0,20}\b(mir|uns|ein\w*|neue\w*|eigen\w*)\b[^?!;]{0,20}\b(lied\w*|songs?|musik\w*|melodie\w*)\b/.test(nrm)) return null;
       if (/\b(lied\w*|songs?|musik\w*)\b[^?!;]{0,30}\b(mach\w*|erstell\w*|komponier\w*|schreib\w*|dicht\w*)\b/.test(nrm)) return null;
       try {
         let V = "作って|作る|書いて|書く|歌って|歌う|創って|創る|作曲|创作|創作|作詞|作词|编曲|編曲|写|寫|唱|编|編|来一首|來一首|만들어줘|만들어|써줘|지어줘|불러줘|작곡해줘|작곡|지어|써|불러";
         let N = "メロディー|メロディ|音楽|ソング|歌曲|歌|曲|音乐|音樂|曲子|旋律|멜로디|음악|노래|곡";
         if (new RegExp("(" + V + ")[^?!;。！？]{0,40}(" + N + ")|(" + N + ")[^?!;。！？]{0,40}(" + V + ")").test(t)) return null;
+        let HV = "बनाओ|बनाइए|बना दो|लिखो|लिखिए|लिख दो|गाओ|गाइए|सुनाओ|रचो|कंपोज़ करो|तैयार करो";
+        let HN = "गाना|गाने|गीत|संगीत|धुन|तराना|नग़मा";
+        if (new RegExp("(" + HV + ")[^?!;।]{0,40}(" + HN + ")|(" + HN + ")[^?!;।]{0,40}(" + HV + ")").test(t)) return null;
       } catch (eCjk) {}
     } catch (eCreate) {}
     try {

@@ -979,7 +979,7 @@ räumt beim Start auch die unvollständigen Kennzeichnungen aus BEREITS gespeich
 (beim ersten Laden: 2 Nachrichten); und der `[IMAGES]`-Prompt sagt jetzt ausdrücklich, dass man
 `[SOFIA_IMAGE]` schreibt und die Worte « Image generated » nie selbst.
 
-Geprüft: « Bonjour Max.\n\n[Image generated » → « Bonjour Max. » ; « …[Image generated\n\nEt la
+Geprüft: « Bonjour [lui].\n\n[Image generated » → « Bonjour [lui]. » ; « …[Image generated\n\nEt la
 suite. » → « …Et la suite. » (der Rest BLEIBT erhalten) ; `[Image generated: …]` → entfernt, Rest
 behalten. In der laufenden Seite keine Spur von « [Image generated » mehr (weder in den gespeicherten
 Nachrichten noch im DOM), alle 5 Bilder der Unterhaltung werden gezeigt, `SelfUpdate.verify()` →
@@ -1823,7 +1823,7 @@ statt der Szene eine Selbstvorstellung (« Je suis Sofia. Sagesse, Origine, Fran
 Bericht des Eigentuemers: er hat die Alterssperre GETESTET. Er hat in den Einstellungen niemanden
 angegeben, also muss die App ihn als unter 18 behandeln — und bat um zwei erfundene Frauen
 (« incarne deux personnages … elles m'invitent chez elles pour faire l'amour »). Sofia antwortete mit
-einer EXPLIZITEN erotischen Szene (« Je m'appelle Clara … », « mes seins … comme des gouttes d'eau »).
+einer EXPLIZITEN erotischen Szene (« Je m'appelle [elle] … », « mes seins … comme des gouttes d'eau »).
 Seit Runde 289 gruendet ein kurzer Brief den Szenenfaden — genau durch ihn kam der Inhalt hindurch.
 - **Gemessen (live, Prompt rund 93 000 Zeichen).** `App.Age.age() = 0`, `nsfw() = false`, und
   `promptBlock()` sagte korrekt « Nobody has said who is present yet. Stay SFW… » — aber bei Zeichen
