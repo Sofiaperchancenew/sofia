@@ -98,14 +98,16 @@ export function attachWardrobe(App) {
     outfit: null,
     proposal: null,
     others: {},
+    descs: {},
+    modes: {},
     open: false
   };
   try {
     const raw = localStorage.getItem(LS);
-    if (raw) { const o = JSON.parse(raw); W.outfit = o.her || null; W.his = o.his || null; W.decor = o.decor || null; W.proposal = o.proposal || null; W.others = o.others || {}; }
+    if (raw) { const o = JSON.parse(raw); W.outfit = o.her || null; W.his = o.his || null; W.decor = o.decor || null; W.proposal = o.proposal || null; W.others = o.others || {}; W.descs = o.descs || {}; }
   } catch (e) {}
   function save() {
-    try { localStorage.setItem(LS, JSON.stringify({ her: W.outfit, his: W.his || null, decor: W.decor || null, proposal: W.proposal || null, others: W.others || {} })); } catch (e) {}
+    try { localStorage.setItem(LS, JSON.stringify({ her: W.outfit, his: W.his || null, decor: W.decor || null, proposal: W.proposal || null, others: W.others || {}, descs: W.descs || {} })); } catch (e) {}
   }
   // Ronde 635 : un choix vestiaire collait au localStorage SANS discussion ni
   // personnage — une tenue d'essai (jean + pull...) habillait ensuite TOUTES
@@ -185,6 +187,15 @@ export function attachWardrobe(App) {
       const kind = /(mobilier|meuble|d[ée]cor|machine|canap[ée]|fauteuil|cabine|potence)/i.test(e.label + ' ' + e.id) ? 'decor' : 'wear';
       W.cats.push({ id: e.f + '#' + e.id, label: e.label, shop: e.cat.shop || '', kind: kind, items: e.items });
     }
+    try {
+      const v = await fetch('src/data/visions.json').then(r => r.json());
+      if (v && typeof v === 'object') W.descs = Object.assign({}, v, W.descs || {});
+    } catch (e) {}
+    try {
+      const mo = await fetch('src/data/modes.json').then(r => r.json());
+      if (mo && typeof mo === 'object') W.modes = mo;
+    } catch (e) {}
+    try { _ridByPid = null; } catch (eR) {}
     return W.cats;
   }
   function esc(s) {
@@ -206,23 +217,32 @@ export function attachWardrobe(App) {
     return '<span style="font-size:11px;color:#a1a1aa;">' + esc(c) + '</span> ';
   }
   function card(it, idx, num) {
-    const lo = liveOutfit();
-    const sel = lo && lo.pid === it.pid;
+    let sel = false;
+    try {
+      const lo = liveOutfit(), lh = liveHis(), ld = liveDecor();
+      sel = !!((lo && lo.pid === it.pid) || (lh && lh.pid === it.pid) || (ld && ld.pid === it.pid));
+    } catch (e) { sel = false; }
     const nm = dec(it.name), br = dec(it.brand || ''), ds = dec(it.desc || '').replace(/\s+/g, ' ').trim().slice(0, 110);
     const n = (typeof num === 'number' && num > 0) ? num : (idx + 1);
     return '<div class="wd-card" data-i="' + idx + '" style="position:relative;background:#18181b;border:1px solid ' + (sel ? '#e11d48' : '#27272a') + ';border-radius:10px;overflow:hidden;cursor:pointer;height:max-content;">' +
       '<span style="position:absolute;top:6px;left:6px;z-index:2;min-width:24px;height:24px;padding:0 7px;border-radius:12px;background:#e11d48;color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;">' + n + '</span>' +
-      (it.img ? '<div style="width:100%;height:220px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;"><img loading="lazy" referrerpolicy="no-referrer" src="' + esc(it.img) + '" alt="" data-full="' + esc(it.img) + '" style="max-width:100%;max-height:100%;object-fit:contain;object-position:center;background:#000;display:block;cursor:zoom-in;" title="Voir en grand"></div>' : '<div style="height:220px;display:flex;align-items:center;justify-content:center;color:#52525b;font-size:12px;background:#000;">sans photo</div>') +
+      '<div style="width:100%;height:220px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">' +
+      (it.img ? '<img loading="lazy" referrerpolicy="no-referrer" src="' + esc(it.img) + '" alt="" data-full="' + esc(it.img) + '" style="width:100%;height:220px;object-fit:contain;object-position:center;background:#000;display:block;cursor:zoom-in;" title="Voir en grand">' : '') +
+      '<div data-wd-noimg style="display:' + (it.img ? 'none' : 'flex') + ';width:100%;height:220px;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:#71717a;font-size:12px;background:#18181b;"><span style="font-size:26px;">&#128247;</span><span>photo indisponible</span></div></div>' +
       '<div style="padding:8px 10px;">' +
       '<div style="font-size:12.5px;color:#e4e4e7;line-height:1.3;"><b style="color:#fda4af;">n°' + n + '</b> ' + esc(nm) + '</div>' +
       '<div style="margin-top:4px;font-size:12px;color:#a1a1aa;">' + colorDot(it) + esc(br) + '</div>' +
       (ds ? '<div style="margin-top:4px;font-size:11.5px;color:#71717a;line-height:1.35;">' + esc(ds) + (dec(it.desc || '').length > 110 ? '…' : '') + '</div>' : '') +
+      '<button data-wd-prompt="' + esc(it.pid || '') + '" title="Voir/copier le prompt de description" style="margin-top:6px;width:100%;background:transparent;border:1px solid #52525b;color:#a1a1aa;border-radius:6px;padding:5px 0;font-size:11px;cursor:pointer;">&#128203; prompt</button>' +
+      '<div data-wd-promptout style="display:none;margin-top:4px;font-size:11px;color:#d4d4d8;line-height:1.4;white-space:pre-wrap;"></div>' +
+      '<button data-wd-mode="' + esc(it.pid || '') + '" title="Mode d\u2019emploi et effets" style="display:none;margin-top:6px;width:100%;background:transparent;border:1px solid #a16207;color:#fcd34d;border-radius:6px;padding:5px 0;font-size:11px;cursor:pointer;">&#128214; mode d\u2019emploi</button>' +
+      '<div data-wd-modeout style="display:none;margin-top:4px;font-size:11px;color:#fcd34d;line-height:1.4;white-space:pre-wrap;"></div>' +
       '</div></div>';
   }
   function collectAll() {
     const all = [];
     let g = 0;
-    for (const c of W.cats) for (const it of c.items) { g++; all.push({ cat: c.label, kind: c.kind || 'wear', it: it, g: g }); }
+    for (const c of W.cats) for (const it of c.items) { g++; try { if (it && !it._rid) it._rid = c.id; } catch (eR) {} all.push({ cat: c.label, kind: c.kind || 'wear', it: it, g: g }); }
     return all;
   }
   function render() {
@@ -242,26 +262,76 @@ export function attachWardrobe(App) {
     all = all.slice(0, 120);
     grid.innerHTML = all.map((x, i) => card(x.it, i, x.g)).join('') ||
       '<div style="color:#71717a;font-size:13px;padding:20px;">Rien trouvé. Essaie « rouge », « dentelle », « corset »…</div>';
+    const byPid = {};
+    try { all.forEach(function (x) { if (x && x.it && x.it.pid) byPid[x.it.pid] = x.it; }); } catch (e) {}
+    async function promptFor(btn) {
+      try {
+        const pid = btn.getAttribute('data-wd-prompt');
+        const it = (pid && byPid[pid]) || null;
+        if (!it) return;
+        btn.textContent = '…';
+        const s = await describeItem(it);
+        const out = btn.parentNode ? btn.parentNode.querySelector('[data-wd-promptout]') : null;
+        if (out && s) { out.style.display = 'block'; out.textContent = s; }
+        btn.textContent = '📋 prompt';
+        if (s) {
+          try { await navigator.clipboard.writeText(s); } catch (e) { try { const ta = document.createElement('textarea'); ta.value = s; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } catch (e2) {} }
+          try { if (App.UI && App.UI.showToast) App.UI.showToast('Prompt copié', 'success'); } catch (e) {}
+        }
+      } catch (e) {}
+    }
     grid.querySelectorAll('.wd-card').forEach(el => {
       el.onclick = () => {
         const found = all[+el.dataset.i];
-        if (found.kind === 'decor') selectDecor(found.it);
-        else select(found.it);
+        if (!found || !found.it) return;
+        modalChoose(found.it, found.kind);
       };
       const im = el.querySelector('img[data-full]');
-      if (im) im.onclick = (e) => { e.stopPropagation(); try { window.open(im.dataset.full, '_blank'); } catch (err) {} };
+      if (im) { im.onclick = (e) => { e.stopPropagation(); try { window.open(im.dataset.full, '_blank'); } catch (err) {} }; const showPh = () => { try { im.style.display = 'none'; const ph = el.querySelector('[data-wd-noimg]'); if (ph) ph.style.display = 'flex'; } catch (err2) {} }; im.onerror = showPh; try { if (im.complete && im.naturalWidth === 0) showPh(); } catch (err3) {} }
+      const pb = el.querySelector('[data-wd-prompt]');
+      if (pb) pb.onclick = (e) => { e.stopPropagation(); promptFor(pb); };
+      try {
+        const mb = el.querySelector('[data-wd-mode]');
+        if (mb) {
+          const mpid = mb.getAttribute('data-wd-mode');
+          const mit = (mpid && byPid[mpid]) || null;
+          const mtxt = mit ? modeText(mit) : '';
+          if (mtxt) {
+            mb.style.display = 'block';
+            mb.onclick = (e) => {
+              e.stopPropagation();
+              try {
+                const out = mb.parentNode ? mb.parentNode.querySelector('[data-wd-modeout]') : null;
+                if (!out) return;
+                const open = out.style.display === 'block';
+                out.style.display = open ? 'none' : 'block';
+                if (!open && !out.textContent) out.textContent = mtxt;
+              } catch (err3) {}
+            };
+          }
+        }
+      } catch (eM) {}
     });
     const n = document.getElementById('wdCount');
     if (n) n.textContent = all.length ? ('n°' + all[0].g + '–' + all[all.length - 1].g + ' — ' + all.length + ' modèle(s), dis le numéro pour choisir') : '0 modèle';
   }
   function selectDecor(it) {
+    if (!it) return;
     W.decor = { pid: it.pid, name: dec(it.name), brand: dec(it.brand || ''), shop: it.shop || '', colors: it.colors || [], img: it.img || '', url: it.url || '', desc: dec(it.desc || '').replace(/\s+/g, ' ').trim().slice(0, 200) };
+    try { stamp(W.decor, 'decor'); } catch (e) {}
     save();
     render();
     refreshBar();
     try {
       const t = (App.UI && App.UI.showToast) ? App.UI.showToast.bind(App.UI) : null;
-      if (t) t('Décor placé : ' + W.decor.name, 'success');
+      if (t) t('Pièce : ' + W.decor.name, 'success');
+    } catch (e) {}
+  }
+  function modalChoose(it, kind) {
+    try {
+      if (!it) return;
+      if (kind === 'decor') { selectDecor(it); return; }
+      select(it);
     } catch (e) {}
   }
   function refreshBar() {
@@ -274,15 +344,47 @@ export function attachWardrobe(App) {
     bar.innerHTML = h || 'Clique un modèle pour l\u2019utiliser : tenues sur eux, meubles dans la pièce.';
   }
   function select(it) {
-    W.outfit = { pid: it.pid, name: dec(it.name), brand: dec(it.brand || ''), price: it.price || '', shop: it.shop || '', colors: it.colors || [], img: it.img || '', url: it.url || '', desc: dec(it.desc || '').replace(/\s+/g, ' ').trim().slice(0, 200) };
-    W.proposal = null;
+    if (!it) return;
+    const tgt = (W.target === 'him' || W.target === 'decor') ? W.target : 'her';
+    if (tgt === 'decor') { selectDecor(it); return; }
+    const o = { pid: it.pid, name: dec(it.name), brand: dec(it.brand || ''), price: it.price || '', shop: it.shop || '', colors: it.colors || [], img: it.img || '', url: it.url || '', desc: dec(it.desc || '').replace(/\s+/g, ' ').trim().slice(0, 200) };
+    try { stamp(o, tgt); } catch (e) {}
+    if (tgt === 'him') W.his = o;
+    else { W.outfit = o; W.proposal = null; }
     save();
     render();
     refreshBar();
     try {
       const t = (App.UI && App.UI.showToast) ? App.UI.showToast.bind(App.UI) : null;
-      if (t) t('Tenue choisie : ' + W.outfit.name, 'success');
+      if (t) t((tgt === 'him' ? 'Lui portera : ' : 'Elle portera : ') + o.name, 'success');
     } catch (e) {}
+  }
+  async function describeItem(it) {
+    try {
+      if (!it) return '';
+      const pid = it.pid || it.name || '';
+      W.descs = W.descs || {};
+      if (pid && W.descs[pid]) return W.descs[pid];
+      let s = '';
+      try {
+        if (it.img && App && App.Core && App.Core.visionBlobFor && App.Core.visionLook) {
+          const blob = await App.Core.visionBlobFor('url', it.img);
+          if (blob) s = await App.Core.visionLook(blob, 'Describe this product for an image generator, in English: exact object type, shape, materials, exact colours (precise shade), parts and details. One dense sentence, no preamble.');
+        }
+      } catch (e) {}
+      s = String(s || '').replace(/\s+/g, ' ').trim();
+      if (!s) {
+        let cols = '';
+        try { cols = App.Wardrobe.colWords(it.colors || []); } catch (e) {}
+        s = String(it.name || 'object') + (cols ? ', colour ' + cols : '') + (it.desc ? '. ' + String(it.desc).replace(/\s+/g, ' ').trim().slice(0, 160) : '');
+      }
+      if (pid && s) { W.descs[pid] = s; try { save(); } catch (e) {} }
+      return s;
+    } catch (e) { return ''; }
+  }
+  function verified(o) {
+    try { if (o && o.pid && W.descs && W.descs[o.pid]) return '. Verified look (draw exactly this): ' + W.descs[o.pid]; } catch (e) {}
+    return '';
   }
   function syncAdultNote(host) {
     try {
@@ -302,6 +404,7 @@ export function attachWardrobe(App) {
     if (document.getElementById('wdModal')) {
       const m = document.getElementById('wdModal');
       m.hidden = false;
+      try { const ws = document.getElementById('wdWho'); if (ws) ws.value = W.target || 'her'; } catch (e) {}
       refreshBar();
       render();
       syncAdultNote(m);
@@ -317,6 +420,7 @@ export function attachWardrobe(App) {
       '<b id="wdTitle" style="color:#e4e4e7;font-size:15px;">Catalogue</b>' +
       '<input id="wdSearch" placeholder="rouge, dentelle, corset…" style="flex:1;min-width:140px;background:#18181b;border:1px solid #3f3f46;color:#e4e4e7;border-radius:8px;padding:8px 10px;font-size:13px;">' +
       '<select id="wdCat" style="background:#18181b;border:1px solid #3f3f46;color:#e4e4e7;border-radius:8px;padding:8px;font-size:13px;max-width:220px;"></select>' +
+      '<select id="wdWho" title="Pour qui ?" style="background:#18181b;border:1px solid #e11d48;color:#e4e4e7;border-radius:8px;padding:8px;font-size:13px;"><option value="her">Pour elle</option><option value="him">Pour lui</option><option value="decor">Pour la pi\u00e8ce</option></select>' +
       '<button id="wdClose" style="background:#27272a;border:none;color:#e4e4e7;border-radius:8px;padding:8px 12px;cursor:pointer;">✕</button>' +
       '</div>' +
       '<div id="wdNow" style="padding:8px 16px;font-size:13px;color:#a1a1aa;border-bottom:1px solid #27272a;"></div>' +
@@ -331,6 +435,10 @@ export function attachWardrobe(App) {
     document.getElementById('wdClose').onclick = () => { d.hidden = true; };
     document.getElementById('wdSearch').oninput = render;
     document.getElementById('wdCat').onchange = render;
+    try {
+      const ws = document.getElementById('wdWho');
+      if (ws) { ws.value = W.target || 'her'; ws.onchange = () => { try { W.target = ws.value; refreshBar(); } catch (e) {} }; }
+    } catch (e) {}
     document.getElementById('wdNude').onclick = () => {
       W.outfit = null; save(); render();
       document.getElementById('wdNow').textContent = 'Elle est nue.';
@@ -344,6 +452,40 @@ export function attachWardrobe(App) {
       render();
     });
     render();
+  }
+  let _ridByPid = null;
+  function shortRid(rid) { try { const s = String(rid || ''); const i = s.indexOf('#'); return i >= 0 ? s.slice(i + 1) : s; } catch (e) { return ''; } }
+  function ridOf(pid) {
+    try {
+      if (!_ridByPid) { _ridByPid = {}; for (const c of (W.cats || [])) for (const it of (c.items || [])) { if (it && it.pid && !_ridByPid[it.pid]) _ridByPid[it.pid] = c.id; } }
+      return _ridByPid[pid] || '';
+    } catch (e) { return ''; }
+  }
+  function modeText(item) {
+    try {
+      if (!item) return '';
+      const pid = item.pid || item;
+      const M = W.modes || {};
+      const im = (M.items || {})[pid];
+      if (im && (im.mode || im.effets)) return 'MODE D\u2019EMPLOI : ' + (im.mode || '') + (im.effets ? '\nEFFETS : ' + im.effets : '');
+      const rid = shortRid(item._rid || ridOf(pid));
+      const rm = (M.rayons || {})[rid];
+      if (rm && (rm.mode || rm.effets)) return 'MODE D\u2019EMPLOI (' + rid + ') : ' + (rm.mode || '') + (rm.effets ? '\nEFFETS : ' + rm.effets : '');
+    } catch (e) {}
+    return '';
+  }
+  function modeLine() {
+    try {
+      const jobs = [];
+      if (W.outfit) jobs.push(['elle porte', W.outfit]);
+      if (W.his) jobs.push(['il porte', W.his]);
+      if (W.decor) jobs.push(['dans la pi\u00e8ce', W.decor]);
+      if (W.others) for (const k of Object.keys(W.others)) { if (W.others[k]) jobs.push([k + ' porte', W.others[k]]); }
+      const lines = [];
+      for (const jb of jobs) { const t = modeText(jb[1]); if (t) lines.push('- ' + (jb[1].name || jb[1].pid) + ' (' + jb[0] + ') : ' + t.replace(/\s*\n\s*/g, ' | ')); }
+      if (!lines.length) return '';
+      return "[MODE D\u2019EMPLOI - OBJETS PORT\u00c9S] Tu connais ces objets par c\u0153ur, tu les utilises exactement comme d\u00e9crit, et tu racontes leurs effets vrais (physiques, mentaux, sexuels) dans tes propres mots, en sc\u00e8ne :\n" + lines.join('\n');
+    } catch (e) { return ''; }
   }
   App.Wardrobe = {
     open: openModal,
@@ -362,6 +504,9 @@ export function attachWardrobe(App) {
     },
     clearHis: () => { W.his = null; save(); },
     clearDecor: () => { W.decor = null; save(); },
+    describe: (item) => describeItem(item),
+    modeFor: (item) => modeText(item),
+    modeLine: () => modeLine(),
     arm: (items, startNum, total) => {
       try { return showGallery(items, startNum, total); } catch (e) { return false; }
     },
@@ -412,6 +557,8 @@ export function attachWardrobe(App) {
         return null;
       } catch (e) { return null; }
     },
+    colName: function (hex) { try { const T = [['black','000000'],['white','ffffff'],['red','ff0000'],['dark red','8b0000'],['burgundy','800020'],['wine','722f37'],['pink','ffc0cb'],['fuchsia','ff00ff'],['orange','ff8000'],['beige','f5f5dc'],['nude','e3bc9a'],['yellow','ffff00'],['gold','ffd700'],['green','008000'],['dark green','013220'],['emerald','046a38'],['khaki','bdb76b'],['blue','0000ff'],['navy','000080'],['sky blue','87ceeb'],['turquoise','40e0d0'],['purple','800080'],['violet','8f00ff'],['brown','8b4513'],['camel','c19a6b'],['grey','808080'],['dark grey','3a3a3a'],['light grey','d3d3d3'],['silver','c0c0c0']]; let h = String(hex || '').replace('#','').toLowerCase(); if (/^[0-9a-f]{3}$/.test(h)) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2]; if (!/^[0-9a-f]{6}$/.test(h)) return String(hex||''); const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16); let best='red',bd=1e12; for (const e of T) { const d=(r-parseInt(e[1].slice(0,2),16))**2+(g-parseInt(e[1].slice(2,4),16))**2+(b-parseInt(e[1].slice(4,6),16))**2; if(d<bd){bd=d;best=e[0];} } return best; } catch (e) { return String(hex||''); } },
+    colWords: function (cols) { try { if (!Array.isArray(cols)||!cols.length) return ''; const self=this; return cols.map(function(c){ return (/^#[0-9a-f]{3,8}$/i.test(String(c||'')) ? self.colName(c) : String(c)); }).join('/'); } catch (e) { return ''; } },
     promptLine: () => {
       try {
         let s = '';
@@ -420,19 +567,19 @@ export function attachWardrobe(App) {
           const o = oL;
           s += '[WARDROBE - WHAT SHE WEARS NOW] She wears exactly this real outfit and nothing else (unless the scene itself undresses her later): ' +
             o.name + (o.brand ? ' (' + o.brand + ')' : '') +
-            (o.colors && o.colors.length ? ', colour ' + o.colors.join('/') : '') +
+            (o.colors && o.colors.length ? ', colour ' + App.Wardrobe.colWords(o.colors) : '') +
             (o.desc ? '. ' + o.desc : '') +
             (o.price ? ' [listed at ' + o.price + (o.shop ? ' on ' + o.shop : '') + ']' : '') +
-            '. Name it naturally when relevant; every image prompt of her draws exactly this outfit on her body. Quote its shop and price only if he asks where to buy it - never advertise unprompted.';
+            '. Name it naturally when relevant; every image prompt of her draws exactly this outfit on her body. Quote its shop and price only if he asks where to buy it - never advertise unprompted.' + verified(o);
         }
         if (liveHis()) {
           const h = liveHis();
           if (s) s += '\n';
           s += '[WARDROBE - WHAT HE WEARS NOW] He wears exactly this real outfit and nothing else (unless the scene itself undresses him later): ' +
             h.name + (h.brand ? ' (' + h.brand + ')' : '') +
-            (h.colors && h.colors.length ? ', colour ' + h.colors.join('/') : '') +
+            (h.colors && h.colors.length ? ', colour ' + App.Wardrobe.colWords(h.colors) : '') +
             (h.desc ? '. ' + h.desc : '') +
-            '. This overrides any older clothing: never mention previous garments again. Every image prompt of him draws exactly this outfit on his body.';
+            '. This overrides any older clothing: never mention previous garments again. Every image prompt of him draws exactly this outfit on his body.' + verified(h);
         }
         try {
           const oo = liveOthers();
@@ -442,9 +589,9 @@ export function attachWardrobe(App) {
             if (s) s += '\n';
             s += '[WARDROBE - ' + nm.toUpperCase() + ' WEARS NOW] ' + nm + ' wears exactly this real outfit and nothing else (unless the scene itself undresses them later): ' +
               x.name + (x.brand ? ' (' + x.brand + ')' : '') +
-              (x.colors && x.colors.length ? ', colour ' + x.colors.join('/') : '') +
+              (x.colors && x.colors.length ? ', colour ' + App.Wardrobe.colWords(x.colors) : '') +
               (x.desc ? '. ' + x.desc : '') +
-              '. Every image prompt of the scene draws exactly this outfit on ' + nm + '.';
+              '. Every image prompt of the scene draws exactly this outfit on ' + nm + '.' + verified(x);
           }
         } catch (e) {}
         if (liveDecor()) {
@@ -452,9 +599,9 @@ export function attachWardrobe(App) {
           if (s) s += '\n';
           s += '[SCENE DECOR - WHAT THE ROOM CONTAINS] The room of this scene contains exactly this real furniture piece, placed where it belongs and used as staged: ' +
             d.name + (d.brand ? ' (' + d.brand + ')' : '') +
-            (d.colors && d.colors.length ? ', colour ' + d.colors.join('/') : '') +
+            (d.colors && d.colors.length ? ', colour ' + App.Wardrobe.colWords(d.colors) : '') +
             (d.desc ? '. ' + d.desc : '') +
-            '. It stays there for the whole scene unless he moves it. Every image prompt of the room draws exactly this piece in it.';
+            '. It stays there for the whole scene unless he moves it. Every image prompt of the room draws exactly this piece in it.' + verified(d);
         }
         try {
           const p = liveProposal();
@@ -474,7 +621,7 @@ export function attachWardrobe(App) {
       try {
         const h = liveHis();
         if (!h) return '';
-        return '[WARDROBE - WHAT HE WEARS NOW] He wears exactly this real outfit: ' + h.name + (h.brand ? ' (' + h.brand + ')' : '') + (h.colors && h.colors.length ? ', colour ' + h.colors.join('/') : '') + (h.desc ? '. ' + h.desc : '');
+        return '[WARDROBE - WHAT HE WEARS NOW] He wears exactly this real outfit: ' + h.name + (h.brand ? ' (' + h.brand + ')' : '') + (h.colors && h.colors.length ? ', colour ' + App.Wardrobe.colWords(h.colors) : '') + (h.desc ? '. ' + h.desc : '');
       } catch (e) { return ''; }
     },
     otherLine: () => {

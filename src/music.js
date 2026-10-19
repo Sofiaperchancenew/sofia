@@ -1,8 +1,10 @@
 import { SOUND, PRESETS_FR, BANK_FR, JOURNEY_FR } from './music-data.js';
-import { BANK_DE, BANK_EN, BANK_ES, BANK_IT, BANK_PL, BANK_JA, BANK_ZH, BANK_ZH_CN, BANK_KO } from './music-i18n.js';
-var BANKS = { fr: BANK_FR, de: BANK_DE, en: BANK_EN, es: BANK_ES, it: BANK_IT, pl: BANK_PL, ja: BANK_JA, zh: BANK_ZH, 'zh-CN': BANK_ZH_CN, ko: BANK_KO };
-var VL = { fr: 'accent France fr_fr, prononciation claire', de: 'Akzent Deutschland de_de, klare Aussprache', en: 'en_us accent, clear pronunciation', es: 'acento España es_es, pronunciación clara', it: 'accento Italia it_it, pronuncia chiara', pl: 'akcent Polska pl_pl, wyraźna wymowa', ja: 'アクセント 日本 ja_jp、明瞭な発音', zh: '口音 台灣 zh_tw，發音清晰', ko: '억양 대한민국 ko_kr, 명확한 발음' };
-var SV = { fr: 'Voix', de: 'Stimme', en: 'Voice', es: 'Voz', it: 'Voce', pl: 'Głos', ja: '声', zh: '聲音', ko: '음성' };
+import { SUNO_FAM, familyFor, sunoExtra } from './music-suno.js';
+import { buildCoverPrompt, COVER_STYLE_LABELS } from './music-cover.js';
+import { BANK_DE, BANK_EN, BANK_ES, BANK_IT, BANK_PL, BANK_JA, BANK_ZH, BANK_ZH_CN, BANK_KO, BANK_HI } from './music-i18n.js';
+var BANKS = { fr: BANK_FR, de: BANK_DE, en: BANK_EN, es: BANK_ES, it: BANK_IT, pl: BANK_PL, ja: BANK_JA, zh: BANK_ZH, 'zh-CN': BANK_ZH_CN, ko: BANK_KO, hi: BANK_HI };
+var VL = { fr: 'accent France fr_fr, prononciation claire', de: 'Akzent Deutschland de_de, klare Aussprache', en: 'en_us accent, clear pronunciation', es: 'acento España es_es, pronunciación clara', it: 'accento Italia it_it, pronuncia chiara', pl: 'akcent Polska pl_pl, wyraźna wymowa', ja: 'アクセント 日本 ja_jp、明瞭な発音', zh: '口音 台灣 zh_tw，發音清晰', ko: '억양 대한민국 ko_kr, 명확한 발음', hi: 'लहजा भारत hi_in, स्पष्ट उच्चारण' };
+var SV = { fr: 'Voix', de: 'Stimme', en: 'Voice', es: 'Voz', it: 'Voce', pl: 'Głos', ja: '声', zh: '聲音', ko: '음성', hi: 'आवाज़' };
 var SEC = {
 fr: { v1: 'Couplet 1', v2: 'Couplet 2', pre: 'Pré-refrain', ch: 'Refrain', chf: 'Refrain final', br: 'Pont', out: 'Final', intro: 'Intro', sec: 'Section', tex: 'Texture', up: 'Montée', drop: 'Explosion', calm: 'Accalmie', peak: 'Apogée', ins: 'Instrumental', choir: 'Chœur français euphorique' },
 de: { v1: 'Strophe 1', v2: 'Strophe 2', pre: 'Pre-Refrain', ch: 'Refrain', chf: 'Schlussrefrain', br: 'Bridge', out: 'Finale', intro: 'Intro', sec: 'Teil', tex: 'Textur', up: 'Aufbau', drop: 'Explosion', calm: 'Ruhephase', peak: 'Höhepunkt', ins: 'Instrumental', choir: 'Euphorischer deutscher Chor' },
@@ -19,6 +21,8 @@ SEC['zh-CN'] = { v1: '主歌1', v2: '主歌2', pre: '导副歌', ch: '副歌', c
 SV['zh-CN'] = '声音'; VL['zh-CN'] = '口音 中国大陆 zh_cn，发音清晰'; NLBL['zh-CN'] = ['意图','身体','声音','混音','SUNO诀窍']; HDR['zh-CN'] = ['标题','风格','排除','结构','歌词'];
 SEC['ko'] = { v1: '벌스1', v2: '벌스2', pre: '프리코러스', ch: '코러스', chf: '최종 코러스', br: '브릿지', out: '아웃트로', intro: '인트로', sec: '섹션', tex: '텍스처', up: '고조', drop: '폭발', calm: '가라앉음', peak: '정점', ins: '인스트루멘털', choir: '환희의 한국어 합창' };
 SV['ko'] = '음성'; VL['ko'] = '억양 대한민국 ko_kr, 명확한 발음'; NLBL['ko'] = ['의도','신체','음성','믹스','SUNO 팁']; HDR['ko'] = ['제목','스타일','제외','구성','가사'];
+SEC['hi'] = { v1: 'अंतरा 1', v2: 'अंतरा 2', pre: 'प्री-कोरस', ch: 'कोरस', chf: 'अंतिम कोरस', br: 'ब्रिज', out: 'आउट्रो', intro: 'इंट्रो', sec: 'खंड', tex: 'बनावट', up: 'उठान', drop: 'धमाका', calm: 'ठहराव', peak: 'चरम', ins: 'वाद्य', choir: 'उल्लासपूर्ण हिन्दी समूहगान' };
+SV['hi'] = 'आवाज़'; VL['hi'] = 'लहजा भारत hi_in, स्पष्ट उच्चारण'; NLBL['hi'] = ['इरादा','देह','आवाज़','मिक्स','SUNO टिप']; HDR['hi'] = ['शीर्षक','स्टाइल','बाहर','संरचना','गीत'];
 var CSS = '#musicModal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.72);overflow:auto}' + '#musicModal .mz-wrap{max-width:1020px;margin:0 auto;padding:20px 16px 80px;text-align:left;background:#0a0812;color:#efe9ff;font-family:Inter,system-ui,sans-serif}' + '#musicModal h1{font-size:clamp(22px,4vw,36px);line-height:1.05;margin:8px 0}' + '#musicModal .mz-sub{color:#b9aef5;max-width:75ch;line-height:1.55}' + '#musicModal .mz-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}' + '@media(max-width:760px){#musicModal .mz-grid{grid-template-columns:1fr}}' + '#musicModal .mz-card{background:#151126;border:1px solid #2d2456;border-radius:14px;padding:12px}' + '#musicModal label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#b9aef5;margin:0 0 6px}' + '#musicModal select,#musicModal input[type=text],#musicModal textarea{width:100%;background:#0e0b1c;color:#fff;border:1px solid #3a2f73;border-radius:10px;padding:10px;font-size:14px;box-sizing:border-box}' + '#musicModal textarea{min-height:110px;resize:vertical;line-height:1.6;font-family:inherit}' + '#musicModal input[type=range]{width:100%;accent-color:#ff2e9a}' + '#musicModal .mz-presets{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}' + '#musicModal .mz-presets button{background:#1d1740;color:#fff;border:1px solid #4a3aa3;border-radius:999px;padding:8px 12px;cursor:pointer;font-size:13px}' + '#musicModal .mz-presets button.on{background:#ff2e9a;border-color:#ff2e9a}' + '#musicModal .mz-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;align-items:center}' + '#musicModal .mz-big{background:#ff2e9a;border:0;color:#fff;border-radius:12px;padding:12px 18px;font-weight:800;cursor:pointer;font-size:15px}' + '#musicModal .mz-ghost{background:#221c4d;border:1px solid #4a3aa3;color:#fff;border-radius:12px;padding:12px 14px;cursor:pointer}' + '#musicModal .mz-out{display:grid;grid-template-columns:1fr 1fr;gap:12px}' + '@media(max-width:760px){#musicModal .mz-out{grid-template-columns:1fr}}' + '#musicModal pre{background:#000;border:1px solid #333;border-radius:12px;padding:12px;white-space:pre-wrap;min-height:180px;font-size:13px;line-height:1.6;margin:8px 0;color:#efe9ff}' + '#musicModal .mz-count{font-size:12px;color:#b9aef5}' + '#musicModal .mz-count.bad{color:#ff6b6b}' + '#musicModal .mz-kv{font-size:13px;color:#d9d2ff;line-height:1.6}' + '#musicModal .mz-tip{background:#0e0b1c;border:1px dashed #4a3aa3;border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.6;color:#d9d2ff}' + '#musicModal canvas{width:100%;border-radius:12px;background:#000;border:1px solid #333}';
 export function attachMusic(App) {
 function gi(id){ return document.getElementById(id); }
@@ -336,7 +340,7 @@ var GENRE_RHYTHM = {
 'Circus cabaret':'Lilting 3/4 waltz pulse',
 'Burlesque':'Lilting 3/4 waltz pulse'
 };
-function applyGenreRhythm(){ var g = val('mzGenre'); var p = GENRE_RHYTHM[g]; if(!p) return false; var el = gi('mzPerc'); if(!el) return false; for(var i=0;i<el.options.length;i++){ if(el.options[i].text === p){ el.selectedIndex = i; return true; } } return false; }
+function applyGenreRhythm(){ var g = val('mzGenre'); var p = GENRE_RHYTHM[g]; if(p){ var el = gi('mzPerc'); if(el){ for(var i=0;i<el.options.length;i++){ if(el.options[i].text === p){ el.selectedIndex = i; break; } } } } var fk = null; try{ fk = familyFor(g); }catch(e){} if(fk && SUNO_FAM[fk]){ var F = SUNO_FAM[fk]; var ce = gi('mzChords'); if(ce){ for(var j=0;j<ce.options.length;j++){ if(ce.options[j].text === F.chords){ ce.selectedIndex = j; break; } } } var be = gi('mzBpm'); if(be){ var bv = Math.max(parseInt(be.min || '60', 10) || 60, Math.min(parseInt(be.max || '180', 10) || 180, F.bpm)); be.value = bv; var bvl = gi('mzBpmVal'); if(bvl) bvl.textContent = bv; } } return !!(p || fk); }
 function esc(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 async function clip(t){ try{ await navigator.clipboard.writeText(t); return; }catch(e){} try{ var ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }catch(e){} }
 function fillSel(id, arr){ var el = gi(id); if (!el) return 0; var keep = -1; try{ keep = el.selectedIndex; }catch(e){} el.innerHTML = arr.map(function(v){ return "<option>" + esc(v) + "</option>"; }).join(''); if (keep >= 0 && keep < arr.length){ try{ el.selectedIndex = keep; }catch(e){} } return arr.length; }
@@ -356,7 +360,7 @@ d.innerHTML = "<div class='mz-wrap'>"
  + "<pre id='mzLyrics' style='min-height:280px'></pre>"
  + "<div class='mz-row'><button class='mz-ghost' id='mzAiLyrics'></button><button class='mz-ghost' id='mzEdit'></button><button class='mz-ghost' id='mzWrap'></button><button class='mz-ghost' id='mzCopyLyrics'></button></div>"
  + "<div class='mz-kv' id='mzCheck' style='font-size:12px;margin-top:8px'></div><div class='mz-tip' id='mzTipVoice' style='margin-top:8px'></div></div>"
- + "<div class='mz-card' style='margin-top:12px'><label id='mzLGallery'></label><div class='mz-sub' style='font-size:13px' id='mzGalleryNote'></div>"
+ + "<div class='mz-card' style='margin-top:12px'><label>🎨 Cover</label><div class='mz-row'><select id='mzCoverStyle' style='flex:1;min-width:0'></select><button class='mz-big' id='mzCoverGo'>🎨 Cover</button><button class='mz-ghost' id='mzCoverCopy'>Prompt</button></div><div class='mz-sub' id='mzCoverStatus' style='font-size:12px'></div><div id='mzCoverOut' style='margin-top:8px'></div></div>" + "<div class='mz-card' style='margin-top:12px'><label id='mzLGallery'></label><div class='mz-sub' style='font-size:13px' id='mzGalleryNote'></div>"
 + "<div id='mzGalleryCtn' style='margin-top:8px'></div><div class='mz-kv' id='mzPubStatus' style='font-size:12px;margin-top:8px'></div></div>"
  + "<div class='mz-card' style='margin-top:12px'><label id='mzLListen'></label><div class='mz-sub' style='font-size:13px' id='mzListenNote'></div>"
  + "<div id='mzListenCtn' style='margin-top:8px'></div></div>"
@@ -380,6 +384,8 @@ gi('mzExport').onclick = function(){ App.Music.exportTxt(); };
 gi('mzCopyStyle').onclick = function(){ clip(gi('mzStyle').textContent); };
 gi('mzCopyStruct').onclick = function(){ clip(gi('mzStruct').textContent); };
 gi('mzCopyLyrics').onclick = function(){ clip(gi('mzLyrics').textContent); };
+gi('mzCoverGo').onclick = function(){ App.Music.coverGo(); };
+gi('mzCoverCopy').onclick = function(){ try{ clip(App.Music.coverPromptText().prompt); }catch(e){} };
 gi('mzAiLyrics').onclick = function(){ App.Music.aiLyrics(); };
 gi('mzEdit').onclick = function(){ App.Music.editLyrics(); };
 gi('mzWrap').onclick = function(){ App.Music.wrapLyrics(); };
@@ -400,7 +406,7 @@ function card(lid, inner){ return "<div class='mz-card'><label id='" + lid + "'>
 var h = '';
 h += card('mzLGenre', "<select id='mzGenre'></select>");
 h += card('mzLIntent', "<select id='mzIntent'></select>");
-h += card('mzLBpm', "<input type='range' id='mzBpm' min='100' max='165' value='124'> <span class='mz-count' id='mzBpmVal'>124</span>");
+h += card('mzLBpm', "<input type='range' id='mzBpm' min='60' max='180' value='124'> <span class='mz-count' id='mzBpmVal'>124</span>");
 h += card('mzLKey', "<select id='mzKey'></select>");
 h += card('mzLChords', "<select id='mzChords'></select>");
 h += card('mzLBass', "<select id='mzBass'></select>");
@@ -433,7 +439,7 @@ fillSel('mzGenre', SOUND.genre); fillSel('mzIntent', SOUND.intent); fillSel('mzK
 fillSel('mzVocal', bk.vocal.map(function(v){ return v.t; }));
 fillSel('mzTheme', bk.themes); fillSel('mzLen', ui.lenOpts); fillSel('mzLyrLen', ui.lyrOpts);
 var sv = gi('mzSunoVer'); if (sv){ var ki = -1; try{ ki = sv.selectedIndex; }catch(e){} sv.innerHTML = ui.verOpts.map(function(p){ return "<option value='" + p[1] + "'>" + esc(p[0]) + "</option>"; }).join(''); if (ki >= 0 && ki < ui.verOpts.length){ try{ sv.selectedIndex = ki; }catch(e){} } }
-fillSel('mzChords', SOUND.chords); App.Music.renderThemeChips(); App.Music.setLyricMode(M('lyrMode') || 'sofia', true); App.Music.mountGallery(); App.Music.renderListen();
+fillSel('mzChords', SOUND.chords); fillSel('mzCoverStyle', COVER_STYLE_LABELS); App.Music.renderThemeChips(); App.Music.setLyricMode(M('lyrMode') || 'sofia', true); App.Music.mountGallery(); App.Music.renderListen();
 var te = gi('mzTitre'); if (te) te.placeholder = ui.titrePh;
 var ce = gi('mzCustom'); if (ce) ce.placeholder = ui.customPh;
 if (first){ setVal('mzExclude', ui.excludeDef); }
@@ -444,7 +450,7 @@ App.Music.renderHist();
 }
 function vocalInfo(){ var bk = BK(); var el = gi('mzVocal'); var i = el ? el.selectedIndex : 0; if (i < 0 || i >= bk.vocal.length) i = 0; return { i: i, v: bk.vocal[i] }; }
 function styleMax(){ var el = gi('mzSunoVer'); var v = el ? parseInt(el.value) : 200; return v || 200; }
-function styleText(){ var ui = UI(); var g = val('mzGenre'), bpm = val('mzBpm'), k = val('mzKey'), ch = val('mzChords'), ba = val('mzBass'), pe = val('mzPerc'), te = val('mzTex'), sp = val('mzSpat'), en = val('mzEnergy'); var vi = vocalInfo(); var max = styleMax(); var voixTag = vi.v.instru ? vi.v.t : (vi.v.t + ', ' + ui.vocalClause + (vi.v.fem ? ', ' + ui.femClause : '')); var chTag = ch ? ', ' + ch + ' chords' : ''; var s = g + ', ' + bpm + ' BPM, ' + k + chTag + ', ' + ba + ', ' + pe + ', ' + te + ', ' + sp + ', ' + en + ', ' + voixTag; if (s.length > max) s = g + ', ' + bpm + ' BPM, ' + k + chTag + ', ' + ba + ', ' + pe + ', ' + en + ', ' + voixTag; if (s.length > max) s = g + ', ' + bpm + ' BPM, ' + k + ', ' + en + ', ' + voixTag; if (s.length > max + 50) s = s.slice(0, max - 3) + '...'; return s; }
+function styleText(){ var ui = UI(); var g = val('mzGenre'), bpm = val('mzBpm'), k = val('mzKey'), ch = val('mzChords'), ba = val('mzBass'), pe = val('mzPerc'), te = val('mzTex'), sp = val('mzSpat'), en = val('mzEnergy'); var vi = vocalInfo(); var max = styleMax(); var voixTag = vi.v.instru ? vi.v.t : (vi.v.t + ', ' + ui.vocalClause + (vi.v.fem ? ', ' + ui.femClause : '')); var chTag = ch ? ', ' + ch + ' chords' : ''; var fam = ''; try{ fam = sunoExtra(familyFor(g), max); }catch(e){} var s = g + ', ' + bpm + ' BPM, ' + k + chTag + fam + ', ' + ba + ', ' + pe + ', ' + te + ', ' + sp + ', ' + en + ', ' + voixTag; if (s.length > max) s = g + ', ' + bpm + ' BPM, ' + k + chTag + ', ' + ba + ', ' + pe + ', ' + en + ', ' + voixTag; if (s.length > max) s = g + ', ' + bpm + ' BPM, ' + k + ', ' + en + ', ' + voixTag; if (s.length > max + 50) s = s.slice(0, max - 3) + '...'; return s; }
 function shortTag(){ var vi = vocalInfo(); return vi.v.short || vi.v.t; }
 function structText(){ var l = curLang(), ui = UI(), se = SECL(); var bpm = val('mzBpm'), g = val('mzGenre'), ba = val('mzBass'), pe = val('mzPerc'), te = val('mzTex'), so = val('mzSoma'), len = val('mzLen'); var vi = vocalInfo(); var tag = shortTag(); var ext = (len === ui.lenOpts[1]) ? '[' + se.up + ' : 16] \n\n' : ''; var tool = (len === ui.lenOpts[2]) ? '[' + se.out + ' : 16, percussions]' : '[' + se.out + ' : echo]'; var bloc = vi.v.instru ? '[' + se.ins + ']' : '[' + SV[l] + ' : ' + tag + (vi.v.fem ? ' (f)' : '') + ', ' + VL[l] + ']'; var chLine = val('mzChords') ? '[' + ui.chords + ' : ' + val('mzChords') + ']\n\n' : ''; return bloc + '\n\n[' + se.intro + ' : ' + bpm + ' BPM]\n\n' + chLine + '[' + se.sec + ' : ' + pe + ']\n\n[' + se.tex + ' : ' + te + ']\n\n[' + se.up + ' : ' + so + ']\n\n[' + se.drop + ' : ' + ba + ']\n\n[' + se.sec + ' : ' + g + ']\n\n[' + se.calm + ']\n\n' + ext + '[' + se.up + ' : percussions]\n\n[' + se.peak + ']\n\n' + tool; }
 function lyricsText(){ var ui = UI(), bk = BK(), se = SECL(); var tag = shortTag(), theme = val('mzTheme'); var complet = false; try{ complet = gi('mzLyrLen').selectedIndex === 1; }catch(e){} var vi = vocalInfo(); if (vi.v.instru){ return '[' + se.ins + ']\n(' + ui.themeOf + ' : ' + theme + ')\n[' + ui.breathAllow + ' : ' + pickN(bk.excla, 3).join(' \u2026 ') + ']\n\n' + ui.instruTip; } var rk = /rock|m.tal|guitare|guitar|metal|grunge|screamo|shoegaze|djent|grind|mathcore|coldwave|dark wave/i.test(val('mzGenre')) && bk.coupletRock; var c1 = pickN(rk ? bk.coupletRock : bk.couplet, 4), c2 = pickN(rk ? bk.coupletRock : bk.couplet, 4), r = pickN(rk && bk.refrainRock ? bk.refrainRock : bk.refrain, 4), p = pickN(rk && bk.pontRock ? bk.pontRock : bk.pont, 2); var ex = pickN(bk.excla, 2).join(' \u2026 '); var big = /diva|duo|chor|ch\u0153ur|choir|coro/i.test(tag); var chTag = big ? tag : se.choir; var t = '[' + se.v1 + ' — ' + tag + ']\n' + c1.join('\n') + '\n(' + theme + ')\n\n[' + se.pre + ']\n' + ex + ' \u2026\n\n[' + se.ch + ' — ' + chTag + ']\n' + r.join('\n') + '\n'; if (complet){ t += '\n[' + se.v2 + ' — ' + tag + ']\n' + c2.join('\n') + '\n\n[' + se.ch + ' — ' + chTag + ']\n' + r.slice().reverse().join('\n') + '\n\n[' + se.br + ']\n' + p.join('\n') + '\n\n[' + se.chf + ']\n' + r.join('\n') + '\n\n[' + se.out + ']\n' + ex + '\n'; } return t; }
@@ -452,7 +458,7 @@ function notesText(){ var ui = UI(), nl = NLBL[curLang()] || NLBL.fr; var cur = 
 function syllables(line, lang){ var tot = 0; var words = String(line).toLowerCase().replace(/[\u2019']/g, ' ').replace(/[^a-z\u00e0\u00e2\u00e4\u00e9\u00e8\u00ea\u00eb\u00ee\u00ef\u00f4\u00f6\u00f9\u00fb\u00fc\u00ff\u0153\u00e6\u00e7\u00e1\u00ed\u00f3\u00fa\u00f1\u00e0\u00e8\u00ec\u00f2\u00f9\u0105\u0107\u0119\u0142\u0144\u015b\u017a\u017c]+/g, ' ').trim().split(/\s+/); for (var k = 0; k < words.length; k++){ var w = words[k]; if (!w) continue; var groups = w.match(/[aeiouy\u00e0\u00e2\u00e4\u00e9\u00e8\u00ea\u00eb\u00ee\u00ef\u00f4\u00f6\u00f9\u00fb\u00fc\u00e1\u00ed\u00f3\u00fa\u00f1\u00e0\u00e8\u00ec\u00f2\u0105\u0119]+/g); var n = groups ? groups.length : 0; if (lang === 'fr'){ if (n > 1 && /e$/.test(w)) n--; if (n > 1 && /ent$/.test(w) && w.length > 4) n--; } tot += Math.max(n, 1); } return tot; }
 function checker(){ var ui = UI(), bk = BK(), l = curLang(); var el = gi('mzCheck'); if (!el) return; var raw = gi('mzLyrics').textContent; var lines = raw.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s && !/^\[.+\]$/.test(s) && !/^\(.+\)$/.test(s); }); if (!lines.length){ el.textContent = ui.chkNone; return; } var counts = lines.map(function(s){ return syllables(s, l); }); var avg = counts.reduce(function(a, b){ return a + b; }, 0) / counts.length; var longs = []; counts.forEach(function(c, i){ if (c > 10) longs.push((i + 1) + ' (' + c + ')'); }); var low = ' ' + raw.toLowerCase().replace(/[^a-z\u00e0\u00e2\u00e4\u00e9\u00e8\u00ea\u00eb\u00ee\u00ef\u00f4\u00f6\u00f9\u00fb\u00fc\u00ff\u0153\u00e6\u00e7\u00e1\u00ed\u00f3\u00fa\u00f1\u00e0\u00e8\u00ec\u00f2\u0105\u0107\u0119\u0142\u0144\u015b\u017a\u017c]+/g, ' ') + ' '; var found = []; bk.foreignWords.forEach(function(w){ if (low.indexOf(' ' + w + ' ') >= 0 && found.indexOf(w) < 0) found.push(w); }); var h = ui.chkVerses + ' : ' + lines.length + ' \u00b7 ' + avg.toFixed(1) + ' ' + ui.chkAvg; if (longs.length) h += '\n\u26a0\ufe0f ' + ui.chkLong + ' (>10) : ' + longs.join(', '); else h += '\n\u2705 ' + ui.chkLongOk; if (found.length) h += '\n\u26a0\ufe0f ' + ui.chkForeign + ' : ' + found.join(', '); else h += '\n\u2705 ' + ui.chkForeignOk; el.textContent = h; }
 function generate(){ var ui = UI(), bk = BK(); if (!val('mzTitre').trim()) setVal('mzTitre', pick(bk.titles)); var s = styleText(); gi('mzStyle').textContent = s; var max = styleMax(); var c = gi('mzChars'); c.textContent = '\u00b7 ' + s.length + '/' + max + ' ' + ui.chars; try{ c.classList.toggle('bad', s.length > max); }catch(e){} gi('mzStruct').textContent = structText(); gi('mzNotes').innerHTML = notesText(); App.Music.refreshLyrics(false); }
-function surprise(){ var ids = ['mzGenre','mzKey','mzChords','mzBass','mzPerc','mzTex','mzSpat','mzEnergy','mzSoma','mzVocal','mzIntent','mzTheme']; ids.forEach(function(id){ var el = gi(id); if (el && el.options.length) el.selectedIndex = Math.floor(Math.random() * el.options.length); }); var bpm = gi('mzBpm'); if (bpm){ bpm.value = 100 + Math.floor(Math.random() * 66); gi('mzBpmVal').textContent = bpm.value; } setVal('mzTitre', pick(BK().titles)); SM('preset', ''); var pc = gi('mzPresets'); if (pc) Array.prototype.forEach.call(pc.children, function(x){ x.classList.remove('on'); }); generate(); }
+function surprise(){ var ids = ['mzGenre','mzKey','mzChords','mzBass','mzPerc','mzTex','mzSpat','mzEnergy','mzSoma','mzVocal','mzIntent','mzTheme']; ids.forEach(function(id){ var el = gi(id); if (el && el.options.length) el.selectedIndex = Math.floor(Math.random() * el.options.length); }); var bpm = gi('mzBpm'); if (bpm){ bpm.value = 60 + Math.floor(Math.random() * 121); gi('mzBpmVal').textContent = bpm.value; } setVal('mzTitre', pick(BK().titles)); SM('preset', ''); var pc = gi('mzPresets'); if (pc) Array.prototype.forEach.call(pc.children, function(x){ x.classList.remove('on'); }); generate(); }
 function applyPreset(i){ var ui = UI(); var pr = PRESETS_FR[i]; if (!pr) return; SM('preset', ui.presetNames[i] || pr[0]); var p = pr[1]; setVal('mzGenre', p[0]); var bpm = gi('mzBpm'); if (bpm){ bpm.value = p[1]; gi('mzBpmVal').textContent = p[1]; } setVal('mzKey', p[2]); setVal('mzBass', p[3]); setVal('mzPerc', p[4]); setVal('mzTex', p[5]); setVal('mzSpat', p[6]); setVal('mzEnergy', p[7]); setVal('mzSoma', p[8]); var vo = gi('mzVocal'); if (vo && p[9] < vo.options.length) vo.selectedIndex = p[9]; var pc = gi('mzPresets'); if (pc) Array.prototype.forEach.call(pc.children, function(x){ try{ x.classList.toggle('on', String(x.dataset.i) === String(i)); }catch(e){} }); generate(); }
 function copyAll(){ var ui = UI(), hd = HDR[curLang()] || HDR.fr; var ver = ''; try{ ver = gi('mzSunoVer').selectedOptions[0].text; }catch(e){} clip(hd[0] + ':\n' + val('mzTitre') + '\n\n' + hd[1] + ' (' + ver + '):\n' + gi('mzStyle').textContent + '\n\n' + hd[2] + ':\n' + val('mzExclude') + '\n\n' + hd[3] + ':\n' + gi('mzStruct').textContent + '\n\n' + hd[4] + ' ' + BK().meta.voice + ':\n' + gi('mzLyrics').textContent); }
 function exportTxt(){ var ui = UI(), hd = HDR[curLang()] || HDR.fr; var ver = ''; try{ ver = gi('mzSunoVer').selectedOptions[0].text; }catch(e){} var slug = (val('mzTitre') || 'morceau').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'morceau'; var d = new Date(); function pad(n){ return String(n).padStart(2, '0'); } var txt = (val('mzTitre') || '') + '\nPack Suno — ' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' — ' + ver + '\n\n=== ' + hd[1] + ' ===\n' + gi('mzStyle').textContent + '\n\n=== ' + hd[2] + ' ===\n' + val('mzExclude') + '\n\n=== ' + hd[3] + ' ===\n' + gi('mzStruct').textContent + '\n\n=== ' + hd[4] + ' ' + BK().meta.voice + ' ===\n' + gi('mzLyrics').textContent + '\n'; var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' })); a.download = 'suno-' + slug + '.txt'; a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000); }
@@ -479,7 +485,7 @@ function mountGallery(){
     try { ctn.innerHTML = com; } catch(e2) { ctn.textContent = String(com); }
   } catch(e) {}
 }
-var SUNO_TRACKS = [{ t: 'Mi Último Imperio — 1813Watt', id: '4e90aa51-1fd5-4402-81e4-a525e7e8969f' }, { t: 'Sulla Riva Setosa — 1813Watt', id: 'd11301f0-772b-4fc7-b19b-ef74104442ba' }, { t: 'Le paradis \u2014 1813Watt', id: '83b9e3bb-423b-45a2-b04e-5e384c8c8f16' }, { t: 'C\u0027est pour cela que je t\u0027aime si \u00e9trange remix techno \u2014 1813Watt', id: '704dbbc6-b101-4435-b573-59c3eb086c17' }, { t: 'Apog\u00e9 en \u00c9cho \u2014 1813Watt', id: 'cdb82cd4-816b-4242-b68a-cadf1eb5bf83' }, { t: 'Deep G Minor Pulse \u2014 1813Watt', id: '4d3a51f1-f1aa-4e92-ad11-903b249bae93' }, { t: 'La Rose au Beau Contour \u2014 1813Watt', id: '77fecd57-8747-4f29-8ad4-c1a6a23b2d03' }, { t: 'A Rose with a Beautiful \u2014 1813Watt', id: 'ed0d5e91-7ade-45d7-911a-8017dc350b59' }, { t: 'Eine Frau an meiner Seite \u2014 1813Watt', id: 'e958bf3e-87e8-4d39-a898-060af91462c1' }, { t: 'She', mp3: 'src/music/she.mp3' }];
+var SUNO_TRACKS = [{ t: 'Czuj Więcej — 1813Watt', id: 'adefcf2b-94fe-43fc-b3da-79078e063f3a' }, { t: 'Isabel und Valeria das gleiche Ziel — 1813Watt', id: 'ea851d4a-d933-44f0-bb2e-fd988e322cd7' }, { t: 'Sulla Riva Setosa (version 2) — 1813Watt', id: 'cdd94818-028e-4932-a9c4-87f5986a17ff' }, { t: 'Eine Frau an meiner Seite (version 2) — 1813Watt', id: 'f88c9097-2d6f-4126-8f71-5af240405497' }, { t: 'Primal Pulse — 1813Watt', id: '83456d63-684b-4188-b39e-2c2eb1043382' }, { t: 'La Rose au Beau Contour (version 2) — 1813Watt', id: '85cae89f-fa6d-46c7-a450-306d152b8293' }, { t: 'Apogé en Écho (version 2) — 1813Watt', id: 'ce4a34a9-648f-4ac2-b381-7c65a66123d2' }, { t: 'C\u0027est pour cela que je t\u0027aime si étrange version hard rock — 1813Watt', id: '72ad8415-0e85-4af7-a6c5-b1708498aa18' }, { t: 'Mi Último Imperio — 1813Watt', id: '4e90aa51-1fd5-4402-81e4-a525e7e8969f' }, { t: 'Sulla Riva Setosa — 1813Watt', id: 'd11301f0-772b-4fc7-b19b-ef74104442ba' }, { t: 'Le paradis \u2014 1813Watt', id: '83b9e3bb-423b-45a2-b04e-5e384c8c8f16' }, { t: 'C\u0027est pour cela que je t\u0027aime si \u00e9trange remix techno \u2014 1813Watt', id: '704dbbc6-b101-4435-b573-59c3eb086c17' }, { t: 'Apog\u00e9 en \u00c9cho \u2014 1813Watt', id: 'cdb82cd4-816b-4242-b68a-cadf1eb5bf83' }, { t: 'Deep G Minor Pulse \u2014 1813Watt', id: '4d3a51f1-f1aa-4e92-ad11-903b249bae93' }, { t: 'La Rose au Beau Contour \u2014 1813Watt', id: '77fecd57-8747-4f29-8ad4-c1a6a23b2d03' }, { t: 'A Rose with a Beautiful \u2014 1813Watt', id: 'ed0d5e91-7ade-45d7-911a-8017dc350b59' }, { t: 'Eine Frau an meiner Seite \u2014 1813Watt', id: 'e958bf3e-87e8-4d39-a898-060af91462c1' }, { t: 'She', mp3: 'src/music/she.mp3' }];
 function renderListen(){
   try {
     var ctn = gi('mzListenCtn'); if (!ctn) return;
@@ -505,6 +511,8 @@ function renderListen(){
     });
   } catch(e) {}
 }
+function coverPromptText(){ var si = gi('mzCoverStyle'); var style = si ? si.value : 'Cinematic'; try{ return buildCoverPrompt(val('mzTitre') || 'Untitled', val('mzGenre'), style); }catch(e){ return { prompt: '', negative: '' }; } }
+async function coverGo(){ var st = gi('mzCoverStatus'), box = gi('mzCoverOut'); var say = function(x){ if(st) st.textContent = x; }; var btn = gi('mzCoverGo'); var timer = null; try{ var b = coverPromptText(); if(!b.prompt){ say(''); return; } if(box) box.innerHTML = ''; if(btn) btn.disabled = true; var k = 0; timer = setInterval(function(){ k++; var d = ''; for(var i = 0; i < k % 4; i++) d += '.'; say('\uD83C\uDFA8' + d); }, 350); var r = await root.generateImage({ prompt: b.prompt, negativePrompt: b.negative, resolution: '768x768' }); var url = (r && r.dataUrl) || String(r || ''); if(timer) clearInterval(timer); timer = null; if(btn) btn.disabled = false; if(!url){ say(''); return; } say(''); if(box){ box.innerHTML = ''; var img = document.createElement('img'); img.src = url; img.alt = 'cover'; img.style.cssText = 'max-width:100%;border-radius:12px'; box.appendChild(img); } }catch(e){ if(timer) clearInterval(timer); if(btn) btn.disabled = false; say(''); } }
 async function publishSong(){
   var ui = UI();
   var st = gi('mzPubStatus');
@@ -553,19 +561,21 @@ es: ["espagnol","espagnole","spanish","spanisch","espanol","español","spagnolo"
 it: ["italien","italienne","italian","italienisch","italiano","italiana","wlosku","wloski","wloska","wloskie"],
 ja: ["japonais","japonaise","japanese","japanisch","japones","giapponese","japonsku","japonski","japonska","japonskie","nihongo","nihon","japan","にほんご","にほん","日本語","日文","日语"],
 zh: ["chinois","chinoise","chinese","chinesisch","chino","cinese","chinsku","chinski","chinska","chinskie","mandarin","putonghua","zhongwen","hanyu","guoyu","huayu","中文","普通话","國語","国语","華語","华语","漢語","汉语"],
-ko: ["coreen","coreenne","korean","koreanisch","coreano","coreana","koreansku","koreanski","koreanska","koreanskie","hangugeo","hangugmal","hangul","한국어","한국말","한글"]
+ko: ["coreen","coreenne","korean","koreanisch","coreano","coreana","koreansku","koreanski","koreanska","koreanskie","hangugeo","hangugmal","hangul","한국어","한국말","한글"],
+hi: ["hindi","hindie","hindou","hindoue","hindoustani","hindustani","indien","indienne","hind","hindoustan","हिन्दी","हिन्दुस्तानी","हिंदू"]
 };
 function songNorm(s){ return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
 function songTargetLang(text){
   var n = " " + songNorm(text) + " ";
   var nraw = " " + String(text || "") + " ";
-  var codes = ["pl","fr","en","de","es","it","ja","zh","ko"];
+  var codes = ["pl","fr","en","de","es","it","ja","zh","ko","hi"];
   var CJKJ = ["にほんご","にほん","日本語","日文","日语"];
   var CJKZ = ["中文","普通话","國語","国语","華語","华语","漢語","汉语"];
   var CJKK = ["한국어","한국말","한글"];
   if (CJKJ.some(function(w){ return nraw.indexOf(w) >= 0; })) return "ja";
   if (CJKZ.some(function(w){ return nraw.indexOf(w) >= 0; })) return "zh";
   if (CJKK.some(function(w){ return nraw.indexOf(w) >= 0; })) return "ko";
+  if (/[\u0900-\u097F]/.test(nraw)) return "hi";
   var SONGN = "(?:chanson|song|lied|piosenk|utwor|musique|music|muzyk|cancion|canzone|brano|lyrics|paroles|piosenka)\\w*";
   for (var k = 0; k < codes.length; k++){
     var names = SONGBANK_NAMES[codes[k]];
@@ -577,12 +587,12 @@ function songTargetLang(text){
       if (new RegExp("\\b" + w + "\\w*\\s+" + SONGN).test(n)) return codes[k];
     }
   }
-  var vm = n.match(/(?:la\s+|en\s+)?version\s+(francaise|anglaise|allemande|espagnole|italienne|polonaise|portugaise|russe|chinoise|japonaise|coreenne|fr|en|de|es|it|pl)\b/);
-  if (vm) { var vv = vm[1]; if (/^fr/.test(vv)) return "fr"; if (/^anglaise$|^en$/.test(vv)) return "en"; if (/^allemande$|^de$/.test(vv)) return "de"; if (/^espagnole$|^es$/.test(vv)) return "es"; if (/^italienne$|^it$/.test(vv)) return "it"; if (/^polonaise$|^pl$/.test(vv)) return "pl"; }
+  var vm = n.match(/(?:la\s+|en\s+)?version\s+(francaise|anglaise|allemande|espagnole|italienne|polonaise|portugaise|russe|chinoise|japonaise|coreenne|indienne|hindoue|hindi|hindie|hindou|fr|en|de|es|it|pl|hi)\b/);
+  if (vm) { var vv = vm[1]; if (/^fr/.test(vv)) return "fr"; if (/^anglaise$|^en$/.test(vv)) return "en"; if (/^allemande$|^de$/.test(vv)) return "de"; if (/^espagnole$|^es$/.test(vv)) return "es"; if (/^italienne$|^it$/.test(vv)) return "it"; if (/^polonaise$|^pl$/.test(vv)) return "pl"; if (/^indienne$|^hindoue$|^hindi$|^hindie$|^hindou$|^hi$/.test(vv)) return "hi"; }
   return null;
 }
-var SONG_VERBS = "cree\\w*|crea\\w*|compose\\w*|compos\\w*|ecris|ecriv\\w*|chante\\w*|fais\\w*|fait\\w*|fair\\w*|donn\\w*|gener\\w*|make\\w*|creat\\w*|sing\\w*|write\\w*|writ\\w*|canta\\w*|escrib\\w*|escriv\\w*|scriv\\w*|scrivi|compon\\w*|haz\\w*|fammi|fai|napisz|stworz|skomponuj|utworz|zrob|wymysl|spiewaj|zaspiewaj|uloz";
-var SONG_NOUNS = "lied\\w*|songs?|musik\\w*|melod\\w*|chanson\\w*|musique\\w*|morceau\\w*|music\\w*|tunes?|anthem\\w*|cancion\\w*|canzone\\w*|brano\\w*|paroles\\w*|lyrics|piosenk\\w*|utwor\\w*|muzyk\\w*|kawalek|kawalka|kawalki|szlagier\\w*|hymn\\w*";
+var SONG_VERBS = "cree\\w*|crea\\w*|compose\\w*|compos\\w*|ecris|ecriv\\w*|chante\\w*|fais\\w*|fait\\w*|fair\\w*|donn\\w*|gener\\w*|make\\w*|creat\\w*|sing\\w*|write\\w*|writ\\w*|canta\\w*|escrib\\w*|escriv\\w*|scriv\\w*|scrivi|compon\\w*|haz\\w*|fammi|fai|napisz|stworz|skomponuj|utworz|zrob|wymysl|spiewaj|zaspiewaj|uloz|banao|banaiye|likho|gao|sunao|rache";
+var SONG_NOUNS = "lied\\w*|songs?|musik\\w*|melod\\w*|chanson\\w*|musique\\w*|morceau\\w*|music\\w*|tunes?|anthem\\w*|cancion\\w*|canzone\\w*|brano\\w*|paroles\\w*|lyrics|piosenk\\w*|utwor\\w*|muzyk\\w*|kawalek|kawalka|kawalki|szlagier\\w*|hymn\\w*|gana|gan[ae]|geet|sangeet|dhun";
 function isSongRequest(text){
   var t = String(text || "").trim();
   if (!t || t.length > 2000) return false;
@@ -596,18 +606,22 @@ function isSongRequest(text){
   if (/翻訳|翻译|번역|課程|课程|授業|レッスン|수업|教えて|教我|어떻게 말해|どう言う|怎么说|怎麼說/.test(nraw)) return false;
   if (/(この|その|这个|這個|이|그|저)\s*(歌詞|歌词|가사)/.test(nraw)) return false;
   if (/聴かせて|聞かせて|かけて|流して|播放|听歌|聽歌|放一首|틀어줘|재생|[^만]들어줘/.test(nraw)) return false;
+  if (/बजाओ|बजाइए|चलाओ|प्ले करो/.test(nraw)) return false;
   if (/\bsuno\b/i.test(n) && new RegExp(SONG_VERBS + "|musique|music|chanson|song|piosenk|muzyk").test(n)) return true;
   if (/(mets?|joue|jouer|lance|lancer|ecoute|ecouter|listen|sluchaj|posluchaj|odtworz|puszcz|wlacz)\b[^?!;]{0,30}\b(chanson|musique|music|piosenk|song)\b/i.test(n)) return false;
   if (new RegExp("\\b(" + SONG_VERBS + ")\\b[^?!;]{0,40}\\b(" + SONG_NOUNS + ")\\b").test(n)) return true;
   var CJKV = "作って|作る|書いて|書く|歌って|歌う|創って|創る|作曲|创作|創作|作詞|作词|编曲|編曲|写|寫|唱|编|編|来一首|來一首|만들어줘|만들어|써줘|지어줘|불러줘|작곡해줘|작곡|지어|써|불러";
   var CJKN = "メロディー|メロディ|音楽|ソング|歌曲|歌|曲|音乐|音樂|曲子|旋律|멜로디|음악|노래|곡";
   if (new RegExp("(" + CJKV + ")[^?!;。！？]{0,40}(" + CJKN + ")|(" + CJKN + ")[^?!;。！？]{0,40}(" + CJKV + ")").test(nraw)) return true;
+  var HIV = "बनाओ|बनाइए|बना दो|लिखो|लिखिए|लिख दो|गाओ|गाइए|सुनाओ|रचो|कंपोज़ करो|तैयार करो";
+  var HIN = "गाना|गाने|गीत|संगीत|धुन|तराना|नग़मा";
+  if (new RegExp("(" + HIV + ")[^?!;।]{0,40}(" + HIN + ")|(" + HIN + ")[^?!;।]{0,40}(" + HIV + ")").test(nraw)) return true;
   if (/\bmach\w*\b[^?!;]{0,20}\b(mir|uns|ein\w*|neue\w*|eigen\w*)\b[^?!;]{0,20}\b(lied\w*|songs?|musik\w*|melodie\w*)\b/.test(n)) return true;
   if (/\b(lied\w*|songs?|musik\w*)\b[^?!;]{0,30}\b(mach\w*|erstell\w*|komponier\w*|schreib\w*|dicht\w*)\b/.test(n)) return true;
   if (/^\s*(une?|a|the|eine?|one)?\s*(chanson|song|piosenka|piosenke|utwor|melodia|lied|cancion|canzone)\s+(sur|about|o|na|uber|sobre|su|di|von)\b/.test(n)) return true;
   return false;
 }
-var SONG_VERSION_WORDS = "francaise|anglaise|allemande|espagnole|italienne|polonaise|portugaise|russe|chinoise|japonaise|coreenne|fr|en|de|es|it|pl";
+var SONG_VERSION_WORDS = "francaise|anglaise|allemande|espagnole|italienne|polonaise|portugaise|russe|chinoise|japonaise|coreenne|indienne|hindoue|hindi|hindie|hindou|fr|en|de|es|it|pl|hi";
 function isSongVersionRequest(text){
   var t = String(text || "").trim();
   if (!t || t.length > 300) return false;
@@ -733,7 +747,7 @@ function extractSongFacts(txt){
   facts = facts.slice(0, 160);
   return { names: names, facts: facts, low: low, raw: raw };
 }
-var SONG_TITLE_JOIN = { fr: " et ", en: " and ", de: " und ", es: " y ", it: " e ", pl: " i ", ja: "\u3068", zh: "\u8207", "zh-CN": "\u4E0E", ko: "\uC640 " };
+var SONG_TITLE_JOIN = { fr: " et ", en: " and ", de: " und ", es: " y ", it: " e ", pl: " i ", hi: " और ", ja: "\u3068", zh: "\u8207", "zh-CN": "\u4E0E", ko: "\uC640 " };
 
 function personalSongBlock(lang, F) {
   var N = (F && F.names) || [];
@@ -785,6 +799,10 @@ function personalSongBlock(lang, F) {
     var j1 = pair ? n1 + "と" + n2 + "の出会い" : (n1 ? n1 + "の物語" : "幸せを願う心");
     return { v1: [j1 + "、新しい光", "沈黙の後に新しい道", "小さな光が家を照らす", "一緒の時間は奇跡"], v2: ["毎電話が橋", "家族と共に家", "心はいつも近く", "帰るたび初めての味"], ch: [pair ? n2 + "と一緒に呼吸して" : "一緒に呼吸して", "心は道を知っている", "家族の奇跡", "愛し愛されること"] };
   }
+  if (lang === "hi") {
+    var h1 = pair ? n1 + " और " + n2 + " की मुलाकात" : (n1 ? n1 + " की कहानी" : "खुशी चाहने वाला दिल");
+    return { v1: [h1 + ", नई रोशनी", "ख़ामोशी के बाद नई राह", "दो नन्ही रूहें", "साथ बिताया हर पल चमत्कार"], v2: ["हर फ़ोन एक पुल", "परिवार के साथ घर", "दिल हमेशा पास", "हर वापसी पहली सी"], ch: [pair ? n2 + ", साथ साँस लेते एक राह" : "साथ साँस लेते एक राह", "दिल राह जानता है", "परिवार का चमत्कार", "प्यार करना और पाना"] };
+  }
   if (lang === "zh" || lang === "zh-CN") {
     var simp = lang === "zh-CN";
     var meet = simp ? "遇见" : "遇見", love = simp ? "爱" : "愛";
@@ -827,8 +845,8 @@ function generatePack(lang, forceGenre, personTxt){
   var vi = sung.length ? sung[Math.floor(Math.random() * sung.length)] : 0;
   var vocal = bk.vocal[vi] || bk.vocal[0];
   var P = { lang: lang, bk: bk, ui: ui, se: se,
-    genre: (fg || pick(SOUND.genre)), bpm: String(100 + Math.floor(Math.random() * 66)),
-    key: pick(SOUND.key), chords: (SOUND.chords ? pick(SOUND.chords) : ''), bass: pick(SOUND.bass), perc: (function(){ try{ if (fg && GENRE_RHYTHM[fg]) return GENRE_RHYTHM[fg]; }catch(e){} return pick(SOUND.perc); })(),
+    genre: (fg || pick(SOUND.genre)), bpm: (function(){ try{ var _fk = familyFor(fg || ''); if(_fk && SUNO_FAM[_fk]) return String(Math.max(60, Math.min(180, SUNO_FAM[_fk].bpm))); }catch(e){} return String(60 + Math.floor(Math.random() * 121)); })(),
+    key: pick(SOUND.key), chords: (function(){ try{ var _fk2 = familyFor(fg || ''); if(_fk2 && SUNO_FAM[_fk2]) return SUNO_FAM[_fk2].chords; }catch(e){} return (SOUND.chords ? pick(SOUND.chords) : ''); })(), bass: pick(SOUND.bass), perc: (function(){ try{ if (fg && GENRE_RHYTHM[fg]) return GENRE_RHYTHM[fg]; }catch(e){} return pick(SOUND.perc); })(),
     tex: pick(SOUND.tex), spat: pick(SOUND.spat), energy: pick(SOUND.energy),
     soma: pick(SOUND.soma), intent: pick(SOUND.intent),
     vocal: vocal, tag: vocal.short || vocal.t, theme: pick(bk.themes), titre: pick(bk.titles),
@@ -859,7 +877,8 @@ pl: "Oto twoja piosenka, gotowa do Suno 🎵 — skopiuj bloki poniżej albo otw
 ja: "あなたの曲ができたよ、Suno用だよ🎵 — 下のブロックをコピーしてね、パネルで手直しもできるよ。",
 zh: "你的歌曲準備好了，可直接用於 Suno🎵 — 複製下方區塊，或打開面板繼續打磨。",
 "zh-CN": "你的歌曲准备好了，可直接用于 Suno🎵 — 复制下方区块，或打开面板继续打磨。",
-ko: "네 노래 완성됐어, Suno용이야🎵 — 아래 블록을 복사하거나 패널에서 다듬어 봐。"
+ko: "네 노래 완성됐어, Suno용이야🎵 — 아래 블록을 복사하거나 패널에서 다듬어 봐。",
+hi: "तुम्हारा गाना तैयार है, Suno के लिए 🎵 — नीचे के ब्लॉक कॉपी करो, या पैनल में सँवारो।"
 };
 function convoLang(){
   try{
@@ -978,6 +997,16 @@ function genreFromText(txt){
   if (/ブルース|蓝调|藍調|블루스/.test(r)) return "Melancholic Delta blues";
   if (/レゲエ|雷鬼|레게/.test(r)) return "Laid-back roots reggae";
   if (/クラシック|オーケストラ|交響|古典|交响|管弦|클래식|오케스트라|교향/.test(r)) return "Full symphonic orchestra";
+  if (/रॉक/.test(r)) return "Driving electric rock";
+  if (/पॉप/.test(r)) return "Catchy modern pop";
+  if (/मेटल/.test(r)) return "Classic heavy metal";
+  if (/हिप-हॉप|हिपहॉप|रैप/.test(r)) return "Hard-hitting hip-hop";
+  if (/इलेक्ट्रो|टेक्नो|डांस|हाउस/.test(r)) return "Synthetic club EDM";
+  if (/जैज|जैज़/.test(r)) return "Improvised jazz combo";
+  if (/ब्लूज|ब्लूज़/.test(r)) return "Melancholic Delta blues";
+  if (/रेग्गे/.test(r)) return "Laid-back roots reggae";
+  if (/सोल|फंक|डिस्को/.test(r)) return "Groovy soul and funk";
+  if (/शास्त्रीय|कर्नाटक|ध्रुपद|खयाल|ख़याल|सिम्फनी|ऑर्केस्ट्रा/.test(r)) return "Full symphonic orchestra";
   return null;
 }
 function answerSong(txt){
@@ -1019,9 +1048,9 @@ open: function(){ buildPanel(); App.Music.buildGrid(); localize(); var d = gi('m
 close: function(){ var d = gi('musicModal'); if (d) d.hidden = true; },
 toggle: function(){ var d = gi('musicModal'); if (d && !d.hidden) App.Music.close(); else App.Music.open(); },
 localize: function(){ try{ if (!gi('musicModal')) return; localize(); var d = gi('musicModal'); if (d && !d.hidden) App.Music.generate(); }catch(e){} },
-buildGrid: buildGrid, generate: generate, surprise: surprise, applyPreset: applyPreset, applyGenreRhythm: applyGenreRhythm, copyAll: copyAll, exportTxt: exportTxt,
+buildGrid: buildGrid, generate: generate, surprise: surprise, applyPreset: applyPreset, applyGenreRhythm: applyGenreRhythm, sunoFamily: function(){ try{ return familyFor(val('mzGenre')); }catch(e){ return null; } }, copyAll: copyAll, exportTxt: exportTxt,
 refreshLyrics: refreshLyrics, checker: checker, aiLyrics: aiLyrics, editLyrics: editLyrics, wrapLyrics: wrapLyrics,
-setLyricMode: setLyricMode, renderThemeChips: renderThemeChips, composeSong: composeSong, publishSong: publishSong, mountGallery: mountGallery, renderListen: renderListen,
+setLyricMode: setLyricMode, renderThemeChips: renderThemeChips, composeSong: composeSong, publishSong: publishSong, coverGo: coverGo, coverPromptText: coverPromptText, mountGallery: mountGallery, renderListen: renderListen,
 saveHist: saveHist, loadHist: loadHistSel, delHist: delHist, renderHist: renderHist,
 genJourney: genJourney, drawGeo: function(){ drawGeo(); }, lang: curLang, voiceTag: function(){ return BK().meta.voice; },
 pack: generatePack, detectSong: isSongRequest, songLang: songTargetLang, answerSong: answerSong,
