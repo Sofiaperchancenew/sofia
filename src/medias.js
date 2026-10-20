@@ -1,5 +1,22 @@
 export function attachMedias(App) {
-  const RADIO_API = "https://de1.api.radio-browser.info";
+  const RADIO_SERVERS = ["de1.api.radio-browser.info", "de2.api.radio-browser.info", "de3.api.radio-browser.info", "nl1.api.radio-browser.info", "at1.api.radio-browser.info", "at2.api.radio-browser.info", "fi1.api.radio-browser.info", "us1.api.radio-browser.info", "us2.api.radio-browser.info", "all.api.radio-browser.info"];
+  let workingRadioServer = null;
+  async function probeRadioServer(base) {
+    try {
+      const t = await fx()("https://" + base + "/json/stats", { timeoutMs: 12000 });
+      const txt = await t.text();
+      const j = JSON.parse(txt);
+      return !!(j && typeof j === "object");
+    } catch (e) { return false; }
+  }
+  async function getWorkingRadioServer(dead) {
+    dead = dead || {};
+    const cands = [];
+    if (workingRadioServer && !dead[workingRadioServer]) cands.push(workingRadioServer);
+    for (const b of RADIO_SERVERS) if (cands.indexOf(b) < 0 && !dead[b]) cands.push(b);
+    for (const b of cands) if (await probeRadioServer(b)) { workingRadioServer = b; return b; }
+    return null;
+  }
   const ARCHIVE_EMBED = "https://archive.org/embed/";
   const RADIO_PRESETS = [
     { keys: ["france inter"], items: [
@@ -343,28 +360,43 @@ export function attachMedias(App) {
     for (const m of curated) push(m);
     if (curated.length) return out.slice(0, 12);
     const apiCountry = co0 && COUNTRY_API[co0];
-    const jobs = apiCountry ? [
-      getJson(RADIO_API + "/json/stations/bycountryexact/" + encodeURIComponent(apiCountry) + "?hidebroken=true", { timeoutMs: 25000 }).catch(() => []),
-      getJson(RADIO_API + "/json/stations/bycountry/" + encodeURIComponent(apiCountry) + "?hidebroken=true", { timeoutMs: 25000 }).catch(() => []),
-      getJson(RADIO_API + "/json/stations/search?name=" + encodeURIComponent(q) + "&limit=" + count + "&hidebroken=true&order=clickcount&reverse=true", { timeoutMs: 25000 }).catch(() => [])
-    ] : [
-      getJson(RADIO_API + "/json/stations/bynameexact/" + encodeURIComponent(q) + "?hidebroken=true", { timeoutMs: 25000 }).catch(() => []),
-      getJson(RADIO_API + "/json/stations/search?name=" + encodeURIComponent(q) + "&limit=" + count + "&hidebroken=true&order=clickcount&reverse=true", { timeoutMs: 25000 }).catch(() => [])
-    ];
-    const settled = await Promise.all(jobs);
-    for (const grp of settled) {
-      for (const s of (Array.isArray(grp) ? grp : [])) {
-        push({
-          kind: "radio",
-          title: (s.name || "").trim() || "Radio",
-          sub: [s.country, s.language, s.codec, s.bitrate ? s.bitrate + " kbps" : ""].filter(Boolean).join(" · "),
-          stream: s.url_resolved || s.url || "",
-          page: s.homepage || "",
-          tags: s.tags || ""
-        });
+    const dead = {};
+    for (let attempt = 0; attempt < RADIO_SERVERS.length; attempt++) {
+      const base = await getWorkingRadioServer(dead);
+      if (!base) break;
+      const api = "https://" + base;
+      const urls = apiCountry ? [
+        api + "/json/stations/bycountryexact/" + encodeURIComponent(apiCountry) + "?hidebroken=true",
+        api + "/json/stations/bycountry/" + encodeURIComponent(apiCountry) + "?hidebroken=true",
+        api + "/json/stations/search?name=" + encodeURIComponent(q) + "&limit=" + count + "&hidebroken=true&order=clickcount&reverse=true"
+      ] : [
+        api + "/json/stations/bynameexact/" + encodeURIComponent(q) + "?hidebroken=true",
+        api + "/json/stations/search?name=" + encodeURIComponent(q) + "&limit=" + count + "&hidebroken=true&order=clickcount&reverse=true"
+      ];
+      let ok = false;
+      for (const u of urls) {
+        try {
+          const txt = await fx()(u, { timeoutMs: 25000 }).then((r) => r.text());
+          const grp = JSON.parse(txt);
+          if (!Array.isArray(grp)) throw new Error("bad body");
+          ok = true;
+          for (const s of grp) {
+            push({
+              kind: "radio",
+              title: (s.name || "").trim() || "Radio",
+              sub: [s.country, s.language, s.codec, s.bitrate ? s.bitrate + " kbps" : ""].filter(Boolean).join(" · "),
+              stream: s.url_resolved || s.url || "",
+              page: s.homepage || "",
+              tags: s.tags || ""
+            });
+            if (out.length >= count) break;
+          }
+        } catch (e) { ok = false; break; }
         if (out.length >= count) break;
       }
       if (out.length >= count) break;
+      if (ok) break;
+      dead[base] = true;
     }
     return out.slice(0, count);
   }

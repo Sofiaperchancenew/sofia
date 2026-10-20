@@ -146,8 +146,8 @@ Ziel ist deshalb **Aufwand + Nachweisbarkeit**, nicht Verhinderung.
   Kopie trägt damit die Spur dessen, der sie gezogen hat. Zugriff im Betrieb:
   `window.SofiaMark`; die Kennung steht auch auf der Hinweisfläche.
 - **Fernsteuerung** (kleine öffentliche Datei):
-  `https://editable.uploads.dev/file/s-o-f-i-a/cfg-6k3q9v2m8w4zt7ph5r1jnc0d`
-  (upload-plugin, „editable file“, Name `cfg-6k3q9v2m8w4zt7ph5r1jnc0d`).
+  `https://editable.uploads.dev/file/s-o-f-i-a/cfg-ouc9whs9w401jiug`
+  (upload-plugin, „editable file“, Name `cfg-ouc9whs9w401jiug` — seit 19.10.2026, 6 Monate; Vorgänger `cfg-6k3q9v2m8w4zt7ph5r1jnc0d` hatte 90 Tage, Schlüssel verloren).
   Felder: `origins` (Liste von 32-Hex-Kennungen), `trialMs` (Testdauer),
   `free` (true = alles für alle offen, überschreibt `FREE`), `ledger` (siehe unten).
   Gelesen vom Loader beim Start, 7 Tage in `localStorage` zwischengespeichert;
@@ -156,7 +156,7 @@ Ziel ist deshalb **Aufwand + Nachweisbarkeit**, nicht Verhinderung.
   `RUNDE-99.md` im verschlüsselten Bündel und beim Nutzer):
 
   ```js
-  await root.uploadPlugin.editable.set("cfg-6k3q9v2m8w4zt7ph5r1jnc0d", JSON.stringify(cfg), { editKey });
+  await root.uploadPlugin.editable.set("cfg-ouc9whs9w401jiug", JSON.stringify(cfg), { editKey });
   ```
 
   Damit kann der Besitzer (bzw. ein Helfer) Testdauer ändern, einen Fork freigeben
@@ -176,7 +176,7 @@ Ziel ist deshalb **Aufwand + Nachweisbarkeit**, nicht Verhinderung.
 
 ## 5. Zugang (Runde 97/98)
 
-- **Drei Monate Gratis-Test** für jeden Besucher: `TRIAL_MS = 90 * 24 * 60 * 60 * 1000`,
+- **Sechs Monate Gratis-Test** für jeden Besucher: `TRIAL_MS = 180 * 24 * 60 * 60 * 1000`,
   ohne Kontingente (`TRIAL_LIMITS` = `NO_CAP`/0), allein die Zeit begrenzt. Danach
   greift die Sperrtafel wieder und es braucht einen Zugangsschlüssel.
 - `var FREE = false;` ist die Regellage; `FREE = true` (oder `free: true` in der

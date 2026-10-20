@@ -410,6 +410,57 @@ export function attachVoice(App, deps = {}) {
       App.Data.saveSettings();
       this.populateVoiceSelect();
     },
+    setEngine(name) {
+      settings().ttsEngine = (String(name) === "piper") ? "piper" : "system";
+      App.Data.saveSettings();
+      if (settings().ttsEngine === "piper" && App.PiperVoice) App.PiperVoice.warm();
+      this.refreshUI();
+    },
+    _piperFor(clean) {
+      try {
+        if (this._piperBypass) return false;
+        let P = App.PiperVoice;
+        if (!P || typeof P.useFor !== "function") return false;
+        return !!P.useFor(clean);
+      } catch (e) { return false; }
+    },
+    _markSpokenFull(clean) {
+      if (!this._spokenSents) this._spokenSents = {};
+      try {
+        let chk = this._splitSentences(clean, true).sentences;
+        for (const s of chk) { try { this._spokenSents[this._normSent(this._cleanText(s))] = true; } catch (e) {} }
+      } catch (e) {}
+    },
+    _speakPiperFull(rawText, clean, btn, finish) {
+      let self = this;
+      const gen = this._speakGen;
+      this._activeBtn = btn;
+      if (btn) {
+        let v = strings();
+        btn.classList.add("speaking");
+        btn.innerHTML = App.ICONS.speakStop || App.ICONS.speak || "";
+        btn.title = v.stop || "Stop";
+        let wrap = btn.closest(".msgWrapper");
+        if (wrap) wrap.classList.add("speaking");
+      }
+      this._suspendLive();
+      this._speaking = true;
+      this._syncSpeakBadge();
+      this._traceAdd("parle-piper-entier", "len=" + clean.length);
+      let fallback = (e) => {
+        if (gen !== self._speakGen) return;
+        if (String((e && e.message) || e) === "stoppe") return;
+        self._traceAdd("piper-repli", String((e && e.message) || e).slice(0, 60));
+        self._piperBypass = true;
+        try { self.speak(rawText, btn); } finally { self._piperBypass = false; }
+      };
+      try {
+        App.PiperVoice.speak(clean).then(
+          () => { if (gen !== self._speakGen) return; try { self._markSpokenFull(clean); } catch (e) {} finish(); },
+          (e) => fallback(e)
+        );
+      } catch (e) { fallback(e); }
+    },
     currentSpeechLang() {
       let reg = this.regionSetting();
       if (reg && normLang(reg) === this.currentLangCode()) return reg;
@@ -623,8 +674,22 @@ export function attachVoice(App, deps = {}) {
 
     testVoice() {
       let v = strings();
-      if (!this.isTtsSupported()) { App.UI.showToast(v.unsupported || "Speech output is not available in this browser.", "error"); return; }
       let phrase = TEST_PHRASE[this.currentLangCode()] || TEST_PHRASE.en;
+      if (!this._piperBypass && this._piperFor(phrase)) {
+        let self = this;
+        try {
+          App.PiperVoice.speak(phrase).then(null, (e) => {
+            if (String((e && e.message) || e) === "stoppe") return;
+            self._piperBypass = true;
+            try { self.testVoice(); } finally { self._piperBypass = false; }
+          });
+        } catch (e) {
+          self._piperBypass = true;
+          try { self.testVoice(); } finally { self._piperBypass = false; }
+        }
+        return;
+      }
+      if (!this.isTtsSupported()) { App.UI.showToast(v.unsupported || "Speech output is not available in this browser.", "error"); return; }
       this.speak(phrase, null);
     },
 
@@ -748,6 +813,10 @@ export function attachVoice(App, deps = {}) {
         if (this._activeBtn === btn) this._resetActive();
         this._afterSpeech();
       };
+      if (!this._piperBypass && this._piperFor(clean)) {
+        this._speakPiperFull(rawText, clean, btn, finish);
+        return;
+      }
       this._activeBtn = btn;
       if (btn) {
         btn.classList.add("speaking");
@@ -906,6 +975,7 @@ export function attachVoice(App, deps = {}) {
       // Ronde 267 : chaque boucle de lecture (par morceaux) meurt avec cette génération.
       this._speakGen = (this._speakGen || 0) + 1;
       if (this.isTtsSupported()) { try { speech.cancel(); } catch (e) {} }
+      try { if (App.PiperVoice) App.PiperVoice.stopAll(); } catch (e2) {}
       this._speaking = false;
       this._syncSpeakBadge();
       this.stopStreamSpeak();
@@ -978,6 +1048,7 @@ export function attachVoice(App, deps = {}) {
 
     stopStreamSpeak() {
       this._streamGen++;
+      try { if (App.PiperVoice) App.PiperVoice.stopAll(); } catch (e) {}
       this._streamOn = false;
       this._streamEnded = false;
       this._streamBusy = false;
@@ -1135,8 +1206,7 @@ export function attachVoice(App, deps = {}) {
       // la répétition ne démarre pas non plus que la voix est considérée comme bloquée – avec une
       // indication visible au lieu d'un silence total.
       let self = this;
-      let emit = () => {
-        attempts++;
+      let emitSystem = () => {
         heard = false;
         let myAttempt = attempts;
         let u = self._newUtterance(clean);
@@ -1183,6 +1253,30 @@ export function attachVoice(App, deps = {}) {
           done();
         };
         self._swapTimer = setTimeout(check, 2600);
+      };
+      let emit = () => {
+        attempts++;
+        if (attempts === 1 && !self._piperBypass && self._piperFor(clean)) {
+          self._traceAdd("parle-piper", "len=" + clean.length + " \"" + clean.slice(0, 34) + "\"");
+          self._streamUtterance = { piper: true };
+          try {
+            App.PiperVoice.speak(clean).then(
+              () => { if (gen !== self._streamGen) return; self._traceAdd("piper-fin", "ok"); done(); },
+              (e) => {
+                if (gen !== self._streamGen) return;
+                if (String((e && e.message) || e) === "stoppe") { done(); return; }
+                self._traceAdd("piper-repli", String((e && e.message) || e).slice(0, 60));
+                emitSystem();
+              }
+            );
+          } catch (e) {
+            if (gen !== self._streamGen) return;
+            self._traceAdd("piper-repli", String((e && e.message) || e).slice(0, 60));
+            emitSystem();
+          }
+          return;
+        }
+        emitSystem();
       };
       // Filet de sécurité : un onend muet/perdu ne doit pas bloquer le microphone
       // de façon permanente (la reconnaissance vocale attend `_speaking === false`).
@@ -2717,6 +2811,8 @@ export function attachVoice(App, deps = {}) {
       if (c.ttsPitchValueEl) c.ttsPitchValueEl.textContent = String(pitch);
       if (c.autoSpeakCheck) c.autoSpeakCheck.checked = settings().ttsAutoSpeak !== false;
       if (c.femaleVoiceCheck) c.femaleVoiceCheck.checked = settings().ttsFemale !== false;
+      if (c.ttsEngineSelect) c.ttsEngineSelect.value = settings().ttsEngine || "system";
+      try { if (App.PiperVoice && App.PiperVoice.renderStatus) App.PiperVoice.renderStatus(); } catch (e) {}
       if (c.liveListenCheck) c.liveListenCheck.checked = this.isLiveEnabled();
       if (c.liveListenLangSelect) {
         c.liveListenLangSelect.value = this.liveLangSetting();
