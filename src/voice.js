@@ -451,6 +451,7 @@ export function attachVoice(App, deps = {}) {
         if (gen !== self._speakGen) return;
         if (String((e && e.message) || e) === "stoppe") return;
         self._traceAdd("piper-repli", String((e && e.message) || e).slice(0, 60));
+        try { if (App.PiperVoice) { App.PiperVoice._failAt = Date.now(); try { App.PiperVoice._failWhy = App.PiperVoice.failWhyFr(e); } catch (e2) {} try { App.PiperVoice.renderStatus(); } catch (e3) {} } } catch (e4) {}
         self._piperBypass = true;
         try { self.speak(rawText, btn); } finally { self._piperBypass = false; }
       };
@@ -680,6 +681,7 @@ export function attachVoice(App, deps = {}) {
         try {
           App.PiperVoice.speak(phrase).then(null, (e) => {
             if (String((e && e.message) || e) === "stoppe") return;
+            try { if (App.PiperVoice) { App.PiperVoice._failAt = Date.now(); try { App.PiperVoice._failWhy = App.PiperVoice.failWhyFr(e); } catch (e2) {} try { App.PiperVoice.renderStatus(); } catch (e3) {} } } catch (e4) {}
             self._piperBypass = true;
             try { self.testVoice(); } finally { self._piperBypass = false; }
           });
@@ -1193,6 +1195,7 @@ export function attachVoice(App, deps = {}) {
         if (wd) { clearTimeout(wd); wd = null; }
         if (this._swapTimer) { clearTimeout(this._swapTimer); this._swapTimer = null; }
         if (gen !== this._streamGen) return;
+        try { if (self._streamUtterance && self._streamUtterance.piper && App.PiperVoice) App.PiperVoice.stopAll(); } catch (ePS) {}
         this._streamUtterance = null;
         this._streamBusy = false;
         this._speaking = false;   // Intervalle entre deux phrases : rien ne sonne actuellement
@@ -1259,6 +1262,7 @@ export function attachVoice(App, deps = {}) {
         if (attempts === 1 && !self._piperBypass && self._piperFor(clean)) {
           self._traceAdd("parle-piper", "len=" + clean.length + " \"" + clean.slice(0, 34) + "\"");
           self._streamUtterance = { piper: true };
+          try { if (wd) { clearTimeout(wd); wd = setTimeout(done, Math.max(120000, Math.min(300000, Math.round(clean.length * 400)))); } } catch (ePB) {}
           try {
             App.PiperVoice.speak(clean).then(
               () => { if (gen !== self._streamGen) return; self._traceAdd("piper-fin", "ok"); done(); },
@@ -1266,6 +1270,7 @@ export function attachVoice(App, deps = {}) {
                 if (gen !== self._streamGen) return;
                 if (String((e && e.message) || e) === "stoppe") { done(); return; }
                 self._traceAdd("piper-repli", String((e && e.message) || e).slice(0, 60));
+                try { if (App.PiperVoice) { App.PiperVoice._failAt = Date.now(); try { App.PiperVoice._failWhy = App.PiperVoice.failWhyFr(e); } catch (e2) {} try { App.PiperVoice.renderStatus(); } catch (e3) {} } } catch (e4) {}
                 emitSystem();
               }
             );

@@ -82,6 +82,8 @@ export function attachPiperVoice(App, deps) {
     _ctx: null,
     _current: null,
     _playGen: 0,
+    _failAt: 0,
+    _failWhy: "",
     _initTimer: null,
     engine() {
       try { return String((App.State && App.State.settings && App.State.settings.ttsEngine) || "system"); } catch (e) { return "system"; }
@@ -110,12 +112,26 @@ export function attachPiperVoice(App, deps) {
     useFor(text) {
       try {
         if (this.engine() !== "piper") return false;
+        if (this.failedRecently()) return false;
         if (!this._ready) return false;
         return this.isFrench(text);
       } catch (e) { return false; }
     },
     ready() { return !!this._ready; },
+    failWhyFr(e) {
+      const m = String((e && e.message) || e || "");
+      if (/model http|Failed to fetch|fetch|network|NetworkError/i.test(m)) return "modèle non téléchargé (réseau coupé ?)";
+      if (/timeout|trop lent/i.test(m)) return "téléchargement trop lent (fichier ~100 Mo)";
+      if (/audio-bloque/i.test(m)) return "audio bloqué par le téléphone — touchez l'écran une fois";
+      if (/pas-audio/i.test(m)) return "aucune sortie audio sur cet appareil";
+      if (/worker|runtime|wasm|phone|mémoire/i.test(m)) return "moteur trop lourd pour ce téléphone";
+      return m.slice(0, 80) || "moteur indisponible";
+    },
+    failedRecently() {
+      try { return !!(this._failAt && (Date.now() - this._failAt < 10 * 60 * 1000)); } catch (e) { return false; }
+    },
     statusLine() {
+      if (this.failedRecently()) return "Voix Sofia indisponible (" + (this._failWhy || "téléphone") + ") — voix système utilisée.";
       if (this._ready) return "Voix Sofia prête (français neuronal, local).";
       if (this._loading) return "Chargement de la voix Sofia…";
       return "Voix Sofia non chargée.";
@@ -129,8 +145,25 @@ export function attachPiperVoice(App, deps) {
       } catch (e) {}
     },
     warm() {
+      try {
+        const mob = /Android|iPhone|iPad|iPod|Mobile/i.test(String((typeof navigator !== "undefined" && navigator.userAgent) || ""));
+        if (mob && !this._ready) {
+          this.idbProbe((cached) => {
+            try {
+              if (!cached) this._bigLoadWarn = true;
+              this.renderStatus();
+              this.ensure((st) => this._progress(st));
+            } catch (e) {}
+          });
+          return true;
+        }
+      } catch (e3) {}
       try { this.ensure((st) => this._progress(st)); } catch (e) {}
       return true;
+    },
+    idbProbe(cb) {
+      try { Promise.resolve(this._loading || null); } catch (e) {}
+      (async () => { let v = null; try { v = await idbGet("siwis-patched"); } catch (e) { v = null; } try { cb(!!v); } catch (e2) {} })();
     },
     _progress(st) {
       try {
@@ -145,6 +178,7 @@ export function attachPiperVoice(App, deps) {
         return this._loading;
       }
       const prog = (f, label) => {
+        try { if (this._bigLoadWarn && /Voix Sofia/.test(String(label))) label = String(label).replace(/…$/, "") + " (~100 Mo, wifi conseillé…)"; } catch (eW) {}
         const st = { frac: f, label: label };
         try { this._progress(st); } catch (e) {}
         try { if (typeof onProgress === "function") onProgress(st); } catch (e2) {}
@@ -168,10 +202,11 @@ export function attachPiperVoice(App, deps) {
         }
         await this._initWorker(model, tokens);
         this._ready = true;
+        try { this._bigLoadWarn = false; this._failAt = 0; this._failWhy = ""; } catch (eF) {}
         this.renderStatus();
         return { sampleRate: this._sampleRate };
       })();
-      this._loading.then(null, () => { this._loading = null; this.renderStatus(); });
+      this._loading.then(null, (e) => { try { this._failAt = Date.now(); this._failWhy = this.failWhyFr(e); } catch (e2) {} this._loading = null; this.renderStatus(); });
       return this._loading;
     },
     _progTaps: [],
@@ -340,6 +375,7 @@ export function attachPiperVoice(App, deps) {
       return this._ctx;
     },
     async speak(text, onProgress) {
+      if (this.failedRecently()) throw new Error(this._failWhy || "moteur-indisponible");
       await this.ensure(onProgress);
       const myGen = this._playGen;
       const sents = this._sentences(text);
