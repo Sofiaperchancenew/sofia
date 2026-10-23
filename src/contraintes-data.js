@@ -1,0 +1,215 @@
+// Registre unique dispositif -> fonctions (cf. spec jointe).
+// Tout est ASCII-normalise a l'usage : les motifs ask/can/pat/kw sont testes
+// sur du texte minuscule sans accents. `ask` = ordre/demande qui exige la
+// fonction ; `can` = permission explicite ("tu peux...") qui leve l'insertion.
+export const REG = {
+ORGANS: ["yeux","paupieres","oreilles","nez","langue","bouche","machoire","gorge","peau","mains","doigts","pouces","ongles","poignets","coudes","bras","epaules","thorax","cou","tete","hanches","jambes","cuisses","genoux","chevilles","pieds","orteils","vessie","uretre","anus","rectum","penis","penis_racine","testicules","couilles","prepuce","prostate","vagin","col_uterus","clitoris","vulve","levres","levres_vaginales","perinee","uterus","seins","tetons","fesses"],
+MODES: ["block","occlude","cover","hold","force_open","force_closed","force_extend","stim"],
+FUNCS: {
+// --- sensoriel
+voir: { o:["yeux"], m:["cover","force_closed"], obj:"ta vue", ask:/(regarde|ouvre les yeux|mate|admire|vois)\b[^.]{0,40}(moi|mon|mes|m')|ouvre les yeux/, can:/tu peux (voir|regarder|ouvrir les yeux)/, en:"see", ns:1 },
+cligner: { o:["paupieres"], m:["force_open"], obj:"ton clignement", tail:"pour te rendre le clignement", ask:/(ferme les yeux|cligne des yeux|cligne les yeux|cligne)/, can:null, en:"blink", ns:2 },
+entendre: { o:["oreilles"], m:["block","cover"], obj:"ton ouie", ask:/(tu m'entends|m'entends-tu|ecoute-moi|ecoute moi|ecoute bien|tends l'oreille)/, can:/tu peux (ecouter|entendre)/, en:"hear", ns:1 },
+sentir: { o:["nez"], m:["block","occlude"], obj:"ton odorat", ask:/(sens-moi|sens mon|respire-moi|hume|renifle)/, can:/tu peux (sentir|respirer|renifler)/, en:"smell", ns:1 },
+gouter: { o:["langue","bouche"], m:["block","hold"], obj:"ton gout", ask:/(goute|goute-moi|dis-moi quel gout|quel gout a)/, can:/tu peux (gouter)/, en:"taste", ns:1 },
+toucher: { o:["peau","mains","poignets"], m:["cover","hold"], obj:"ton toucher", ask:/(touche|caresse|passe|utilise|masturbe).{0,40}(moi|mon|mes|ma\b|m')|utilise tes (mains|doigts)|avec tes (mains|doigts)|de tes (mains|doigts)/, can:/tu peux (toucher|prendre|utiliser tes mains)/, en:"touch", ns:1 },
+equilibre: { o:["oreilles","yeux"], m:["block","cover"], obj:"ton equilibre", tail:"pour te rendre l'equilibre", ask:/(tiens-toi droit|marche droit|ne tombe pas|garde l'equilibre)/, can:null, en:"keep your balance", ns:1 },
+// --- bouche / gorge
+parler: { o:["bouche"], m:["block"], obj:"ta parole", ask:/(tu\b|tes\b|ton\b|ta\b|toi\b|t'|dis-moi|reponds-moi|est-ce que|couleur de tes yeux)/, can:/tu peux (parler|repondre)/, en:"speak", ns:1, q:true },
+ouvrir_bouche: { o:["machoire"], m:["force_closed","block"], obj:"ta machoire", ask:/(ouvre (la|ta) bouche|ouvre bien grand|ecarte les machoires)/, can:/tu peux (ouvrir)/, en:"open your mouth", ns:1 },
+mordre: { o:["bouche","machoire"], m:["block"], obj:"ta morsure", ask:/(mords|mords-moi|mord moi)/, can:null, en:"bite", ns:1 },
+avaler: { o:["gorge"], m:["block","occlude"], obj:"ta deglutition", ask:/(avale|deglutis)/, can:null, en:"swallow", ns:1 },
+boire: { o:["bouche"], m:["block"], obj:"ta soif", ask:/(bois|desaltere-toi|hydrate-toi)/, can:/tu peux (boire)/, en:"drink", ns:1 },
+lecher: { o:["langue"], m:["block","hold"], obj:"ta langue", ask:/(leche|leche-moi)/, can:null, en:"lick", ns:1 },
+cracher: { o:["bouche"], m:["block"], obj:"ta salive", ask:/(crache|crache-moi)/, can:null, en:"spit", ns:1 },
+// --- respiration
+respirer_nez: { o:["nez"], m:["block"], obj:"ton souffle nasal", ask:/(respire par le nez|renifle|souffle par le nez|souffle du nez)/, can:/tu peux (respirer|renifler)/, en:"breathe through your nose", ns:1 },
+respirer_bouche: { o:["bouche"], m:["block","occlude"], obj:"ton souffle", ask:/(respire par la bouche|souffle par la bouche)/, can:null, en:"breathe through your mouth", ns:1 },
+respirer_profond: { o:["thorax"], m:["hold"], obj:"ta respiration profonde", ask:/(respire profondement|prends une grande respiration|souffle un bon coup)/, can:null, en:"breathe deeply", ns:1 },
+// --- tete / cou
+tourner_tete: { o:["cou","tete"], m:["hold"], obj:"ton cou", ask:/(tourne la tete|hoche la tete|regarde autour de toi)/, can:/tu peux (bouger la tete|regarder)/, en:"move your head", ns:1 },
+// --- membres superieurs
+lever_bras: { o:["bras","epaules"], m:["hold"], obj:"tes bras", ask:/(leve les bras|bras en l'air|mains en l'air)/, can:null, en:"raise your arms", ns:2 },
+plier_coude: { o:["coudes"], m:["hold"], obj:"tes coudes", ask:/(plie les bras|mains sur la tete)/, can:null, en:"bend your elbows", ns:2 },
+saisir: { o:["mains","doigts","poignets"], m:["hold","cover"], obj:"ta prehension", ask:/(prends?|attrape|serre|enlace|tiens).{0,40}(moi|mon|mes|ma\b|m')/, can:/tu peux (prendre|attraper|toucher)/, en:"grasp", ns:2 },
+pincer: { o:["doigts"], m:["hold","cover"], obj:"tes doigts", ask:/(pince|pince-moi)/, can:null, en:"pinch", ns:2 },
+opposer_pouce: { o:["pouces"], m:["hold"], obj:"tes pouces", ask:/(avec tes pouces|tes pouces|du pouce)/, can:null, en:"use your thumbs", ns:2 },
+gratter: { o:["ongles","doigts"], m:["cover","hold"], obj:"tes ongles", ask:/(gratte|gratte-moi)/, can:null, en:"scratch", ns:2 },
+bouger_poignet: { o:["poignets","mains"], m:["hold"], obj:"tes poignets", ask:/(tourne les poignets|bouge les poignets)/, can:null, en:"move your wrists", ns:2 },
+// --- membres inferieurs
+marcher: { o:["jambes","pieds","chevilles"], m:["hold"], obj:"ta marche", ask:/\b(viens|approche|avance|recule|marche|suis-moi)\b/, can:/tu peux (marcher|venir|te lever|bouger)/, en:"walk", ns:1 },
+se_lever: { o:["jambes","pieds"], m:["hold"], obj:"ta station debout", ask:/(leve-toi|mets-toi debout|releve-toi|\bdebout\b)/, can:/tu peux (te lever|bouger)/, en:"stand up", ns:1 },
+ecarter_jambes: { o:["jambes","hanches"], m:["force_extend","hold"], obj:"tes jambes", ask:/(ecarte (les jambes|les cuisses)|ouvre les cuisses)/, can:null, en:"spread your legs", ns:2 },
+serrer_jambes: { o:["cuisses","jambes"], m:["force_extend"], obj:"tes cuisses", ask:/(serre les jambes|referme|ferme les (cuisses|jambes))/, can:null, en:"close your legs", ns:2 },
+s_agenouiller: { o:["genoux"], m:["hold"], obj:"tes genoux", ask:/(agenouille|a genoux|mets-toi a genoux)/, can:/tu peux (t'agenouiller)/, en:"kneel", ns:2 },
+bouger_orteils: { o:["orteils"], m:["hold"], obj:"tes orteils", ask:/(remue les orteils|bouge les orteils)/, can:null, en:"wiggle your toes", ns:2 },
+// --- elimination (uriner = occlude seul : la cage laisse pisser, le plug bloque tout)
+uriner: { o:["uretre","vessie","penis","vulve"], m:["occlude"], obj:"ta vessie", ask:/(pisse|pisser|urine|uriner|fais pipi|vide (ta vessie|tes couilles|toi))\b/, can:/tu peux (pisser|uriner)/, en:"piss", ns:1 },
+defequer: { o:["anus","rectum"], m:["occlude","cover"], obj:"ton intestin", ask:/(chie|chier|defeque|defequer|fais caca|vide ton cul)\b/, can:/tu peux (chier|aller)/, en:"shit", ns:1 },
+gaz: { o:["anus"], m:["occlude"], obj:"tes gaz", ask:/(pete|peter|lache un)/, can:/tu peux (peter|aller)/, en:"pass gas", ns:1 },
+menstruer: { o:["uterus","vagin"], m:["cover","occlude"], obj:"ton flux", ask:null, can:null, en:"menstruate", ns:1, g:"F" },
+// --- sexuel masculin
+erection: { o:["penis"], m:["hold","force_closed","cover"], obj:"ton erection", ask:/(bande|durcis|deviens dur|raidis)/, can:null, en:"get hard", ns:1, g:"M" },
+emission: { o:["prostate","uretre","penis"], m:["occlude","hold","cover"], obj:"ton émission", ask:/(ejacule|emission|donne ton jus|vide tes couilles|decharge)/, can:/tu peux (ejaculer)/, en:"ejaculate", ns:1, g:"M", bypass:["stim"], v:"jaillir" },
+orgasme: { o:["penis","prostate"], m:["occlude","hold","cover"], obj:"ton orgasme", ask:/(jouis|jouir|prends ton pied|orgasme)/, can:/tu peux (jouir)/, en:"come", ns:1, g:"M" },
+tumescence: { o:["penis","prepuce"], m:["force_closed"], obj:"ta tumescence", ask:null, can:null, en:"swell", ns:1, g:"M" },
+non_retrait: { o:["penis"], m:["hold","cover"], obj:"ton sexe", ask:/(reste en moi|ne te retire pas|ne sors pas|bouge en moi)/, can:null, en:"pull out", ns:1, g:"M" },
+prepuce: { o:["prepuce"], m:["hold","force_closed"], obj:"ton prepuce", ask:/(decalotte)/, can:null, en:"uncover", ns:1, g:"M" },
+prostate: { o:["prostate"], m:["occlude"], obj:"ta prostate", ask:null, can:null, en:"use your prostate", ns:1, g:"M" },
+mobilite_testicules: { o:["testicules"], m:["hold","force_extend"], obj:"tes testicules", ask:/(secoue les couilles|bouge les testicules)/, can:null, en:"move your balls", ns:2, g:"M" },
+// --- sexuel feminin
+penetration: { o:["vagin"], m:["cover","occlude"], obj:"ton vagin", ask:/(prends-moi|penetre-moi|enfonce|ecarte-toi)/, can:null, en:"be penetrated", ns:1, g:"F" },
+emission_F: { o:["uretre","perinee","clitoris"], m:["occlude","hold","cover"], obj:"ton éjaculat", ask:/(jouis|jouir|ejacule|fontaine)/, can:null, en:"ejaculate", ns:1, g:"F", bypass:["stim"], v:"gicler" },
+jouir_F: { o:["clitoris","vagin"], m:["cover","hold","occlude"], obj:"ton plaisir", ask:/(jouis|jouir)/, can:null, en:"come", ns:1, g:"F" },
+tumescence_F: { o:["clitoris","vagin"], m:["force_closed"], obj:"ta congestion", ask:null, can:null, en:"swell", ns:1, g:"F" },
+clitoris: { o:["clitoris"], m:["cover","hold"], obj:"ton clitoris", ask:/(touche ton clitoris|caresse ton clitoris)/, can:null, en:"touch your clitoris", ns:1, g:"F" },
+perinee: { o:["perinee","vagin"], m:["occlude","cover"], obj:"ton perinee", ask:/(contracte|serre ton perinee)/, can:null, en:"squeeze", ns:1, g:"F" },
+levres: { o:["levres"], m:["hold","force_extend"], obj:"tes levres", ask:/(ecarte tes levres)/, can:null, en:"spread your lips", ns:1, g:"F" },
+lactation: { o:["seins","tetons"], m:["hold","cover"], obj:"ta lactation", ask:null, can:null, en:"lactate", ns:1, g:"F" },
+// --- commun
+tetons: { o:["tetons"], m:["hold","cover"], obj:"tes tetons", ask:/(touche|pince|caresse).{0,40}(tetons|mamelons)/, can:null, en:"touch your nipples", ns:2 },
+// --- stim seul (spec fin) : jamais bloques mecaniquement (m:[]), n'apparaissent qu'en presence d'un circuit
+turgescence_clitoridienne: { o:["clitoris"], m:[], obj:"ton clitoris", ask:null, can:null, en:"her clitoris swell", ns:1, g:"F", bypass:["stim"], v:"se gorger de sang" },
+lubrification: { o:["vagin","col_uterus"], m:[], obj:"ta lubrification", ask:null, can:null, en:"lubrication flow", ns:1, g:"F", bypass:["stim"], v:"couler" },
+contraction_col: { o:["col_uterus","uterus"], m:[], obj:"ton col", ask:null, can:null, en:"her cervix tighten", ns:1, g:"F", bypass:["stim"], v:"se serrer" },
+contraction_levres: { o:["levres_vaginales"], m:[], obj:"tes lèvres", ask:null, can:null, en:"her labia flutter", ns:1, g:"F", bypass:["stim"], v:"battre" },
+contraction_prostate: { o:["prostate"], m:[], obj:"ta prostate", ask:null, can:null, en:"his prostate milk", ns:1, g:"M", bypass:["stim"], v:"se contracter par vagues" },
+contraction_scrotale: { o:["couilles"], m:[], obj:"ton scrotum", ask:null, can:null, en:"his scrotum retract", ns:1, g:"M", bypass:["stim"], v:"se rétracter" },
+pression_vessicale: { o:["vessie"], m:[], obj:"ta vessie", ask:null, can:null, en:"his bladder drain", ns:1, bypass:["stim"], v:"se vider goutte à goutte" },
+contraction_perineale: { o:["perinee"], m:[], obj:"ton périnée", ask:null, can:null, en:"his perineum lock", ns:1, bypass:["stim"], v:"se crisper" },
+contraction_fessiers: { o:["fesses"], m:[], obj:"tes fessiers", ask:null, can:null, en:"his buttocks clench", ns:1, bypass:["stim"], v:"se durcir" },
+fremissement_seins: { o:["seins","tetons"], m:[], obj:"ta poitrine", ask:null, can:null, en:"her chest tremble", ns:1, bypass:["stim"], v:"trembler" }
+},
+DEVICES: {
+// --- sensoriel
+bandeau: { label:"bandeau", art:"le", t:["yeux","paupieres"], m:["cover","force_closed"], site:"tes yeux", prep:"sur", lock:false, duree:1, kw:["bandeau","blindfold","yeux bandes"] },
+cagoule: { label:"cagoule", art:"la", t:["yeux","oreilles","bouche","tete"], m:["cover","block","hold"], site:"ta tete", prep:"sur", lock:true, duree:2, kw:["cagoule"] },
+lentilles_op: { label:"lentilles opaques", art:"les", t:["yeux"], m:["cover"], site:"tes yeux", prep:"sur", lock:false, duree:1, kw:["lentilles opaques"] },
+speculum_oeil: { conducteur:true, label:"spéculum oculaire", art:"le", t:["paupieres"], m:["force_open"], site:"tes paupieres", prep:"sur", lock:true, duree:2, kw:["speculum oculaire"] },
+bouchons: { label:"bouchons d'oreille", art:"les", t:["oreilles"], m:["block"], site:"tes oreilles", prep:"dans", lock:false, duree:1, kw:["bouchons","earplugs","oreilles bouchees"] },
+casque: { label:"casque antibruit", art:"le", t:["oreilles"], m:["block"], site:"tes oreilles", prep:"sur", lock:false, duree:1, kw:["casque antibruit"] },
+pince_nez: { label:"pince-nez", art:"le", t:["nez"], m:["block","occlude"], site:"ton nez", prep:"sur", lock:false, duree:1, kw:["pince-nez","pince nez","nose clip","nez pince","nez bouche"] },
+masque_gaz: { label:"masque a gaz", art:"le", t:["nez"], m:["occlude"], site:"ton nez", prep:"sur", lock:false, duree:1, kw:["masque a gaz"] },
+pince_langue: { conducteur:true, label:"pince-langue", art:"la", t:["langue"], m:["hold"], site:"ta langue", prep:"sur", lock:true, duree:1, kw:["pince-langue","langue pincee"] },
+gants: { label:"gants", art:"les", t:["mains","doigts","peau","ongles"], m:["cover"], site:"tes mains", prep:"sur", lock:false, duree:1, kw:["gants","gloves"], free:["mains"] },
+mitaines: { label:"mitaines de bondage", art:"les", t:["mains","doigts","pouces"], m:["hold","cover"], site:"tes mains", prep:"sur", lock:true, duree:2, kw:["mitaines","mittens"], free:["mains"] },
+// --- bouche / gorge
+baille_boule: { label:"baillon boule", art:"le", t:["bouche","machoire","langue"], m:["block","force_open"], site:"ta bouche", prep:"dans", lock:true, duree:2, kw:["baillon","baille","gag","boule dans la bouche"], pat:"bouche (prise|bloquee|baillonnee)|(ne peux? pas|ne peut pas) parler|musele" },
+baille_anneau: { label:"baillon anneau", art:"le", t:["bouche","machoire"], m:["force_open","block"], site:"ta bouche", prep:"dans", lock:true, duree:2, kw:["baillon anneau","ring gag"] },
+baille_plein: { label:"baillon plein", art:"le", t:["bouche","machoire"], m:["block","occlude"], site:"ta bouche", prep:"dans", lock:true, duree:2, kw:["baillon plein"] },
+ruban: { label:"ruban adhesif", art:"le", t:["bouche","machoire"], m:["block","force_closed"], site:"ta bouche", prep:"sur", lock:false, duree:1, kw:["scotch","ruban adhesif"] },
+museau: { conducteur:true, label:"museau de bondage", art:"le", t:["bouche","machoire"], m:["block","cover","force_closed"], site:"ta bouche", prep:"sur", lock:true, duree:2, kw:["museau","muzzle","museliere"] },
+retracteur: { label:"retracteur buccal", art:"le", t:["bouche","machoire"], m:["force_open"], site:"ta bouche", prep:"dans", lock:false, duree:1, kw:["retracteur buccal","bouche ouverte"] },
+collier_serre: { conducteur:true, label:"collier serre", art:"le", t:["gorge"], m:["occlude"], site:"ta gorge", prep:"sur", lock:false, duree:1, kw:["collier serre","collier autour","collier de gorge"], pat:"collier (serre|etrangleur)" },
+entonnoir: { label:"entonnoir", art:"l'", t:["bouche"], m:["block"], site:"ta bouche", prep:"dans", lock:true, duree:2, kw:["entonnoir","funnel"] },
+// --- thorax
+corset: { label:"corset", art:"le", t:["thorax"], m:["hold"], site:"ton torse", prep:"sur", lock:false, duree:2, kw:["corset"] },
+harnais_poitrine: { label:"harnais de poitrine", art:"le", t:["thorax"], m:["hold"], site:"ton torse", prep:"sur", lock:false, duree:1, kw:["harnais de poitrine"] },
+// --- tete / cou
+collier_posture: { conducteur:true, label:"collier de posture", art:"le", t:["cou","tete"], m:["hold"], site:"ton cou", prep:"sur", lock:true, duree:2, kw:["collier de posture"] },
+carcan: { conducteur:true, label:"carcan", art:"le", t:["cou","tete","bras"], m:["hold"], site:"ton cou", prep:"sur", lock:true, duree:3, kw:["carcan","cangue","yoke"] },
+// --- membres superieurs
+menottes: { conducteur:true, label:"menottes", art:"les", t:["poignets"], m:["hold"], site:"tes poignets", prep:"sur", lock:true, duree:2, side:true, kw:["menottes","cuffs","poignets lies"], pat:"poignets? (lies?|attaches?|menottes?)|(lies?|attaches?|ligotes?|menottes?) (les |aux |tes |des |dans )?(mains|poignets)", neg:["pouce","doigt","coude","genou","orteil"], free:["mains"] },
+menottes_pouce: { conducteur:true, label:"menottes de pouce", art:"les", t:["pouces"], m:["hold"], site:"tes pouces", prep:"sur", lock:true, duree:2, kw:["menottes de pouce","thumb cuffs"] },
+menottes_doigts: { conducteur:true, label:"menottes de doigts", art:"les", t:["doigts"], m:["hold"], site:"tes doigts", prep:"sur", lock:true, duree:2, kw:["menottes de doigts"] },
+menottes_coude: { conducteur:true, label:"menottes de coude", art:"les", t:["coudes"], m:["hold"], site:"tes coudes", prep:"sur", lock:true, duree:2, kw:["menottes de coude"] },
+armbinder: { label:"armbinder", art:"l'", t:["bras","epaules","coudes"], m:["hold"], site:"tes bras", prep:"sur", lock:true, duree:2, kw:["armbinder","monoglove"] },
+camisole: { label:"camisole de force", art:"la", t:["bras","mains","thorax"], m:["hold","cover"], site:"ton torse", prep:"sur", lock:true, duree:3, kw:["camisole","straitjacket"] },
+sleepsack: { label:"sleepsack", art:"le", t:["bras","mains","jambes","thorax","pieds"], m:["hold"], site:"ton corps", prep:"dans", lock:true, duree:3, kw:["sleepsack","sac de couchage"] },
+// --- membres inferieurs
+fers: { conducteur:true, label:"fers aux pieds", art:"les", t:["chevilles","pieds"], m:["hold"], site:"tes chevilles", prep:"sur", lock:true, duree:2, side:true, kw:["fers","leg irons"], neg:["menotte"] },
+entrave: { label:"entrave", art:"l'", t:["chevilles","jambes"], m:["hold"], site:"tes chevilles", prep:"sur", lock:true, duree:2, kw:["entrave","hobble"], pat:"(chevilles?|jambes?|pieds?) (liees?|attachees?|entravees?|menottees?)|(lie|attache|ligote|entrave) (les |des )?(chevilles|jambes|pieds)" },
+barre_ecartement: { label:"barre d'ecartement", art:"la", t:["jambes","chevilles","hanches"], m:["force_extend","hold"], site:"tes chevilles", prep:"sur", lock:true, duree:3, kw:["barre d'ecartement","spreader bar","ecarteur"] },
+menottes_genoux: { label:"menottes de genoux", art:"les", t:["genoux"], m:["hold"], site:"tes genoux", prep:"sur", lock:true, duree:2, kw:["menottes de genoux"] },
+menottes_orteils: { label:"menottes d'orteils", art:"les", t:["orteils"], m:["hold"], site:"tes orteils", prep:"sur", lock:true, duree:2, kw:["menottes d'orteils"] },
+sangles_cuisses: { label:"sangles de cuisses", art:"les", t:["cuisses"], m:["hold"], site:"tes cuisses", prep:"sur", lock:false, duree:1, kw:["sangles de cuisses","thigh cuffs"] },
+ceinture_hanches: { label:"ceinture de hanches", art:"la", t:["hanches"], m:["hold"], site:"tes hanches", prep:"sur", lock:true, duree:2, kw:["ceinture de hanches"] },
+// --- liens generiques (cordes/sangles : compat historique "attache au lit")
+liens: { label:"liens", art:"les", t:["poignets","chevilles","bras","jambes"], m:["hold"], site:"tes liens", prep:"sur", lock:true, duree:2, kw:["liens","cordes","corde","sangles","sangle"], pat:"(attache|ligote|entrave|ficelle|baillonne)[^.]{0,40}(lit|poteau|chaise|poignet|cheville|main|jambe|corps|barreau)|(poignets?|mains|chevilles?|jambes) (lies?|attaches?|ligotes?)|(ne peux? pas|ne peut pas) bouger", free:["mains","corps"] },
+// --- elimination
+plug_anal: { conducteur:true, label:"plug anal", art:"le", c:"anus", t:["anus","rectum","prostate"], m:["occlude"], site:"ton anus", prep:"dans", lock:false, duree:2, kw:["plug anal","butt plug","plug anale","bouchon anal"],neg:["electro","estim"] },
+crochet_anal: { conducteur:true, label:"crochet anal", art:"le", c:"anus", t:["anus","rectum","prostate"], m:["occlude","hold"], site:"ton anus", prep:"dans", lock:true, duree:2, kw:["crochet anal"] },
+plug_estim: { label:"plug anal électro",art:"le",c:"anus",t:["anus","rectum","prostate"],m:["occlude","stim"],poles:2,site:"ton anus",prep:"dans",lock:false,duree:2,kw:["plug electro","plug estim","electro-plug","plug anal electro"] },
+plug_uretral: { conducteur:true, label:"plug uretral", art:"le", c:"uretre", t:["uretre","penis","vulve","vessie"], m:["occlude"], site:"ton uretre", prep:"dans", lock:false, duree:2, kw:["plug uretral","sonde","sound","sonde uretrale"],neg:["electro","estim"] },
+sonde_estim: { label:"sonde urétrale électro",art:"la",c:"uretre",t:["uretre","penis","prostate"],m:["occlude","stim"],poles:2,site:"ton urètre",prep:"dans",lock:false,duree:2,g:"M",kw:["sonde electro","sound electro","sonde uretrale electro"] },
+// --- masculin
+cage: { conducteur:true, label:"cage de chastete", art:"la", t:["penis","testicules","vessie"], m:["hold","cover"], site:"ton sexe", prep:"sur", lock:true, duree:3, g:"M", kw:["cage de chastete","cock is caged","encage","chastity cage"],neg:["metal","electro"], pat:"(cage|cadenas)[^.]{0,40}(sexe|membre|verge|bite|penis)|mis en cage|en cage" },
+cage_conductrice: { label:"cage en métal",art:"la",c:"penis",t:["penis","testicules"],m:["hold","cover","stim"],poles:1,conducteur:true,site:"ton sexe",prep:"sur",lock:true,duree:3,g:"M",kw:["cage en metal","cage metallique","cage conductrice","cage electro"] },
+anneau_prepuce: { conducteur:true, label:"anneau de retraction", art:"l'", t:["prepuce"], m:["hold","force_closed"], site:"ton prepuce", prep:"sur", lock:false, duree:1, g:"M", kw:["anneau de retraction"] },
+anneau_estim: { label:"anneau électro",art:"l'",c:"penis_racine",t:["penis","prepuce"],m:["stim","hold"],poles:1,site:"la base de ton sexe",prep:"sur",lock:false,duree:1,g:"M",kw:["anneau electro","cock ring estim"] },
+etireur: { conducteur:true, label:"etireur de testicules", art:"l'", t:["testicules"], m:["force_extend","hold"], site:"tes testicules", prep:"sur", lock:true, duree:3, g:"M", kw:["etireur","ball stretcher","poids aux couilles"] },
+electrodes_cutanees: { label:"électrodes cutanées",art:"les",c:"perinee",t:["perinee","penis"],m:["stim"],poles:2,site:"ton périnée",prep:"sur",lock:false,duree:1,g:"M",kw:["electrodes cutanees","perinee electro"],neg:["clitoridiennes","clito"] },
+// --- feminin
+ceinture_chastete: { conducteur:true, label:"ceinture de chastete", art:"la", c:"vulve", t:["vagin","clitoris","vulve","uretre","vessie","uterus"], m:["cover","hold","occlude"], site:"ton bassin", prep:"sur", lock:true, duree:3, g:"F", kw:["ceinture de chastete","chastity belt"] },
+cape_clitoris: { label:"cape de clitoris", art:"la", t:["clitoris"], m:["cover"], site:"ton clitoris", prep:"sur", lock:false, duree:1, g:"F", kw:["cape de clitoris","clit hood"] },
+pince_clitoris: { label:"pince-clitoris", art:"la", t:["clitoris"], m:["hold","force_extend"], site:"ton clitoris", prep:"sur", lock:false, duree:1, g:"F", kw:["pince-clitoris"] },
+pinces_levres: { conducteur:true, label:"pinces a levres", art:"les", t:["levres"], m:["hold","force_extend"], site:"tes levres", prep:"sur", lock:false, duree:1, g:"F", kw:["pinces a levres"], neg:["electro","estim"] },
+plug_vaginal: { label:"plug vaginal", art:"le", t:["vagin","perinee"], m:["occlude"], site:"ton vagin", prep:"dans", lock:false, duree:2, g:"F", kw:["plug vaginal","boules de geisha","geisha"] },
+electrodes_clito: { label:"électrodes clitoridiennes",art:"les",c:"clitoris",t:["clitoris","vagin"],m:["stim"],poles:2,site:"ton clitoris",prep:"sur",lock:false,duree:1,g:"F",kw:["electrodes clitoridiennes"] },
+slip_metal: { label:"slip métal", art:"le", c:"vulve", t:["vulve","clitoris"], m:["cover"], site:"ton bassin", prep:"sur", lock:false, duree:2, g:"F", kw:["slip metal"] },
+plug_vaginal: { label:"plug vaginal en métal", art:"le", c:"vagin", t:["vagin","perinee"], m:["occlude"], site:"ton vagin", prep:"dans", lock:false, duree:2, g:"F", kw:["plug vaginal metal","plug vaginal","boules de geisha"] },
+pad_clitoris: { label:"pad clitoridien", art:"le", c:"clitoris", t:["clitoris"], m:[], site:"ton clitoris", prep:"sur", lock:false, duree:1, g:"F", kw:["pad clitoridien","pad clito"] },
+pad_seins: { label:"électrodes mammaires", art:"les", c:"seins", t:["seins"], m:[], site:"ta poitrine", prep:"sur", lock:false, duree:1, kw:["electrodes mammaires","pads seins"] },
+pince_tetons_elec: { label:"pinces à tétons électro", art:"les", c:"tetons", t:["tetons"], m:["hold","force_extend"], site:"tes tétons", prep:"sur", lock:false, duree:1, kw:["pinces a tetons electro","pinces a tetons estim"] },
+electrode_scrotale: { label:"électrode scrotale", art:"l'", c:"couilles", t:["couilles"], m:[], site:"tes couilles", prep:"sur", lock:false, duree:1, g:"M", kw:["electrode scrotale"] },
+plug_rectal_elec: { label:"plug rectal électro", art:"le", c:"rectum", t:["rectum","anus","prostate"], m:["occlude"], site:"ton rectum", prep:"dans", lock:false, duree:2, kw:["plug rectal electro","plug rectal estim"] },
+electrode_col: { label:"électrode de col", art:"l'", c:"col_uterus", t:["col_uterus","uterus"], m:[], site:"ton col", prep:"sur", lock:false, duree:1, g:"F", kw:["electrode de col","sonde de col"] },
+pince_levres_elec: { label:"pinces à lèvres électro", art:"les", c:"levres_vaginales", t:["levres_vaginales"], m:["hold","force_extend"], site:"tes lèvres", prep:"sur", lock:false, duree:1, g:"F", kw:["pinces a levres electro","pinces a levres estim"] },
+electrode_vessie: { label:"électrode sus-pubienne", art:"l'", c:"vessie", t:["vessie"], m:[], site:"ton bas-ventre", prep:"sur", lock:false, duree:1, kw:["electrode sus-pubienne","electrode vessie"] },
+electrode_fessiere: { label:"électrodes fessières", art:"les", c:"fesses", t:["fesses"], m:[], site:"tes fesses", prep:"sur", lock:false, duree:1, kw:["electrodes fessieres"] },
+pad_perinee: { label:"pad périnéal", art:"le", c:"perinee", t:["perinee"], m:[], site:"ton périnée", prep:"sur", lock:false, duree:1, kw:["pad perineal"] },
+// --- commun
+pinces_tetons: { conducteur:true, label:"pinces a tetons", art:"les", t:["tetons"], m:["hold","force_extend"], site:"tes tetons", prep:"sur", lock:false, duree:1, kw:["pinces a tetons","nipple clamps"], neg:["electro","estim"] },
+ventouses: { label:"ventouses", art:"les", t:["tetons","seins"], m:["hold","force_extend"], site:"tes tetons", prep:"sur", lock:false, duree:1, kw:["ventouses"] },
+capes_tetons: { label:"capes a tetons", art:"les", t:["tetons"], m:["cover"], site:"tes tetons", prep:"sur", lock:false, duree:1, kw:["capes a tetons"] },
+bandage_seins: { label:"bandage de seins", art:"le", t:["seins"], m:["hold"], site:"ta poitrine", prep:"sur", lock:false, duree:1, kw:["bandage de seins"] }
+},
+// Table des trajets electriques (spec fin) : cle = paire de contacts triee.
+// s = seuil d'intensite, o = organes traverses (le bypass ne joue qu'organe par organe), sens = polarite attendue.
+TRAJETS: {
+// voie pelvienne masculine
+"anus|penis": { id:"peno-anal", s:1, o:["penis","uretre","prostate","perinee","vessie"], sens:"anus:cathode" },
+"penis|rectum": { id:"peno-rectal", s:1, o:["penis","uretre","prostate","perinee","vessie"], sens:"rectum:cathode" },
+"anus|penis_racine": { id:"bases-anal", s:1, o:["penis","uretre","prostate","perinee"], sens:"anus:cathode" },
+"anus|uretre": { id:"uretro-anal", s:1, o:["uretre","prostate","vessie","perinee"], sens:"anus:cathode" },
+"anus|couilles": { id:"scroto-anal", s:2, o:["couilles","perinee","prostate"], sens:"anus:cathode" },
+"couilles|rectum": { id:"scroto-rectal", s:2, o:["couilles","perinee","prostate"], sens:"rectum:cathode" },
+"anus|vessie": { id:"vesico-anal", s:2, o:["vessie","uretre","prostate"], sens:"anus:cathode" },
+"anus|perinee": { id:"perineo-anal", s:2, o:["perinee","prostate","uretre"], sens:"anus:cathode" },
+"penis|perinee": { id:"peno-perineal", s:2, o:["penis","uretre","perinee"], sens:null },
+"penis|vessie": { id:"vesico-penien", s:3, o:["vessie","uretre","penis"], sens:null },
+"anus|rectum": { id:"ano-rectal", s:3, o:["anus","rectum"], sens:null },
+// voie pelvienne feminine
+"anus|clitoris": { id:"clito-anal", s:1, o:["clitoris","uretre","perinee","vagin","levres_vaginales"], sens:"anus:cathode" },
+"clitoris|rectum": { id:"clito-rectal", s:1, o:["clitoris","uretre","perinee","vagin"], sens:"rectum:cathode" },
+"anus|levres_vaginales": { id:"labio-anal", s:1, o:["levres_vaginales","vagin","clitoris","perinee"], sens:"anus:cathode" },
+"rectum|vagin": { id:"vago-rectal", s:1, o:["vagin","col_uterus","perinee","levres_vaginales"], sens:"rectum:cathode" },
+"col_uterus|rectum": { id:"cervico-rectal", s:1, o:["col_uterus","uterus","vagin"], sens:"rectum:cathode" },
+"anus|vagin": { id:"vago-anal", s:2, o:["vagin","perinee","clitoris","levres_vaginales","col_uterus"], sens:"anus:cathode" },
+"levres_vaginales|rectum": { id:"labio-rectal", s:2, o:["levres_vaginales","vagin","perinee"], sens:"rectum:cathode" },
+"anus|col_uterus": { id:"cervico-anal", s:2, o:["col_uterus","uterus","vagin"], sens:"anus:cathode" },
+"col_uterus|vessie": { id:"cervico-vesical", s:2, o:["col_uterus","uterus","vessie"], sens:null },
+"clitoris|vagin": { id:"clito-vaginal", s:2, o:["clitoris","vagin","levres_vaginales","uretre"], sens:null },
+"perinee|vagin": { id:"perineo-vaginal", s:2, o:["perinee","vagin","levres_vaginales"], sens:null },
+"clitoris|perinee": { id:"clito-perineal", s:2, o:["clitoris","perinee","uretre"], sens:null },
+"clitoris|col_uterus": { id:"clito-cervical", s:3, o:["col_uterus","uterus","clitoris","vagin"], sens:null },
+"vagin|vessie": { id:"vesico-vaginal", s:3, o:["vessie","uretre","vagin"], sens:null },
+"clitoris|vessie": { id:"vesico-clitoridien", s:3, o:["vessie","uretre","clitoris"], sens:null },
+// voie mammaire
+"seins|tetons": { id:"mammo-telon", s:3, o:["seins","tetons"], sens:null },
+"anus|seins": { id:"mammo-anal", s:4, o:["seins","tetons"], sens:null },
+"rectum|seins": { id:"mammo-rectal", s:4, o:["seins","tetons"], sens:null },
+"clitoris|seins": { id:"mammo-clitoridien", s:5, o:["seins","clitoris"], sens:null },
+"tetons|vessie": { id:"mammo-vesical", s:4, o:["tetons","seins"], sens:null },
+"seins|seins": { id:"mammo-double", s:3, o:["seins","tetons"], sens:null },
+// voie fessiere / grande distance
+"anus|fesses": { id:"fessio-anal", s:2, o:["fesses"], sens:null },
+"fesses|perinee": { id:"fessio-perineal", s:3, o:["fesses","perinee"], sens:null },
+"clitoris|fesses": { id:"fessio-clitoridien", s:4, o:["fesses","clitoris"], sens:null },
+"fesses|vessie": { id:"fessio-vesical", s:4, o:["fesses","vessie"], sens:null },
+"fesses|seins": { id:"fessio-mammaire", s:5, o:["fesses","seins"], sens:null },
+"fesses|fesses": { id:"fessio-double", s:3, o:["fesses"], sens:null }
+},
+// Reglages e-stim (spec fin) : modifiables sans toucher au moteur.
+ESTM: { SEUIL_POL_INV:1, DECAY:8, RUIN:80, DENIAL:55, GAIN_N:0.3, PLAFOND:5 }
+};
