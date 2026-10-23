@@ -20,7 +20,7 @@ export const SUNO_FAM = {
   comedy: { bpm: 110, chords: 'C - F - G - C (classical cadence)', drums: 'playful bouncy beat, rimshots, comedic stingers', vocal: 'character-driven vocal, comic timing', instru: 'acoustic guitar, banjo, toy instruments', mix: 'bright and punchy, vocal-forward' }
 };
 
-// Regles mot-cle (ordre = priorite) : mappe les 334 libelles SOUND.genre vers une famille.
+// Regles mot-cle (ordre = priorite) : mappe les 443 libelles SOUND.genre vers une famille.
 const FAM_RULES = [
   ['doom', 'metal'], ['black metal', 'metal'], ['death', 'metal'], ['thrash', 'metal'],
   ['speed metal', 'metal'], ['power metal', 'metal'], ['symphonic metal', 'metal'], ['nu metal', 'metal'],
@@ -37,6 +37,8 @@ const FAM_RULES = [
   ['house', 'edm'], ['techno', 'edm'], ['trance', 'edm'], ['dubstep', 'edm'], ['drum & bass', 'edm'],
   ['drum and bass', 'edm'], ['garage', 'edm'], ['electro', 'edm'], ['club', 'edm'], ['edm', 'edm'],
   ['dance-pop', 'edm'], ['future bass', 'edm'], ['tropical', 'edm'],
+  ['italo', 'edm'], ['eurodisco', 'edm'], ['eurodance', 'edm'], ['hi-nrg', 'edm'],
+  ['lovers rock', 'rnb'], ['gregorian', 'classical'],
   ['bebop', 'jazz'], ['bossa', 'jazz'], ['swing', 'jazz'], ['jazz', 'jazz'],
   ['blues', 'blues'],
   ['motown', 'rnb'], ['disco', 'rnb'], ['boogie', 'rnb'], ['gospel', 'rnb'], ['soul', 'rnb'],
@@ -50,7 +52,18 @@ const FAM_RULES = [
   ['parody', 'comedy'], ['novelty', 'comedy'], ['comedy', 'comedy'],
   ['dream pop', 'indie'], ['shoegaze', 'indie'], ['slowcore', 'indie'], ['indie', 'indie'],
   ['k-pop', 'pop'], ['j-pop', 'pop'], ['city pop', 'pop'], ['pop', 'pop'],
-  ['punk', 'rock'], ['grunge', 'rock'], ['guitar', 'rock'], ['rock', 'rock']
+  ['punk', 'rock'], ['grunge', 'rock'], ['guitar', 'rock'], ['rock', 'rock'],
+  ['trance', 'edm'], ['madchester', 'indie'], ['chillwave', 'indie'], ['chillout', 'indie'],
+  ['new beat', 'edm'], ['outrun', 'edm'], ['spacesynth', 'edm'], ['darksynth', 'edm'],
+  ['darkwave', 'edm'], ['cold wave', 'edm'], ['newgrass', 'country'], ['merseybeat', 'pop'],
+  ['trot', 'pop'], ['enka', 'pop'], ['dansband', 'pop'], ['dansktop', 'pop'],
+  ['bubblegum', 'pop'], ['doo-wop', 'pop'], ['bhangra', 'pop'], ['horrorcore', 'hiphop'],
+  ['psychobilly', 'rock'], ['psych', 'rock'], ['tango', 'folk'], ['fado', 'folk'],
+  ['soca', 'rnb'], ['merengue', 'rnb'], ['bachata', 'rnb'], ['samba', 'rnb'],
+  ['cumbia', 'rnb'], ['cajun', 'folk'], ['klezmer', 'folk'], ['gnawa', 'folk'],
+  ['highlife', 'rnb'], ['oompah', 'folk'], ['wiesn', 'folk'], ['schlager', 'pop'],
+  ['showstopper', 'comedy'], ['r and b', 'rnb'],
+  ['cabaret', 'rock'], ['glitch', 'hiphop'], ['boom bap', 'hiphop'], ['industrial', 'edm'], ['ambient', 'edm']
 ];
 
 export function familyFor(label) {

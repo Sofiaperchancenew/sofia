@@ -698,6 +698,8 @@ export function attachVoice(App, deps = {}) {
     _cleanText(raw) {
       let s = String(raw == null ? "" : raw);
       s = s.replace(/\[FICHE_STATE\][\s\S]*?\[END_FICHE_STATE\]/g, " ");
+      s = s.replace(/\[FICHE_STATE\s*:[\s\S]*?\}\s*\]/g, " ");
+      s = s.replace(/\[FICHE_STATE[^\]\n]*\]/g, " ");
       s = (function (t) {
         let out = "", i = 0;
         for (;;) {
@@ -765,7 +767,7 @@ export function attachVoice(App, deps = {}) {
     // jamais entendus. Chaque morceau remis à la synthèse est donc borné en longueur,
     // coupé de préférence à une fin de phrase, sinon à une ponctuation de clause,
     // sinon à un espace.
-    MAX_SPEECH_CHARS: 180,
+    MAX_SPEECH_CHARS: 220,
     _chunkSpeech(text) {
       let src = String(text == null ? "" : text).replace(/\s+/g, " ").trim();
       let out = [];

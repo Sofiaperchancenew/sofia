@@ -27,9 +27,53 @@ var CSS = '#musicModal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,
 export function attachMusic(App) {
 function gi(id){ return document.getElementById(id); }
 function curLang(){ try{ var c = null; try{ c = App.State.currentSessionId; }catch(e){} try{ var ss = App.State.sessions || []; for (var i = 0; i < ss.length; i++){ if (ss[i] && ss[i].id === c && ss[i].lockedLanguage){ var l0 = String(ss[i].lockedLanguage).slice(0,2).toLowerCase(); if (l0 === 'zh' && String((App.State.settings && App.State.settings.zhScript) || 'trad').toLowerCase() === 'simp') return 'zh-CN'; if (BANKS[l0]) return l0; } } }catch(e){} }catch(e){} try{ var l = String((App.State.settings && App.State.settings.language) || 'fr').slice(0,2).toLowerCase(); if (l === 'zh' && String((App.State.settings && App.State.settings.zhScript) || 'trad').toLowerCase() === 'simp') return 'zh-CN'; if (BANKS[l]) return l; }catch(e){} return 'fr'; }
-function BK(){ var l = curLang(); return BANKS[l] || BANK_FR; }
-function UI(){ return BK().ui; }
-function SECL(){ var l = curLang(); return SEC[l] || SEC.fr; }
+var EXTRA_SONG = {
+  sq: { label: 'shqip (albanais)', langName: 'Albanian (shqip)', voice: 'sq_al' },
+  pt: { label: 'portugu\u00eas', langName: 'Portuguese', voice: 'pt_pt' },
+  ru: { label: '\u0440\u0443\u0441\u0441\u043a\u0438\u0439', langName: 'Russian', voice: 'ru_ru' },
+  ar: { label: '\u0627\u0644\u0639\u0631\u0628\u064a\u0629', langName: 'Arabic', voice: 'ar_sa' },
+  tr: { label: 'T\u00fcrk\u00e7e', langName: 'Turkish', voice: 'tr_tr' },
+  nl: { label: 'Nederlands', langName: 'Dutch', voice: 'nl_nl' },
+  el: { label: '\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac', langName: 'Greek', voice: 'el_gr' },
+  ro: { label: 'rom\u00e2n\u0103', langName: 'Romanian', voice: 'ro_ro' },
+  uk: { label: '\u0443\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430', langName: 'Ukrainian', voice: 'uk_ua' },
+  sv: { label: 'svenska', langName: 'Swedish', voice: 'sv_se' }
+};
+var SONGLBL = { fr:'Langue du chant', de:'Gesangssprache', en:'Song language', es:'Idioma del canto', it:'Lingua del canto', pl:'J\u0119zyk piosenki', ja:'\u6b4c\u8a9e', zh:'\u6b4c\u66f2\u8a9e\u8a00', 'zh-CN':'\u6b4c\u66f2\u8a9e\u8a00', ko:'\ub178\ub798 \uc5b8\uc5b4', hi:'\u0917\u093e\u0928\u0947 \u0915\u0940 \u092d\u093e\u0937\u093e' };
+var SONGAUTO = { fr:'Auto (Sofia : ', de:'Auto (Sofia: ', en:'Auto (Sofia: ', es:'Auto (Sofia: ', it:'Auto (Sofia: ', pl:'Auto (Sofia: ', ja:'Auto (Sofia: ', zh:'Auto (Sofia: ', 'zh-CN':'Auto (Sofia: ', ko:'Auto (Sofia: ', hi:'Auto (Sofia: ' };
+var _songSel = null;
+function songLang(){ if (_songSel && (BANKS[_songSel] || EXTRA_SONG[_songSel])) return _songSel; return curLang(); }
+function uiLang(){ var sl = songLang(); return (sl !== curLang()) ? 'en' : curLang(); }
+function songCodeOk(c){ return (c && (BANKS[c] || EXTRA_SONG[c])) ? c : null; }
+var _fbCache = {};
+function fallbackBank(l){
+  if (_fbCache[l]) return _fbCache[l];
+  var x = EXTRA_SONG[l];
+  if (!x) return BANK_FR;
+  var b = {}, en = BANK_EN;
+  for (var k in en) b[k] = en[k];
+  b.meta = { langName: x.langName, voice: x.voice, country: '' };
+  b.aiPrompt = 'Write song lyrics in ' + x.langName + ', family-friendly, sincere emotion. Ambiance: {genre}. Theme: {theme}. Voice: {tag}, clear singable pronunciation.\nSuno constraints: short lines of 6-9 syllables, simple rhymes, open vowels, no vulgarity. Exact structure:\n[Verse 1 - {tag}]\n4 lines\n[Chorus - euphoric choir]\n4 catchy lines\n[Verse 2 - {tag}]\n4 lines\n[Bridge - whispered voice]\n2 intimate lines\n[Final chorus]\n4 lines\nEvoke only: gaze, breath, dance, light, night, skin, heartbeat. Every verse brings fresh images (no filler), flawless grammar, and the song ends on a proper closing line.';
+  b.foreignWords = [];
+  _fbCache[l] = b;
+  return b;
+}
+function bankFor(l){ return BANKS[l] || fallbackBank(l); }
+function BK(){ return bankFor(songLang()); }
+function UI(){
+  var b = BANKS[uiLang()] || BANK_EN;
+  var u = b.ui;
+  if (songLang() !== uiLang()) {
+    var sb = bankFor(songLang());
+    u = Object.assign({}, u, {
+      sub: 'Copy-ready prompts for Suno: Style + Structure + singable ' + sb.meta.langName + ' lyrics, voice ' + sb.meta.voice + '.',
+      vocal: 'Voice - sung in ' + sb.meta.langName + ' (' + sb.meta.voice + ')',
+      lyricsBox: '3.Singable ' + sb.meta.langName + ' lyrics - paste into Suno lyrics (' + sb.meta.voice + ')'
+    });
+  }
+  return u;
+}
+function SECL(){ var l = songLang(); return SEC[l] || SEC.en || SEC.fr; }
 function M(name){ App.Music._m = App.Music._m || {}; return App.Music._m[name]; }
 function SM(name, v){ App.Music._m = App.Music._m || {}; App.Music._m[name] = v; }
 function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
@@ -338,7 +382,116 @@ var GENRE_RHYTHM = {
 'Solo piano classical':'Solo piano with string swells',
 'Waltz':'Lilting 3/4 waltz pulse',
 'Circus cabaret':'Lilting 3/4 waltz pulse',
-'Burlesque':'Lilting 3/4 waltz pulse'
+'Burlesque':'Lilting 3/4 waltz pulse',
+'alt rock':'Driving rock backbeat',
+'big room EDM':'Synthetic EDM build-and-drop drums',
+'modern R and B':'Syncopated soul-funk groove',
+'chillwave':'Half-time phonk drive',
+'witch house':'Half-time phonk drive',
+'electro-pop':'Punchy kick with dry claps',
+'gospel choir':'Syncopated soul-funk groove',
+'gregorian chant fusion':'Lilting 3/4 waltz pulse',
+'eurodance':'Quantized four-on-the-floor kick',
+'neue deutsche welle':'Punchy kick with dry claps',
+'goa trance':'Rolling tribal drums',
+'austropop':'Driving rock backbeat',
+'eurodisco':'Quantized four-on-the-floor kick',
+'italo disco':'Quantized four-on-the-floor kick',
+'italo dance':'Quantized four-on-the-floor kick',
+'oktoberfest oompah':'Lilting 3/4 waltz pulse',
+'wiesn schlager':'Lilting 3/4 waltz pulse',
+'europop':'Catchy four-on-the-floor pop beat',
+'reggae-pop':'One-drop reggae groove',
+'french house':'Quantized four-on-the-floor kick',
+'dansktop':'Catchy four-on-the-floor pop beat',
+'psychobilly':'Driving rock backbeat',
+'darkwave':'Gated synthwave drums',
+'yacht rock':'Driving rock backbeat',
+'folktronica':'Half-time phonk drive',
+'darksynth':'Gated synthwave drums',
+'spacesynth':'Gated synthwave drums',
+'cold wave':'Metallic industrial hits',
+'electroclash':'Punchy kick with dry claps',
+'hi-NRG':'Quantized four-on-the-floor kick',
+'madchester':'Driving rock backbeat',
+'britpop':'Catchy four-on-the-floor pop beat',
+'acid house':'Quantized four-on-the-floor kick',
+'alpine folk':'Campfire folk strum kit',
+'spaghetti western':'Driving rock backbeat',
+'anatolian psych':'Driving rock backbeat',
+'klezmer':'Campfire folk strum kit',
+'cantopop':'Catchy four-on-the-floor pop beat',
+'dansband':'Catchy four-on-the-floor pop beat',
+'bubblegum dance':'Catchy four-on-the-floor pop beat',
+'happy hardcore':'Heavy kick drum',
+'bhangra':'Rolling tribal drums',
+'fado':'Lilting 3/4 waltz pulse',
+'dungeon synth':'Punchy kick with dry claps',
+'chicago house':'Quantized four-on-the-floor kick',
+'lovers rock':'One-drop reggae groove',
+'trot':'Catchy four-on-the-floor pop beat',
+'spoken word':'Boom-bap hip-hop groove',
+'footwork':'Heavy kick drum',
+'tavern folk':'Campfire folk strum kit',
+'protest folk':'Campfire folk strum kit',
+'celtic punk':'Driving rock backbeat',
+'island folk':'Campfire folk strum kit',
+'stadium rock':'Driving rock backbeat',
+'eurotrance':'Synthetic EDM build-and-drop drums',
+'chillout':'Half-time phonk drive',
+'prog-rock':'Driving rock backbeat',
+'synth-pop':'Punchy kick with dry claps',
+'country folk':'Campfire folk strum kit',
+'acid rock':'Driving rock backbeat',
+'hardcore punk':'Massive rock kit, double kick',
+'pub rock':'Driving rock backbeat',
+'slowcore':'Half-time phonk drive',
+'west coast hip hop':'Boom-bap hip-hop groove',
+'east coast hip hop':'Boom-bap hip-hop groove',
+'horrorcore':'Boom-bap hip-hop groove',
+'pop rap':'Boom-bap hip-hop groove',
+'alternative hip hop':'Boom-bap hip-hop groove',
+'wagnerian rock':'Orchestral percussion with timpani',
+'romantic orchestral':'Elegant Mozart orchestral pulse',
+'cowpunk':'Driving rock backbeat',
+'sunshine pop':'Catchy four-on-the-floor pop beat',
+'merseybeat':'Driving rock backbeat',
+'andean folk':'Campfire folk strum kit',
+'indietronica':'Half-time phonk drive',
+'pre-war country blues':'Slow 12/8 blues shuffle',
+'animated-film musical showstopper':'Orchestral percussion with timpani',
+'melodic rap':'Boom-bap hip-hop groove',
+'lyrical rap':'Boom-bap hip-hop groove',
+'tropical house':'Quantized four-on-the-floor kick',
+'vocal jazz':'Swinging jazz ride with brushes',
+'soul jazz':'Swinging jazz ride with brushes',
+'alt rnb':'Half-time phonk drive',
+'classic rnb':'Syncopated soul-funk groove',
+'trap soul':'Bouncy trap 808 groove',
+'modern country':'Driving rock backbeat',
+'folk country':'Campfire folk strum kit',
+'folk acoustic':'Campfire folk strum kit',
+'anti-folk':'Campfire folk strum kit',
+'indie acoustic':'Campfire folk strum kit',
+'lofi indie':'Half-time phonk drive',
+'melodic dubstep':'Half-step dubstep wobble',
+'Trap':'Bouncy trap 808 groove',
+'Dark cabaret':'Lilting 3/4 waltz pulse',
+'Orchestral emo':'Orchestral percussion with timpani',
+'Glitch-hop':'Boom-bap hip-hop groove',
+'Country western':'Campfire folk strum kit',
+'Jazz standard':'Swinging jazz ride with brushes',
+'Disco':'Catchy four-on-the-floor pop beat',
+'Industrial':'Metallic industrial hits',
+'Ambient':'Solo piano with string swells',
+'Trap metal':'Galloping double-kick metal drive',
+'Aggressive battle rap':'Boom-bap hip-hop groove',
+'Storytelling rap':'Boom-bap hip-hop groove',
+'New-age trap':'Bouncy trap 808 groove',
+'Old school boom bap':'Boom-bap hip-hop groove',
+'R&B rap hybrid':'Syncopated soul-funk groove',
+'Melodic trap':'Bouncy trap 808 groove',
+'Phonk':'Half-time phonk drive',
 };
 function applyGenreRhythm(){ var g = val('mzGenre'); var p = GENRE_RHYTHM[g]; if(p){ var el = gi('mzPerc'); if(el){ for(var i=0;i<el.options.length;i++){ if(el.options[i].text === p){ el.selectedIndex = i; break; } } } } var fk = null; try{ fk = familyFor(g); }catch(e){} if(fk && SUNO_FAM[fk]){ var F = SUNO_FAM[fk]; var ce = gi('mzChords'); if(ce){ for(var j=0;j<ce.options.length;j++){ if(ce.options[j].text === F.chords){ ce.selectedIndex = j; break; } } } var be = gi('mzBpm'); if(be){ var bv = Math.max(parseInt(be.min || '60', 10) || 60, Math.min(parseInt(be.max || '180', 10) || 180, F.bpm)); be.value = bv; var bvl = gi('mzBpmVal'); if(bvl) bvl.textContent = bv; } } return !!(p || fk); }
 function esc(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -404,7 +557,9 @@ function buildGrid(){
 var g = gi('mzGrid'); if (!g || g.children.length) return;
 function card(lid, inner){ return "<div class='mz-card'><label id='" + lid + "'></label>" + inner + "</div>"; }
 var h = '';
+h += card('mzLSongLang', "<select id='mzSongLang'></select>");
 h += card('mzLGenre', "<select id='mzGenre'></select>");
+ h += card('mzLMood', "<select id='mzMood'></select>");
 h += card('mzLIntent', "<select id='mzIntent'></select>");
 h += card('mzLBpm', "<input type='range' id='mzBpm' min='60' max='180' value='124'> <span class='mz-count' id='mzBpmVal'>124</span>");
 h += card('mzLKey', "<select id='mzKey'></select>");
@@ -426,15 +581,28 @@ g.innerHTML = h;
 var bpm = gi('mzBpm'); if (bpm) bpm.oninput = function(e){ gi('mzBpmVal').textContent = e.target.value; };
 var td = gi('mzTitreDice'); if (td) td.onclick = function(){ setVal('mzTitre', pick(BK().titles)); };
 var al = gi('mzGrid'); if (al) al.querySelectorAll('select,input').forEach(function(el){ el.onchange = function(){ App.Music.generate(); }; });
+var msl = gi('mzSongLang'); if (msl){ msl.onchange = function(){ try{ var v = msl.value; _songSel = (v && v !== 'auto') ? v : null; }catch(eSl){ _songSel = null; } try{ localize(); }catch(eL){} try{ App.Music.generate(); }catch(eG){} }; }
 var mg = gi('mzGenre'); if (mg){ var _mgPrev = mg.onchange; mg.onchange = function(){ try{ App.Music.applyGenreRhythm(); }catch(e){} if (_mgPrev) _mgPrev.call(this); }; }
 }
-var LABELS = [['mzTitle','title'],['mzSub','sub'],['mzLGenre','genre'],['mzLIntent','intent'],['mzLBpm','bpm'],['mzLKey','key'],['mzLBass','bass'],['mzLPerc','perc'],['mzLTex','tex'],['mzLSpat','spat'],['mzLEnergy','energy'],['mzLSoma','soma'],['mzLVocal','vocal'],['mzLTheme','theme'],['mzLLen','len'],['mzLLyrLen','lyrLen'],['mzLTitre','titre'],['mzLSunoVer','sunoVer'],['mzLExclude','exclude'],['mzGen','gen'],['mzRand','surprise'],['mzCopyBoth','copyBoth'],['mzCopyAll','copyAll'],['mzExport','export'],['mzLStyle','styleBox'],['mzLStruct','structBox'],['mzLLyrics','lyricsBox'],['mzLCustom2','customLbl'],['mzAiLyrics','aiLyrics'],['mzEdit','edit'],['mzWrap','wrap'],['mzCopyLyrics','copyLyrics'],['mzCopyStyle','copyStyle'],['mzCopyStruct','copyStruct'],['mzLNotes','notes'],['mzLHist','hist'],['mzSaveHist','saveHist'],['mzDelHist','delHist'],['mzHistNote','localOnly'],['mzLOneSong','oneSong'],['mzOneSongNote','oneSongNote'],['mzModeAi','modeAi'],['mzModeMine','modeMine'],['mzWriteLyrics','writeLyrics'],['mzCompose','compose'],['mzPublish','publish'],['mzLGallery','galleryT'],['mzGalleryNote','galleryNote'],['mzLListen','listenT'],['mzListenNote','listenNote'],['mzLChords','chords'],['mzTipVoice','tipVoice'],['mzTipSuno','tipSuno'],['mzFoot','foot'],['mzClose','close']];
+var LABELS = [['mzTitle','title'],['mzSub','sub'],['mzLGenre','genre'],['mzLMood','mood'],['mzLIntent','intent'],['mzLBpm','bpm'],['mzLKey','key'],['mzLBass','bass'],['mzLPerc','perc'],['mzLTex','tex'],['mzLSpat','spat'],['mzLEnergy','energy'],['mzLSoma','soma'],['mzLVocal','vocal'],['mzLTheme','theme'],['mzLLen','len'],['mzLLyrLen','lyrLen'],['mzLTitre','titre'],['mzLSunoVer','sunoVer'],['mzLExclude','exclude'],['mzGen','gen'],['mzRand','surprise'],['mzCopyBoth','copyBoth'],['mzCopyAll','copyAll'],['mzExport','export'],['mzLStyle','styleBox'],['mzLStruct','structBox'],['mzLLyrics','lyricsBox'],['mzLCustom2','customLbl'],['mzAiLyrics','aiLyrics'],['mzEdit','edit'],['mzWrap','wrap'],['mzCopyLyrics','copyLyrics'],['mzCopyStyle','copyStyle'],['mzCopyStruct','copyStruct'],['mzLNotes','notes'],['mzLHist','hist'],['mzSaveHist','saveHist'],['mzDelHist','delHist'],['mzHistNote','localOnly'],['mzLOneSong','oneSong'],['mzOneSongNote','oneSongNote'],['mzModeAi','modeAi'],['mzModeMine','modeMine'],['mzWriteLyrics','writeLyrics'],['mzCompose','compose'],['mzPublish','publish'],['mzLGallery','galleryT'],['mzGalleryNote','galleryNote'],['mzLListen','listenT'],['mzListenNote','listenNote'],['mzLChords','chords'],['mzTipVoice','tipVoice'],['mzTipSuno','tipSuno'],['mzFoot','foot'],['mzClose','close']];
+function fillSongLang(){
+  var el = gi('mzSongLang'); if (!el) return;
+  var ul = uiLang(), cl = curLang();
+  var autoT = (SONGAUTO[ul] || SONGAUTO.en) + (BANKS[cl] ? BANKS[cl].meta.langName : cl) + ')';
+  var opts = [{v:'auto', t:autoT}];
+  var bl = ['fr','de','en','es','it','pl','ja','zh','ko','hi'];
+  for (var i = 0; i < bl.length; i++){ if (BANKS[bl[i]]) opts.push({v:bl[i], t:BANKS[bl[i]].meta.langName}); }
+  for (var k in EXTRA_SONG) opts.push({v:k, t:EXTRA_SONG[k].label});
+  var cur = _songSel || 'auto';
+  el.innerHTML = opts.map(function(o){ return "<option value='" + o.v + "'" + (o.v === cur ? " selected" : "") + ">" + esc(o.t) + "</option>"; }).join('');
+}
 function localize(){
 buildPanel(); App.Music.buildGrid();
 var ui = UI(), bk = BK();
 LABELS.forEach(function(p){ var el = gi(p[0]); if (el) el.textContent = ui[p[1]] || ''; });
+try { var _slEl = gi('mzLSongLang'); if (_slEl) _slEl.textContent = SONGLBL[uiLang()] || SONGLBL.en; fillSongLang(); } catch(eSL2) {}
 var first = !M('built'); SM('built', true);
-fillSel('mzGenre', SOUND.genre); fillSel('mzIntent', SOUND.intent); fillSel('mzKey', SOUND.key); fillSel('mzBass', SOUND.bass); fillSel('mzPerc', SOUND.perc); fillSel('mzTex', SOUND.tex); fillSel('mzSpat', SOUND.spat); fillSel('mzEnergy', SOUND.energy); fillSel('mzSoma', SOUND.soma);
+fillSel('mzGenre', SOUND.genre); fillSel('mzMood', SOUND.mood); fillSel('mzIntent', SOUND.intent); fillSel('mzKey', SOUND.key); fillSel('mzBass', SOUND.bass); fillSel('mzPerc', SOUND.perc); fillSel('mzTex', SOUND.tex); fillSel('mzSpat', SOUND.spat); fillSel('mzEnergy', SOUND.energy); fillSel('mzSoma', SOUND.soma);
 (function(){ var gz = gi('mzGenre'); var hints = ui.genreHints || {}; if (gz && hints) Array.prototype.forEach.call(gz.options, function(o){ if (hints[o.text]) o.title = hints[o.text]; }); })();
 fillSel('mzVocal', bk.vocal.map(function(v){ return v.t; }));
 fillSel('mzTheme', bk.themes); fillSel('mzLen', ui.lenOpts); fillSel('mzLyrLen', ui.lyrOpts);
@@ -450,23 +618,23 @@ App.Music.renderHist();
 }
 function vocalInfo(){ var bk = BK(); var el = gi('mzVocal'); var i = el ? el.selectedIndex : 0; if (i < 0 || i >= bk.vocal.length) i = 0; return { i: i, v: bk.vocal[i] }; }
 function styleMax(){ var el = gi('mzSunoVer'); var v = el ? parseInt(el.value) : 200; return v || 200; }
-function styleText(){ var ui = UI(); var g = val('mzGenre'), bpm = val('mzBpm'), k = val('mzKey'), ch = val('mzChords'), ba = val('mzBass'), pe = val('mzPerc'), te = val('mzTex'), sp = val('mzSpat'), en = val('mzEnergy'); var vi = vocalInfo(); var max = styleMax(); var voixTag = vi.v.instru ? vi.v.t : (vi.v.t + ', ' + ui.vocalClause + (vi.v.fem ? ', ' + ui.femClause : '')); var chTag = ch ? ', ' + ch + ' chords' : ''; var fam = ''; try{ fam = sunoExtra(familyFor(g), max); }catch(e){} var s = g + ', ' + bpm + ' BPM, ' + k + chTag + fam + ', ' + ba + ', ' + pe + ', ' + te + ', ' + sp + ', ' + en + ', ' + voixTag; if (s.length > max) s = g + ', ' + bpm + ' BPM, ' + k + chTag + ', ' + ba + ', ' + pe + ', ' + en + ', ' + voixTag; if (s.length > max) s = g + ', ' + bpm + ' BPM, ' + k + ', ' + en + ', ' + voixTag; if (s.length > max + 50) s = s.slice(0, max - 3) + '...'; return s; }
+function styleText(){ var ui = UI(); var g = val('mzGenre'), mo = val('mzMood'), bpm = val('mzBpm'), k = val('mzKey'), ch = val('mzChords'), ba = val('mzBass'), pe = val('mzPerc'), te = val('mzTex'), sp = val('mzSpat'), en = val('mzEnergy'); var vi = vocalInfo(); var max = styleMax(); var voixTag = vi.v.instru ? vi.v.t : (vi.v.t + ', ' + ui.vocalClause + (vi.v.fem ? ', ' + ui.femClause : '')); var chTag = ch ? ', ' + ch + ' chords' : ''; var fam = ''; try{ fam = sunoExtra(familyFor(g), max); }catch(e){} var s = g + ', ' + (mo ? mo + ', ' : '') + bpm + ' BPM, ' + k + chTag + fam + ', ' + ba + ', ' + pe + ', ' + te + ', ' + sp + ', ' + en + ', ' + voixTag; if (s.length > max) s = g + ', ' + (mo ? mo + ', ' : '') + bpm + ' BPM, ' + k + chTag + ', ' + ba + ', ' + pe + ', ' + en + ', ' + voixTag; if (s.length > max) s = g + ', ' + (mo ? mo + ', ' : '') + bpm + ' BPM, ' + k + ', ' + en + ', ' + voixTag; if (s.length > max + 50) s = s.slice(0, max - 3) + '...'; return s; }
 function shortTag(){ var vi = vocalInfo(); return vi.v.short || vi.v.t; }
-function structText(){ var l = curLang(), ui = UI(), se = SECL(); var bpm = val('mzBpm'), g = val('mzGenre'), ba = val('mzBass'), pe = val('mzPerc'), te = val('mzTex'), so = val('mzSoma'), len = val('mzLen'); var vi = vocalInfo(); var tag = shortTag(); var ext = (len === ui.lenOpts[1]) ? '[' + se.up + ' : 16] \n\n' : ''; var tool = (len === ui.lenOpts[2]) ? '[' + se.out + ' : 16, percussions]' : '[' + se.out + ' : echo]'; var bloc = vi.v.instru ? '[' + se.ins + ']' : '[' + SV[l] + ' : ' + tag + (vi.v.fem ? ' (f)' : '') + ', ' + VL[l] + ']'; var chLine = val('mzChords') ? '[' + ui.chords + ' : ' + val('mzChords') + ']\n\n' : ''; return bloc + '\n\n[' + se.intro + ' : ' + bpm + ' BPM]\n\n' + chLine + '[' + se.sec + ' : ' + pe + ']\n\n[' + se.tex + ' : ' + te + ']\n\n[' + se.up + ' : ' + so + ']\n\n[' + se.drop + ' : ' + ba + ']\n\n[' + se.sec + ' : ' + g + ']\n\n[' + se.calm + ']\n\n' + ext + '[' + se.up + ' : percussions]\n\n[' + se.peak + ']\n\n' + tool; }
+function structText(){ var l = songLang(), ui = UI(), se = SECL(); var bpm = val('mzBpm'), g = val('mzGenre'), ba = val('mzBass'), pe = val('mzPerc'), te = val('mzTex'), so = val('mzSoma'), len = val('mzLen'); var vi = vocalInfo(); var tag = shortTag(); var ext = (len === ui.lenOpts[1]) ? '[' + se.up + ' : 16] \n\n' : ''; var tool = (len === ui.lenOpts[2]) ? '[' + se.out + ' : 16, percussions]' : '[' + se.out + ' : echo]'; var bloc = vi.v.instru ? '[' + se.ins + ']' : '[' + (SV[l]||SV.en) + ' : ' + tag + (vi.v.fem ? ' (f)' : '') + ', ' + (VL[l]||VL.en) + ']'; var chLine = val('mzChords') ? '[' + ui.chords + ' : ' + val('mzChords') + ']\n\n' : ''; return bloc + '\n\n[' + se.intro + ' : ' + bpm + ' BPM]\n\n' + chLine + '[' + se.sec + ' : ' + pe + ']\n\n[' + se.tex + ' : ' + te + ']\n\n[' + se.up + ' : ' + so + ']\n\n[' + se.drop + ' : ' + ba + ']\n\n[' + se.sec + ' : ' + g + ']\n\n[' + se.calm + ']\n\n' + ext + '[' + se.up + ' : percussions]\n\n[' + se.peak + ']\n\n' + tool; }
 function lyricsText(){ var ui = UI(), bk = BK(), se = SECL(); var tag = shortTag(), theme = val('mzTheme'); var complet = false; try{ complet = gi('mzLyrLen').selectedIndex === 1; }catch(e){} var vi = vocalInfo(); if (vi.v.instru){ return '[' + se.ins + ']\n(' + ui.themeOf + ' : ' + theme + ')\n[' + ui.breathAllow + ' : ' + pickN(bk.excla, 3).join(' \u2026 ') + ']\n\n' + ui.instruTip; } var rk = /rock|m.tal|guitare|guitar|metal|grunge|screamo|shoegaze|djent|grind|mathcore|coldwave|dark wave/i.test(val('mzGenre')) && bk.coupletRock; var c1 = pickN(rk ? bk.coupletRock : bk.couplet, 4), c2 = pickN(rk ? bk.coupletRock : bk.couplet, 4), r = pickN(rk && bk.refrainRock ? bk.refrainRock : bk.refrain, 4), p = pickN(rk && bk.pontRock ? bk.pontRock : bk.pont, 2); var ex = pickN(bk.excla, 2).join(' \u2026 '); var big = /diva|duo|chor|ch\u0153ur|choir|coro/i.test(tag); var chTag = big ? tag : se.choir; var t = '[' + se.v1 + ' — ' + tag + ']\n' + c1.join('\n') + '\n(' + theme + ')\n\n[' + se.pre + ']\n' + ex + ' \u2026\n\n[' + se.ch + ' — ' + chTag + ']\n' + r.join('\n') + '\n'; if (complet){ t += '\n[' + se.v2 + ' — ' + tag + ']\n' + c2.join('\n') + '\n\n[' + se.ch + ' — ' + chTag + ']\n' + r.slice().reverse().join('\n') + '\n\n[' + se.br + ']\n' + p.join('\n') + '\n\n[' + se.chf + ']\n' + r.join('\n') + '\n\n[' + se.out + ']\n' + ex + '\n'; } return t; }
-function notesText(){ var ui = UI(), nl = NLBL[curLang()] || NLBL.fr; var cur = M('preset'); var s = nl[0] + ' : ' + val('mzIntent') + ' \u00b7 ' + (cur || '') + '<br>' + 'BPM ' + val('mzBpm') + ' \u00b7 ' + val('mzKey') + ' \u00b7 ' + val('mzGenre') + '<br>' + nl[1] + ' : ' + val('mzSoma') + ' — ' + val('mzBass') + '.<br>' + nl[2] + ' ' + BK().meta.voice + ' : ' + shortTag() + ' — ' + ui.vocalClause + '. ' + ui.theme + ' : ' + val('mzTheme') + '.<br>' + nl[3] + ' : kick + prioritaire, mono <120 Hz.<br>' + nl[4] + ' : Style < ' + styleMax() + ' ' + ui.chars + '.'; return s; }
+function notesText(){ var ui = UI(), nl =  (NLBL[songLang()] || NLBL[uiLang()] || NLBL.en || NLBL.fr); var cur = M('preset'); var s = nl[0] + ' : ' + val('mzIntent') + ' \u00b7 ' + val('mzMood') + ' \u00b7 ' + (cur || '') + '<br>' + 'BPM ' + val('mzBpm') + ' \u00b7 ' + val('mzKey') + ' \u00b7 ' + val('mzGenre') + '<br>' + nl[1] + ' : ' + val('mzSoma') + ' — ' + val('mzBass') + '.<br>' + nl[2] + ' ' + BK().meta.voice + ' : ' + shortTag() + ' — ' + ui.vocalClause + '. ' + ui.theme + ' : ' + val('mzTheme') + '.<br>' + nl[3] + ' : kick + prioritaire, mono <120 Hz.<br>' + nl[4] + ' : Style < ' + styleMax() + ' ' + ui.chars + '.'; return s; }
 function syllables(line, lang){ var tot = 0; var words = String(line).toLowerCase().replace(/[\u2019']/g, ' ').replace(/[^a-z\u00e0\u00e2\u00e4\u00e9\u00e8\u00ea\u00eb\u00ee\u00ef\u00f4\u00f6\u00f9\u00fb\u00fc\u00ff\u0153\u00e6\u00e7\u00e1\u00ed\u00f3\u00fa\u00f1\u00e0\u00e8\u00ec\u00f2\u00f9\u0105\u0107\u0119\u0142\u0144\u015b\u017a\u017c]+/g, ' ').trim().split(/\s+/); for (var k = 0; k < words.length; k++){ var w = words[k]; if (!w) continue; var groups = w.match(/[aeiouy\u00e0\u00e2\u00e4\u00e9\u00e8\u00ea\u00eb\u00ee\u00ef\u00f4\u00f6\u00f9\u00fb\u00fc\u00e1\u00ed\u00f3\u00fa\u00f1\u00e0\u00e8\u00ec\u00f2\u0105\u0119]+/g); var n = groups ? groups.length : 0; if (lang === 'fr'){ if (n > 1 && /e$/.test(w)) n--; if (n > 1 && /ent$/.test(w) && w.length > 4) n--; } tot += Math.max(n, 1); } return tot; }
-function checker(){ var ui = UI(), bk = BK(), l = curLang(); var el = gi('mzCheck'); if (!el) return; var raw = gi('mzLyrics').textContent; var lines = raw.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s && !/^\[.+\]$/.test(s) && !/^\(.+\)$/.test(s); }); if (!lines.length){ el.textContent = ui.chkNone; return; } var counts = lines.map(function(s){ return syllables(s, l); }); var avg = counts.reduce(function(a, b){ return a + b; }, 0) / counts.length; var longs = []; counts.forEach(function(c, i){ if (c > 10) longs.push((i + 1) + ' (' + c + ')'); }); var low = ' ' + raw.toLowerCase().replace(/[^a-z\u00e0\u00e2\u00e4\u00e9\u00e8\u00ea\u00eb\u00ee\u00ef\u00f4\u00f6\u00f9\u00fb\u00fc\u00ff\u0153\u00e6\u00e7\u00e1\u00ed\u00f3\u00fa\u00f1\u00e0\u00e8\u00ec\u00f2\u0105\u0107\u0119\u0142\u0144\u015b\u017a\u017c]+/g, ' ') + ' '; var found = []; bk.foreignWords.forEach(function(w){ if (low.indexOf(' ' + w + ' ') >= 0 && found.indexOf(w) < 0) found.push(w); }); var h = ui.chkVerses + ' : ' + lines.length + ' \u00b7 ' + avg.toFixed(1) + ' ' + ui.chkAvg; if (longs.length) h += '\n\u26a0\ufe0f ' + ui.chkLong + ' (>10) : ' + longs.join(', '); else h += '\n\u2705 ' + ui.chkLongOk; if (found.length) h += '\n\u26a0\ufe0f ' + ui.chkForeign + ' : ' + found.join(', '); else h += '\n\u2705 ' + ui.chkForeignOk; el.textContent = h; }
+function checker(){ var ui = UI(), bk = BK(), l = songLang(); var el = gi('mzCheck'); if (!el) return; var raw = gi('mzLyrics').textContent; var lines = raw.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s && !/^\[.+\]$/.test(s) && !/^\(.+\)$/.test(s); }); if (!lines.length){ el.textContent = ui.chkNone; return; } var counts = lines.map(function(s){ return syllables(s, l); }); var avg = counts.reduce(function(a, b){ return a + b; }, 0) / counts.length; var longs = []; counts.forEach(function(c, i){ if (c > 10) longs.push((i + 1) + ' (' + c + ')'); }); var low = ' ' + raw.toLowerCase().replace(/[^a-z\u00e0\u00e2\u00e4\u00e9\u00e8\u00ea\u00eb\u00ee\u00ef\u00f4\u00f6\u00f9\u00fb\u00fc\u00ff\u0153\u00e6\u00e7\u00e1\u00ed\u00f3\u00fa\u00f1\u00e0\u00e8\u00ec\u00f2\u0105\u0107\u0119\u0142\u0144\u015b\u017a\u017c]+/g, ' ') + ' '; var found = []; bk.foreignWords.forEach(function(w){ if (low.indexOf(' ' + w + ' ') >= 0 && found.indexOf(w) < 0) found.push(w); }); var h = ui.chkVerses + ' : ' + lines.length + ' \u00b7 ' + avg.toFixed(1) + ' ' + ui.chkAvg; if (longs.length) h += '\n\u26a0\ufe0f ' + ui.chkLong + ' (>10) : ' + longs.join(', '); else h += '\n\u2705 ' + ui.chkLongOk; if (found.length) h += '\n\u26a0\ufe0f ' + ui.chkForeign + ' : ' + found.join(', '); else h += '\n\u2705 ' + ui.chkForeignOk; el.textContent = h; }
 function generate(){ var ui = UI(), bk = BK(); if (!val('mzTitre').trim()) setVal('mzTitre', pick(bk.titles)); var s = styleText(); gi('mzStyle').textContent = s; var max = styleMax(); var c = gi('mzChars'); c.textContent = '\u00b7 ' + s.length + '/' + max + ' ' + ui.chars; try{ c.classList.toggle('bad', s.length > max); }catch(e){} gi('mzStruct').textContent = structText(); gi('mzNotes').innerHTML = notesText(); App.Music.refreshLyrics(false); }
-function surprise(){ var ids = ['mzGenre','mzKey','mzChords','mzBass','mzPerc','mzTex','mzSpat','mzEnergy','mzSoma','mzVocal','mzIntent','mzTheme']; ids.forEach(function(id){ var el = gi(id); if (el && el.options.length) el.selectedIndex = Math.floor(Math.random() * el.options.length); }); var bpm = gi('mzBpm'); if (bpm){ bpm.value = 60 + Math.floor(Math.random() * 121); gi('mzBpmVal').textContent = bpm.value; } setVal('mzTitre', pick(BK().titles)); SM('preset', ''); var pc = gi('mzPresets'); if (pc) Array.prototype.forEach.call(pc.children, function(x){ x.classList.remove('on'); }); generate(); }
+function surprise(){ var ids = ['mzGenre','mzMood','mzKey','mzChords','mzBass','mzPerc','mzTex','mzSpat','mzEnergy','mzSoma','mzVocal','mzIntent','mzTheme']; ids.forEach(function(id){ var el = gi(id); if (el && el.options.length) el.selectedIndex = Math.floor(Math.random() * el.options.length); }); var bpm = gi('mzBpm'); if (bpm){ bpm.value = 60 + Math.floor(Math.random() * 121); gi('mzBpmVal').textContent = bpm.value; } setVal('mzTitre', pick(BK().titles)); SM('preset', ''); var pc = gi('mzPresets'); if (pc) Array.prototype.forEach.call(pc.children, function(x){ x.classList.remove('on'); }); generate(); }
 function applyPreset(i){ var ui = UI(); var pr = PRESETS_FR[i]; if (!pr) return; SM('preset', ui.presetNames[i] || pr[0]); var p = pr[1]; setVal('mzGenre', p[0]); var bpm = gi('mzBpm'); if (bpm){ bpm.value = p[1]; gi('mzBpmVal').textContent = p[1]; } setVal('mzKey', p[2]); setVal('mzBass', p[3]); setVal('mzPerc', p[4]); setVal('mzTex', p[5]); setVal('mzSpat', p[6]); setVal('mzEnergy', p[7]); setVal('mzSoma', p[8]); var vo = gi('mzVocal'); if (vo && p[9] < vo.options.length) vo.selectedIndex = p[9]; var pc = gi('mzPresets'); if (pc) Array.prototype.forEach.call(pc.children, function(x){ try{ x.classList.toggle('on', String(x.dataset.i) === String(i)); }catch(e){} }); generate(); }
-function copyAll(){ var ui = UI(), hd = HDR[curLang()] || HDR.fr; var ver = ''; try{ ver = gi('mzSunoVer').selectedOptions[0].text; }catch(e){} clip(hd[0] + ':\n' + val('mzTitre') + '\n\n' + hd[1] + ' (' + ver + '):\n' + gi('mzStyle').textContent + '\n\n' + hd[2] + ':\n' + val('mzExclude') + '\n\n' + hd[3] + ':\n' + gi('mzStruct').textContent + '\n\n' + hd[4] + ' ' + BK().meta.voice + ':\n' + gi('mzLyrics').textContent); }
-function exportTxt(){ var ui = UI(), hd = HDR[curLang()] || HDR.fr; var ver = ''; try{ ver = gi('mzSunoVer').selectedOptions[0].text; }catch(e){} var slug = (val('mzTitre') || 'morceau').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'morceau'; var d = new Date(); function pad(n){ return String(n).padStart(2, '0'); } var txt = (val('mzTitre') || '') + '\nPack Suno — ' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' — ' + ver + '\n\n=== ' + hd[1] + ' ===\n' + gi('mzStyle').textContent + '\n\n=== ' + hd[2] + ' ===\n' + val('mzExclude') + '\n\n=== ' + hd[3] + ' ===\n' + gi('mzStruct').textContent + '\n\n=== ' + hd[4] + ' ' + BK().meta.voice + ' ===\n' + gi('mzLyrics').textContent + '\n'; var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' })); a.download = 'suno-' + slug + '.txt'; a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000); }
+function copyAll(){ var ui = UI(), hd = (HDR[songLang()] || HDR[uiLang()] || HDR.en || HDR.fr); var ver = ''; try{ ver = gi('mzSunoVer').selectedOptions[0].text; }catch(e){} clip(hd[0] + ':\n' + val('mzTitre') + '\n\n' + hd[1] + ' (' + ver + '):\n' + gi('mzStyle').textContent + '\n\n' + hd[2] + ':\n' + val('mzExclude') + '\n\n' + hd[3] + ':\n' + gi('mzStruct').textContent + '\n\n' + hd[4] + ' ' + BK().meta.voice + ':\n' + gi('mzLyrics').textContent); }
+function exportTxt(){ var ui = UI(), hd = (HDR[songLang()] || HDR[uiLang()] || HDR.en || HDR.fr); var ver = ''; try{ ver = gi('mzSunoVer').selectedOptions[0].text; }catch(e){} var slug = (val('mzTitre') || 'morceau').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'morceau'; var d = new Date(); function pad(n){ return String(n).padStart(2, '0'); } var txt = (val('mzTitre') || '') + '\nPack Suno — ' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' — ' + ver + '\n\n=== ' + hd[1] + ' ===\n' + gi('mzStyle').textContent + '\n\n=== ' + hd[2] + ' ===\n' + val('mzExclude') + '\n\n=== ' + hd[3] + ' ===\n' + gi('mzStruct').textContent + '\n\n=== ' + hd[4] + ' ' + BK().meta.voice + ' ===\n' + gi('mzLyrics').textContent + '\n'; var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' })); a.download = 'suno-' + slug + '.txt'; a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000); }
 var HIST_KEY = 'sofia-musique-suno-hist-v1';
 function loadHistArr(){ try{ return JSON.parse(localStorage.getItem(HIST_KEY)) || []; }catch(e){ return []; } }
 function storeHistArr(h){ try{ localStorage.setItem(HIST_KEY, JSON.stringify(h.slice(0, 30))); }catch(e){} }
 function renderHist(){ var ui = UI(); var sel = gi('mzHist'); if (!sel) return; var h = loadHistArr(); sel.innerHTML = h.length ? h.map(function(e, i){ return "<option value='" + i + "'>" + esc((e.titre || ui.emptyHist).slice(0, 40)) + '</option>'; }).join('') : '<option>' + esc(ui.emptyHist) + '</option>'; }
-function saveHist(){ var ui = UI(); var h = loadHistArr(); h.unshift({ t: new Date().toISOString(), lang: curLang(), titre: val('mzTitre'), style: gi('mzStyle').textContent, struct: gi('mzStruct').textContent, lyrics: gi('mzLyrics').textContent, exclude: val('mzExclude'), ver: val('mzSunoVer') }); storeHistArr(h); var back = loadHistArr(); renderHist(); var sel = gi('mzHist'); if (sel) sel.value = '0'; var note = gi('mzHistNote'); if (note) note.textContent = (back.length ? '\u2713 ' + ui.saveHist + ' (\u00b7 ' + back.length + '/30)' : '\u26a0\ufe0f stockage local bloqu\u00e9 — sauvegarde impossible (mode priv\u00e9 ?)'); }
+function saveHist(){ var ui = UI(); var h = loadHistArr(); h.unshift({ t: new Date().toISOString(), lang: songLang(), titre: val('mzTitre'), style: gi('mzStyle').textContent, struct: gi('mzStruct').textContent, lyrics: gi('mzLyrics').textContent, exclude: val('mzExclude'), ver: val('mzSunoVer') }); storeHistArr(h); var back = loadHistArr(); renderHist(); var sel = gi('mzHist'); if (sel) sel.value = '0'; var note = gi('mzHistNote'); if (note) note.textContent = (back.length ? '\u2713 ' + ui.saveHist + ' (\u00b7 ' + back.length + '/30)' : '\u26a0\ufe0f stockage local bloqu\u00e9 — sauvegarde impossible (mode priv\u00e9 ?)'); }
 function loadHistSel(){ var ui = UI(); var sel = gi('mzHist'); if (!sel) return; var h = loadHistArr(); var e = h[parseInt(sel.value)]; if (!e) return; setVal('mzTitre', e.titre || ''); setVal('mzCustom', e.lyrics || ''); App.Music.setLyricMode('mine', true); if (e.exclude != null) setVal('mzExclude', e.exclude); if (e.ver) setVal('mzSunoVer', e.ver); generate(); }
 function delHist(){ var ui = UI(); var sel = gi('mzHist'); if (!sel) return; var h = loadHistArr(); var i = parseInt(sel.value); if (isNaN(i) || !h[i]) return; h.splice(i, 1); storeHistArr(h); renderHist(); var note = gi('mzHistNote'); if (note) note.textContent = '\u2713 ' + ui.delHist + ' (\u00b7 ' + h.length + '/30)'; }
 function setLyricMode(m, silent){ SM('lyrMode', m); var a = gi('mzModeAi'), b = gi('mzModeMine'); if (a) a.className = (m === 'mine') ? 'mz-ghost' : 'mz-big'; if (b) b.className = (m === 'mine') ? 'mz-big' : 'mz-ghost'; if (!silent && m === 'mine'){ var c = gi('mzCustom'); if (c){ try{ c.scrollIntoView({ block: 'center' }); }catch(eS){} try{ c.focus({ preventScroll: true }); }catch(eF){ try{ c.focus(); }catch(eF2){} } } } }
@@ -562,13 +730,23 @@ it: ["italien","italienne","italian","italienisch","italiano","italiana","wlosku
 ja: ["japonais","japonaise","japanese","japanisch","japones","giapponese","japonsku","japonski","japonska","japonskie","nihongo","nihon","japan","にほんご","にほん","日本語","日文","日语"],
 zh: ["chinois","chinoise","chinese","chinesisch","chino","cinese","chinsku","chinski","chinska","chinskie","mandarin","putonghua","zhongwen","hanyu","guoyu","huayu","中文","普通话","國語","国语","華語","华语","漢語","汉语"],
 ko: ["coreen","coreenne","korean","koreanisch","coreano","coreana","koreansku","koreanski","koreanska","koreanskie","hangugeo","hangugmal","hangul","한국어","한국말","한글"],
-hi: ["hindi","hindie","hindou","hindoue","hindoustani","hindustani","indien","indienne","hind","hindoustan","हिन्दी","हिन्दुस्तानी","हिंदू"]
+hi: ["hindi","hindie","hindou","hindoue","hindoustani","hindustani","indien","indienne","hind","hindoustan","हिन्दी","हिन्दुस्तानी","हिंदू"],
+sq: ["albanais","albanaise","albanian","shqip","shqipe","albanisch","albanes","albanese"],
+pt: ["portugais","portugaise","portuguese","portugues","portugiesisch","portoghese"],
+ru: ["russe","russian","russisch","ruso","russo","rosyjsku","rosyjski"],
+ar: ["arabe","arabic","arabisch","arabo"],
+tr: ["turc","turque","turkish","turkisch","turco","turecku","turecki"],
+nl: ["neerlandais","neerlandaise","dutch","nederlands","hollandais","niederlandisch","olandese"],
+el: ["grec","grecque","greek","griechisch","griego","greco"],
+ro: ["roumain","roumaine","romanian","rumano","rumeno","rumunsku"],
+uk: ["ukrainien","ukrainienne","ukrainian","ucraniano","ucraino"],
+sv: ["suedois","suede","swedish","schwedisch","sueco","svedese"]
 };
 function songNorm(s){ return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
 function songTargetLang(text){
   var n = " " + songNorm(text) + " ";
   var nraw = " " + String(text || "") + " ";
-  var codes = ["pl","fr","en","de","es","it","ja","zh","ko","hi"];
+  var codes = ["pl","fr","en","de","es","it","ja","zh","ko","hi","sq","pt","ru","ar","tr","nl","el","ro","uk","sv"];
   var CJKJ = ["にほんご","にほん","日本語","日文","日语"];
   var CJKZ = ["中文","普通话","國語","国语","華語","华语","漢語","汉语"];
   var CJKK = ["한국어","한국말","한글"];
@@ -587,8 +765,8 @@ function songTargetLang(text){
       if (new RegExp("\\b" + w + "\\w*\\s+" + SONGN).test(n)) return codes[k];
     }
   }
-  var vm = n.match(/(?:la\s+|en\s+)?version\s+(francaise|anglaise|allemande|espagnole|italienne|polonaise|portugaise|russe|chinoise|japonaise|coreenne|indienne|hindoue|hindi|hindie|hindou|fr|en|de|es|it|pl|hi)\b/);
-  if (vm) { var vv = vm[1]; if (/^fr/.test(vv)) return "fr"; if (/^anglaise$|^en$/.test(vv)) return "en"; if (/^allemande$|^de$/.test(vv)) return "de"; if (/^espagnole$|^es$/.test(vv)) return "es"; if (/^italienne$|^it$/.test(vv)) return "it"; if (/^polonaise$|^pl$/.test(vv)) return "pl"; if (/^indienne$|^hindoue$|^hindi$|^hindie$|^hindou$|^hi$/.test(vv)) return "hi"; }
+  var vm = n.match(/(?:la\s+|en\s+)?version\s+(francaise|anglaise|allemande|espagnole|italienne|polonaise|portugaise|russe|arabe|turque|neerlandaise|grecque|roumaine|ukrainienne|suedoise|albanaise|chinoise|japonaise|coreenne|indienne|hindoue|hindi|hindie|hindou|fr|en|de|es|it|pl|hi|sq|pt|ru|ar|tr|nl|el|ro|uk|sv)\b/);
+  if (vm) { var vv = vm[1]; if (/^fr/.test(vv)) return "fr"; if (/^anglaise$|^en$/.test(vv)) return "en"; if (/^allemande$|^de$/.test(vv)) return "de"; if (/^espagnole$|^es$/.test(vv)) return "es"; if (/^italienne$|^it$/.test(vv)) return "it"; if (/^polonaise$|^pl$/.test(vv)) return "pl"; if (/^indienne$|^hindoue$|^hindi$|^hindie$|^hindou$|^hi$/.test(vv)) return "hi"; if (/^albanaise$|^sq$/.test(vv)) return "sq"; if (/^portugaise$|^pt$/.test(vv)) return "pt"; if (/^russe$|^ru$/.test(vv)) return "ru"; if (/^arabe$|^ar$/.test(vv)) return "ar"; if (/^turque$|^tr$/.test(vv)) return "tr"; if (/^neerlandaise$|^nl$/.test(vv)) return "nl"; if (/^grecque$|^el$/.test(vv)) return "el"; if (/^roumaine$|^ro$/.test(vv)) return "ro"; if (/^ukrainienne$|^uk$/.test(vv)) return "uk"; if (/^suedoise$|^sv$/.test(vv)) return "sv"; }
   return null;
 }
 var SONG_VERBS = "cree\\w*|crea\\w*|compose\\w*|compos\\w*|ecris|ecriv\\w*|chante\\w*|fais\\w*|fait\\w*|fair\\w*|donn\\w*|gener\\w*|make\\w*|creat\\w*|sing\\w*|write\\w*|writ\\w*|canta\\w*|escrib\\w*|escriv\\w*|scriv\\w*|scrivi|compon\\w*|haz\\w*|fammi|fai|napisz|stworz|skomponuj|utworz|zrob|wymysl|spiewaj|zaspiewaj|uloz|banao|banaiye|likho|gao|sunao|rache";
@@ -635,8 +813,9 @@ function curSessionM(){
 }
 function answerSongVersion(txt){
   var target = songTargetLang(txt);
-  var lang = (target && BANKS[target]) ? target : curLang();
+  var lang = songCodeOk(target) || curLang();
   try { if (target === "zh" && curLang() === "zh-CN") lang = "zh-CN"; } catch(eZ) {}
+  try { if (songCodeOk(target) && target !== curLang()) _songSel = target; } catch(eSS1) {}
   var s = curSessionM();
   var prev = s && s._lastSong;
   if (!prev || !prev.names || !prev.names.length) { answerSong(txt); return; }
@@ -676,9 +855,9 @@ function freshSongMsg(text){
 function packStyle(P){
   var voixTag = P.vocal.instru ? P.vocal.t : (P.vocal.t + ", " + P.ui.vocalClause + (P.vocal.fem ? ", " + P.ui.femClause : ""));
   var chTag = P.chords ? ", " + P.chords + " chords" : "";
-  var s = P.genre + ", " + P.bpm + " BPM, " + P.key + chTag + ", " + P.bass + ", " + P.perc + ", " + P.tex + ", " + P.spat + ", " + P.energy + ", " + voixTag;
-  if (s.length > P.max) s = P.genre + ", " + P.bpm + " BPM, " + P.key + chTag + ", " + P.bass + ", " + P.perc + ", " + P.energy + ", " + voixTag;
-  if (s.length > P.max) s = P.genre + ", " + P.bpm + " BPM, " + P.key + ", " + P.energy + ", " + voixTag;
+  var s = P.genre + ", " + (P.mood ? P.mood + ", " : "") + P.bpm + " BPM, " + P.key + chTag + ", " + P.bass + ", " + P.perc + ", " + P.tex + ", " + P.spat + ", " + P.energy + ", " + voixTag;
+  if (s.length > P.max) s = P.genre + ", " + (P.mood ? P.mood + ", " : "") + P.bpm + " BPM, " + P.key + chTag + ", " + P.bass + ", " + P.perc + ", " + P.energy + ", " + voixTag;
+  if (s.length > P.max) s = P.genre + ", " + (P.mood ? P.mood + ", " : "") + P.bpm + " BPM, " + P.key + ", " + P.energy + ", " + voixTag;
   if (s.length > P.max + 50) s = s.slice(0, P.max - 3) + "...";
   return s;
 }
@@ -686,7 +865,7 @@ function packStruct(P){
   var se = P.se, l = P.lang;
   var ext = (P.lenIdx === 1) ? "[" + se.up + " : 16] \n\n" : "";
   var tool = (P.lenIdx === 2) ? "[" + se.out + " : 16, percussions]" : "[" + se.out + " : echo]";
-  var bloc = P.vocal.instru ? "[" + se.ins + "]" : "[" + SV[l] + " : " + P.tag + (P.vocal.fem ? " (f)" : "") + ", " + VL[l] + "]";
+  var bloc = P.vocal.instru ? "[" + se.ins + "]" : "[" + (SV[l]||SV.en) + " : " + P.tag + (P.vocal.fem ? " (f)" : "") + ", " + (VL[l]||VL.en) + "]";
   var chLine = P.chords ? "[" + P.ui.chords + " : " + P.chords + "]\n\n" : "";
   return bloc + "\n\n[" + se.intro + " : " + P.bpm + " BPM]\n\n" + chLine + "[" + se.sec + " : " + P.perc + "]\n\n[" + se.tex + " : " + P.tex + "]\n\n[" + se.up + " : " + P.soma + "]\n\n[" + se.drop + " : " + P.bass + "]\n\n[" + se.sec + " : " + P.genre + "]\n\n[" + se.calm + "]\n\n" + ext + "[" + se.up + " : percussions]\n\n[" + se.peak + "]\n\n" + tool;
 }
@@ -837,15 +1016,15 @@ function extractUserLyrics(txt){
   } catch(e){ return null; }
 }
 function generatePack(lang, forceGenre, personTxt){
-  lang = (lang && BANKS[lang]) ? lang : curLang();
+  lang = songCodeOk(lang) || curLang();
   var fg = (typeof forceGenre === "string" && SOUND.genre.indexOf(forceGenre) >= 0) ? forceGenre : null;
-  var bk = BANKS[lang] || BANK_FR, ui = bk.ui, se = SEC[lang] || SEC.fr;
+  var bk = bankFor(lang), ui = bk.ui, se = SEC[lang] || SEC.en || SEC.fr;
   var sung = [];
   bk.vocal.forEach(function(v, i){ if (!v.instru) sung.push(i); });
   var vi = sung.length ? sung[Math.floor(Math.random() * sung.length)] : 0;
   var vocal = bk.vocal[vi] || bk.vocal[0];
   var P = { lang: lang, bk: bk, ui: ui, se: se,
-    genre: (fg || pick(SOUND.genre)), bpm: (function(){ try{ var _fk = familyFor(fg || ''); if(_fk && SUNO_FAM[_fk]) return String(Math.max(60, Math.min(180, SUNO_FAM[_fk].bpm))); }catch(e){} return String(60 + Math.floor(Math.random() * 121)); })(),
+    genre: (fg || pick(SOUND.genre)), mood: pick(SOUND.mood), bpm: (function(){ try{ var _fk = familyFor(fg || ''); if(_fk && SUNO_FAM[_fk]) return String(Math.max(60, Math.min(180, SUNO_FAM[_fk].bpm))); }catch(e){} return String(60 + Math.floor(Math.random() * 121)); })(),
     key: pick(SOUND.key), chords: (function(){ try{ var _fk2 = familyFor(fg || ''); if(_fk2 && SUNO_FAM[_fk2]) return SUNO_FAM[_fk2].chords; }catch(e){} return (SOUND.chords ? pick(SOUND.chords) : ''); })(), bass: pick(SOUND.bass), perc: (function(){ try{ if (fg && GENRE_RHYTHM[fg]) return GENRE_RHYTHM[fg]; }catch(e){} return pick(SOUND.perc); })(),
     tex: pick(SOUND.tex), spat: pick(SOUND.spat), energy: pick(SOUND.energy),
     soma: pick(SOUND.soma), intent: pick(SOUND.intent),
@@ -974,7 +1153,7 @@ function postSong(pack, cl){
 function genreFromText(txt){
   var n = " " + songNorm(txt) + " ";
   var r = " " + String(txt || "") + " ";
-  var SUBG = [/symphonic metal|metal symphonique/,"Symphonic metal",/folk metal|metal folk/,"Folk metal",/gothic metal|metal gothique/,"Gothic metal",/nu metal|nu-metal/,"Nu metal",/groove metal/,"Groove metal",/rap metal|metal rap/,"Rap metal",/funk metal|metal funk/,"Funk metal",/post-metal|post metal/,"Post-metal",/speed metal/,"Speed metal",/brutal death|death brutal/,"Brutal death metal",/melodic death|death melodique/,"Melodic death metal",/atmospheric black|black.*atmospherique/,"Atmospheric black metal",/stoner doom|doom stoner/,"Stoner doom metal",/thrash/,"Thrash metal",/deathcore/,"Deathcore",/metalcore/,"Metalcore",/mathcore/,"Mathcore",/djent/,"Djent",/grind/,"Grindcore",/viking/,"Viking metal",/pirate/,"Pirate metal",/doom/,"Doom metal",/sludge metal|metal sludge/,"Sludge metal",/sludge/,"Sludge rock",/stoner/,"Stoner rock",/desert rock|rock du desert/,"Desert rock",/black metal/,"Black metal",/death metal/,"Death metal",/power metal|metal power/,"Power metal",/epic metal|metal epique|orchestral metal/,"Epic orchestral metal",/alternative metal|metal alternatif/,"Alternative metal",/industrial metal|metal industriel/,"Industrial metal",/progressive metal|metal progressif|prog metal/,"Progressive metal",/pop-punk|pop punk/,"Pop-punk",/post-punk|post punk/,"Post-punk",/ska-punk|skapunk/,"Punk rock",/punk/,"Punk rock",/grunge/,"Grunge",/screamo/,"Screamo",/emo(?!ji)/,"Emo rock",/shoegaze|shoe gaze/,"Shoegaze",/dream pop|dreampop/,"Dream pop",/math rock|rock math/,"Math rock",/post-rock|post rock/,"Post-rock",/garage rock|rock garage/,"Garage rock",/indie rock|rock inde/,"Indie rock",/alternative rock|rock alternatif/,"Alternative rock",/psych folk|folk psych|freak folk/,"Psychedelic folk",/psychedelic rock|rock psychedelique|psych rock/,"Psychedelic rock",/surf rock|rock surf/,"Surf rock",/rockabilly/,"Rockabilly",/rock.?n.?roll|fifties|50s|rock 50/,"Fifties rock'n'roll",/southern rock|rock sudiste/,"Southern rock",/blues rock|rock blues/,"Blues rock",/folk rock|rock folk/,"Folk rock",/country rock|rock country/,"Country rock",/arena rock/,"Arena rock",/glam rock|rock glam/,"Glam rock",/coldwave|cold wave/,"Coldwave",/dark wave|darkwave/,"Dark wave",/new wave/,"New wave",/noise rock|rock bruitiste/,"Noise rock",/space rock|rock spatial/,"Space rock",/kraut/,"Krautrock",/goth rock|rock gothique/,"Gothic rock",/synthpop|synth-pop|synth pop/,"Synthpop",/electropop|electro-pop/,"Electropop",/hyperpop|hyper pop/,"Hyperpop",/k-pop|kpop/,"K-pop",/j-pop|jpop/,"J-pop",/city pop|citypop/,"City pop",/dance-pop|dance pop/,"Dance-pop",/chamber pop/,"Chamber pop",/baroque pop/,"Baroque pop",/indie pop|pop inde/,"Indie pop",/bedroom pop/,"Bedroom pop",/bubblegum|bubblegum pop/,"Bubblegum pop",/teen pop/,"Teen pop",/pop rock|rock pop/,"Pop rock",/power pop/,"Power pop",/sophisti-pop|sophisti pop/,"Sophisti-pop",/art pop/,"Art pop",/ambient pop/,"Ambient pop",/future pop/,"Future pop",/trop pop/,"Trop pop",/chanson a texte/,"French chanson a texte",/chanson pop|variete|chanson francaise/,"French chanson pop",/neo-soul|neo soul|soul moderne/,"Neo-soul",/quiet storm/,"Quiet storm",/p-funk|pfunk|parliament/,"P-funk",/philly soul|soul philly/,"Philly soul",/northern soul/,"Northern soul",/doo-wop|doowop/,"Doo-wop",/gospel/,"Gospel soul",/smooth jazz/,"Smooth jazz",/r&b|rnb/,"Contemporary R&B",/boogie/,"Boogie",/disco/,"Disco funk",/funk rock/,"Funk rock",/boom bap|boombap/,"Boom-bap",/old school|old-school/,"Old-school hip-hop",/uk drill/,"UK drill",/drill/,"Drill",/cloud rap/,"Cloud rap",/mumble rap/,"Mumble rap",/conscious rap|rap conscient/,"Conscious rap",/gangsta/,"Gangsta rap",/g-funk|g funk/,"G-funk",/jazz rap|rap jazz/,"Jazz rap",/lofi|lo-fi/,"Lo-fi hip-hop",/phonk/,"Phonk rap",/grime/,"Grime",/crunk/,"Crunk",/chopped and screwed|chopped|screwed/,"Chopped and screwed",/abstract hip|hip hop abstrait/,"Abstract hip-hop",/alternative rap|rap alternatif/,"Alternative rap",/rap francais|rap fr /,"French rap",/hyphy/,"Hyphy",/trap/,"Trap hip-hop",/deep house|house profonde/,"Deep house",/tech house/,"Tech house",/progressive house|house progressive/,"Progressive house",/uk garage|garage uk/,"UK garage",/vocal house|house vocale/,"Vocal house",/afro-house|afro house|afrohouse/,"Afro-house",/minimal techno|techno minimale/,"Minimal techno",/hard techno|techno hard/,"Hard techno",/acid techno|techno acid/,"Acid techno",/detroit techno/,"Detroit techno",/melodic techno|techno melodique/,"Melodic techno",/psytrance|psy-trance|psy trance|goa/,"Psytrance",/uplifting trance|trance /,"Uplifting trance",/hardstyle/,"Hardstyle",/gabber|hardcore techno|hardcore electro/,"Hardcore gabber",/hardtekk|hardtek|tekk/,"Hardtekk",/drum and bass|drum.?n.?bass|\bDNB\b/,"Drum and bass",/jungle/,"Jungle",/breakbeat|break beat/,"Breakbeat",/riddim/,"Riddim",/dubstep/,"Dubstep",/future bass/,"Future bass",/trap edm|edm trap/,"Trap EDM",/electro funk|funk electro/,"Electro funk",/big beat/,"Big beat",/\bidm\b/,"IDM",/glitch/,"Glitch",/downtempo|down tempo/,"Downtempo",/trip-hop|trip hop|triphop/,"Trip-hop",/dark ambient|ambient sombre/,"Dark ambient",/ambient techno|techno ambient/,"Ambient techno",/drone/,"Drone",/synthwave|synth wave/,"Synthwave",/retrowave|retro wave/,"Retrowave",/outrun/,"Outrun",/vaporwave|vapor wave/,"Vaporwave",/chiptune|8-bit|8bit|chip music/,"Chiptune 8-bit",/electro-swing|electro swing|electroswing/,"Electro-swing",/moombahton/,"Moombahton",/jersey club|jersey/,"Jersey club",/new beat/,"New beat",/industrial electro|electro indus/,"Industrial electro",/bebop|bop /,"Bebop",/hard bop/,"Hard bop",/big band/,"Big band",/dixieland|dixie /,"Dixieland",/cool jazz|jazz cool/,"Cool jazz",/modal jazz|jazz modal/,"Modal jazz",/free jazz/,"Free jazz",/acid jazz/,"Acid jazz",/nu-jazz|nu jazz/,"Nu-jazz",/latin jazz|jazz latin/,"Latin jazz",/manouche|gypsy|gipsy|gitan/,"Jazz manouche",/jazz fusion|fusion jazz/,"Jazz fusion",/bossa/,"Bossa nova",/ragtime|rag /,"Ragtime",/stride/,"Stride piano",/swing occidental|western swing/,"Western swing",/swing/,"Swing",/chicago blues|blues chicago/,"Chicago blues",/texas blues|blues texas/,"Texas blues",/piedmont/,"Piedmont blues",/jump blues/,"Jump blues",/swamp blues|swamp/,"Swamp blues",/hill country/,"Hill country blues",/electric blues|blues electrique/,"Electric blues",/delta blues|blues delta/,"Melancholic Delta blues",/honky tonk|honkytonk/,"Honky tonk",/outlaw country|country outlaw/,"Outlaw country",/bluegrass/,"Bluegrass",/newgrass/,"Newgrass",/americana/,"Americana",/alt-country|alt country|country alternatif/,"Alt-country",/cajun/,"Cajun",/zydeco/,"Zydeco",/nashville/,"Nashville sound",/country pop|pop country/,"Country pop",/country /,"Classic country",/singer-songwriter|auteur interprete|chanson a texte/,"Singer-songwriter",/celtic|celtique/,"Celtic folk",/irish|irlandais/,"Irish folk",/nordic|nordique|viking folk/,"Nordic folk",/medieval|medieval folk/,"Medieval folk",/bardcore/,"Bardcore",/shanty|chant marin/,"Sea shanty",/intimate acoustic|acoustique intimiste|unplugged/,"Intimate acoustic",/indie folk|folk inde/,"Indie folk",/folk /,"Traditional folk",/dancehall/,"Dancehall",/rocksteady/,"Rocksteady",/reggae fusion|fusion reggae/,"Reggae fusion",/ragga/,"Ragga",/soca/,"Soca",/calypso/,"Calypso",/kompa/,"Kompa",/zouk/,"Zouk",/ska/,"Ska",/dub /,"Dub",/salsa/,"Salsa",/merengue/,"Merengue",/bachata/,"Bachata",/cumbia/,"Cumbia",/reggaeton/,"Reggaeton",/latin trap|trap latin/,"Latin trap",/latin pop|pop latine/,"Latin pop",/tango/,"Tango",/bolero/,"Bolero",/rumba flamenca/,"Rumba flamenca",/rumba/,"Rumba",/mambo/,"Mambo",/cha-cha|chacha/,"Cha-cha-cha",/samba/,"Samba",/\bmpb\b/,"MPB",/forro/,"Forro",/norteno|norteño/,"Norteno",/mariachi/,"Mariachi",/banda /,"Banda",/flamenco/,"Flamenco",/afropop|afro pop/,"Afropop",/afrobeat|afro beat/,"Afrobeat",/amapiano|piano /,"Amapiano",/highlife|high life/,"Highlife",/juju/,"Juju",/fuji /,"Fuji",/coupe-decale|coupe decale/,"Coupe-decale",/ndombolo/,"Ndombolo",/soukous/,"Soukous",/kizomba/,"Kizomba",/kuduro/,"Kuduro",/mbalax/,"Mbalax",/gnawa|gnaoua/,"Gnawa",/desert blues|blues du desert/,"Desert blues",/ethio/,"Ethio-jazz",/chaabi/,"Chaabi",/gqom/,"Gqom",/rai /,"Rai",/j-rock|jrock/,"J-rock",/enka/,"Enka",/c-pop|cpop|mandopop/,"C-pop",/bollywood|playback indien/,"Bollywood playback",/qawwali/,"Qawwali",/sufi/,"Sufi",/maqam|makam/,"Arabic maqam",/anatolien|anadolu/,"Anatolian rock",/thai |thai pop|musique thai/,"Thai pop",/gamelan/,"Gamelan",/arab pop|pop arabe|musique arabe/,"Arabic pop",/baroque/,"Baroque",/romantique classique|musique romantique|romantic classical/,"Romantic classical",/impressionnisme|impressionist/,"Impressionist classical",/contemporary classical|classique contemporain/,"Contemporary classical",/chambre|chamber music/,"Chamber music",/piano solo|piano seul/,"Solo piano classical",/string orchestra|orchestre a cordes/,"String orchestra",/opera/,"Opera",/choral|chorale|choeur/,"Choral sacred",/requiem/,"Requiem",/ballet/,"Ballet",/marche militaire|military march/,"Military march",/valse|waltz/,"Waltz",/neo-class|neoclassical/,"Neo-classical",/minimalis/,"Minimalist classical",/film |score|bande originale|cinema|film score/,"Film score",/epic trailer|trailer epique|hybrid trailer/,"Epic hybrid trailer",/cinematic trailer|bande annonce/,"Cinematic trailer",/epic|cinematique|cinematic/,"Epic cinematic orchestral",/new age/,"New age",/meditation|relaxation/,"Relaxation meditation",/soundscape|field recording/,"Soundscape",/concrete|musique concrete/,"Musique concrete",/noise experimental|bruitiste/,"Noise experimental",/lofi chill|chill lofi|lo-fi chill/,"Lo-fi chill",/jeu video|video game|game music/,"Video game music",/cirque|circus|cabaret/,"Circus cabaret",/burlesque/,"Burlesque",/noel|christmas/,"Christmas song",/mariage|wedding/,"Wedding music",/hymne|anthem/,"National anthem",/cartoon/,"Cartoon playful",/fanfare/,"Fanfare brass",];
+  var SUBG = [/trap metal|metal trap/,"Trap metal",/melodic trap/,"Melodic trap",/new.?age trap/,"New-age trap",/old.?school boom/,"Old school boom bap",/r&b rap|rnb rap|rap r&b|rap rnb|r and b rap/,"R&B rap hybrid",/storytelling/,"Storytelling rap",/battle rap|rap battle|aggressive rap|rap agressif/,"Aggressive battle rap",/country western|western country/,"Country western",/western(?! swing)/,"Country western",/jazz standard|standard jazz/,"Jazz standard",/orchestral emo|emo orchestral|emo symphonique/,"Orchestral emo",/dark cabaret|cabaret noir/,"Dark cabaret",/glitch-hop|glitch hop/,"Glitch-hop",/ambient pop/,"Ambient pop",/ambient techno|techno ambient/,"Ambient techno",/dark ambient|ambient sombre/,"Dark ambient",/ambient/,"Ambient",/industrial electro|electro indus/,"Industrial electro",/industrial metal|metal industriel/,"Industrial metal",/industrial(?! (electro|metal))|industriel/,"Industrial",/symphonic metal|metal symphonique/,"Symphonic metal",/folk metal|metal folk/,"Folk metal",/gothic metal|metal gothique/,"Gothic metal",/nu metal|nu-metal/,"Nu metal",/groove metal/,"Groove metal",/rap metal|metal rap/,"Rap metal",/funk metal|metal funk/,"Funk metal",/post-metal|post metal/,"Post-metal",/speed metal/,"Speed metal",/brutal death|death brutal/,"Brutal death metal",/melodic death|death melodique/,"Melodic death metal",/atmospheric black|black.*atmospherique/,"Atmospheric black metal",/stoner doom|doom stoner/,"Stoner doom metal",/thrash/,"Thrash metal",/deathcore/,"Deathcore",/metalcore/,"Metalcore",/mathcore/,"Mathcore",/djent/,"Djent",/grind/,"Grindcore",/viking/,"Viking metal",/pirate/,"Pirate metal",/doom/,"Doom metal",/sludge metal|metal sludge/,"Sludge metal",/sludge/,"Sludge rock",/stoner/,"Stoner rock",/desert rock|rock du desert/,"Desert rock",/black metal/,"Black metal",/death metal/,"Death metal",/power metal|metal power/,"Power metal",/epic metal|metal epique|orchestral metal/,"Epic orchestral metal",/alternative metal|metal alternatif/,"Alternative metal",/industrial metal|metal industriel/,"Industrial metal",/progressive metal|metal progressif|prog metal/,"Progressive metal",/pop-punk|pop punk/,"Pop-punk",/post-punk|post punk/,"Post-punk",/ska-punk|skapunk/,"Punk rock",/punk/,"Punk rock",/grunge/,"Grunge",/screamo/,"Screamo",/emo(?!ji)/,"Emo rock",/shoegaze|shoe gaze/,"Shoegaze",/dream pop|dreampop/,"Dream pop",/math rock|rock math/,"Math rock",/post-rock|post rock/,"Post-rock",/garage rock|rock garage/,"Garage rock",/indie rock|rock inde/,"Indie rock",/alternative rock|rock alternatif/,"Alternative rock",/psych folk|folk psych|freak folk/,"Psychedelic folk",/psychedelic rock|rock psychedelique|psych rock/,"Psychedelic rock",/surf rock|rock surf/,"Surf rock",/rockabilly/,"Rockabilly",/rock.?n.?roll|fifties|50s|rock 50/,"Fifties rock'n'roll",/southern rock|rock sudiste/,"Southern rock",/blues rock|rock blues/,"Blues rock",/folk rock|rock folk/,"Folk rock",/country rock|rock country/,"Country rock",/arena rock/,"Arena rock",/glam rock|rock glam/,"Glam rock",/coldwave|cold wave/,"Coldwave",/dark wave|darkwave/,"Dark wave",/new wave/,"New wave",/noise rock|rock bruitiste/,"Noise rock",/space rock|rock spatial/,"Space rock",/kraut/,"Krautrock",/goth rock|rock gothique/,"Gothic rock",/synthpop|synth-pop|synth pop/,"Synthpop",/electropop|electro-pop/,"Electropop",/hyperpop|hyper pop/,"Hyperpop",/k-pop|kpop/,"K-pop",/j-pop|jpop/,"J-pop",/city pop|citypop/,"City pop",/dance-pop|dance pop/,"Dance-pop",/chamber pop/,"Chamber pop",/baroque pop/,"Baroque pop",/indie pop|pop inde/,"Indie pop",/bedroom pop/,"Bedroom pop",/bubblegum|bubblegum pop/,"Bubblegum pop",/teen pop/,"Teen pop",/pop rock|rock pop/,"Pop rock",/power pop/,"Power pop",/sophisti-pop|sophisti pop/,"Sophisti-pop",/art pop/,"Art pop",/ambient pop/,"Ambient pop",/future pop/,"Future pop",/trop pop/,"Trop pop",/chanson a texte/,"French chanson a texte",/chanson pop|variete|chanson francaise/,"French chanson pop",/neo-soul|neo soul|soul moderne/,"Neo-soul",/quiet storm/,"Quiet storm",/p-funk|pfunk|parliament/,"P-funk",/philly soul|soul philly/,"Philly soul",/northern soul/,"Northern soul",/doo-wop|doowop/,"Doo-wop",/gospel/,"Gospel soul",/smooth jazz/,"Smooth jazz",/r&b|rnb/,"Contemporary R&B",/boogie/,"Boogie",/disco/,"Disco funk",/funk rock/,"Funk rock",/boom bap|boombap/,"Boom-bap",/old school|old-school/,"Old-school hip-hop",/uk drill/,"UK drill",/drill/,"Drill",/cloud rap/,"Cloud rap",/mumble rap/,"Mumble rap",/conscious rap|rap conscient/,"Conscious rap",/gangsta/,"Gangsta rap",/g-funk|g funk/,"G-funk",/jazz rap|rap jazz/,"Jazz rap",/lofi|lo-fi/,"Lo-fi hip-hop",/phonk/,"Phonk rap",/grime/,"Grime",/crunk/,"Crunk",/chopped and screwed|chopped|screwed/,"Chopped and screwed",/abstract hip|hip hop abstrait/,"Abstract hip-hop",/alternative rap|rap alternatif/,"Alternative rap",/rap francais|rap fr /,"French rap",/hyphy/,"Hyphy",/trap/,"Trap hip-hop",/deep house|house profonde/,"Deep house",/tech house/,"Tech house",/progressive house|house progressive/,"Progressive house",/uk garage|garage uk/,"UK garage",/vocal house|house vocale/,"Vocal house",/afro-house|afro house|afrohouse/,"Afro-house",/minimal techno|techno minimale/,"Minimal techno",/hard techno|techno hard/,"Hard techno",/acid techno|techno acid/,"Acid techno",/detroit techno/,"Detroit techno",/melodic techno|techno melodique/,"Melodic techno",/psytrance|psy-trance|psy trance|goa/,"Psytrance",/uplifting trance|trance /,"Uplifting trance",/hardstyle/,"Hardstyle",/gabber|hardcore techno|hardcore electro/,"Hardcore gabber",/hardtekk|hardtek|tekk/,"Hardtekk",/drum and bass|drum.?n.?bass|\bDNB\b/,"Drum and bass",/jungle/,"Jungle",/breakbeat|break beat/,"Breakbeat",/riddim/,"Riddim",/dubstep/,"Dubstep",/future bass/,"Future bass",/trap edm|edm trap/,"Trap EDM",/electro funk|funk electro/,"Electro funk",/big beat/,"Big beat",/\bidm\b/,"IDM",/glitch/,"Glitch",/downtempo|down tempo/,"Downtempo",/trip-hop|trip hop|triphop/,"Trip-hop",/dark ambient|ambient sombre/,"Dark ambient",/ambient techno|techno ambient/,"Ambient techno",/drone/,"Drone",/synthwave|synth wave/,"Synthwave",/retrowave|retro wave/,"Retrowave",/outrun/,"Outrun",/vaporwave|vapor wave/,"Vaporwave",/chiptune|8-bit|8bit|chip music/,"Chiptune 8-bit",/electro-swing|electro swing|electroswing/,"Electro-swing",/moombahton/,"Moombahton",/jersey club|jersey/,"Jersey club",/new beat/,"New beat",/industrial electro|electro indus/,"Industrial electro",/bebop|bop /,"Bebop",/hard bop/,"Hard bop",/big band/,"Big band",/dixieland|dixie /,"Dixieland",/cool jazz|jazz cool/,"Cool jazz",/modal jazz|jazz modal/,"Modal jazz",/free jazz/,"Free jazz",/acid jazz/,"Acid jazz",/nu-jazz|nu jazz/,"Nu-jazz",/latin jazz|jazz latin/,"Latin jazz",/manouche|gypsy|gipsy|gitan/,"Jazz manouche",/jazz fusion|fusion jazz/,"Jazz fusion",/bossa/,"Bossa nova",/ragtime|rag /,"Ragtime",/stride/,"Stride piano",/swing occidental|western swing/,"Western swing",/swing/,"Swing",/chicago blues|blues chicago/,"Chicago blues",/texas blues|blues texas/,"Texas blues",/piedmont/,"Piedmont blues",/jump blues/,"Jump blues",/swamp blues|swamp/,"Swamp blues",/hill country/,"Hill country blues",/electric blues|blues electrique/,"Electric blues",/delta blues|blues delta/,"Melancholic Delta blues",/honky tonk|honkytonk/,"Honky tonk",/outlaw country|country outlaw/,"Outlaw country",/bluegrass/,"Bluegrass",/newgrass/,"Newgrass",/americana/,"Americana",/alt-country|alt country|country alternatif/,"Alt-country",/cajun/,"Cajun",/zydeco/,"Zydeco",/nashville/,"Nashville sound",/country pop|pop country/,"Country pop",/country /,"Classic country",/singer-songwriter|auteur interprete|chanson a texte/,"Singer-songwriter",/celtic|celtique/,"Celtic folk",/irish|irlandais/,"Irish folk",/nordic|nordique|viking folk/,"Nordic folk",/medieval|medieval folk/,"Medieval folk",/bardcore/,"Bardcore",/shanty|chant marin/,"Sea shanty",/intimate acoustic|acoustique intimiste|unplugged/,"Intimate acoustic",/indie folk|folk inde/,"Indie folk",/folk /,"Traditional folk",/dancehall/,"Dancehall",/rocksteady/,"Rocksteady",/reggae fusion|fusion reggae/,"Reggae fusion",/ragga/,"Ragga",/soca/,"Soca",/calypso/,"Calypso",/kompa/,"Kompa",/zouk/,"Zouk",/ska/,"Ska",/dub /,"Dub",/salsa/,"Salsa",/merengue/,"Merengue",/bachata/,"Bachata",/cumbia/,"Cumbia",/reggaeton/,"Reggaeton",/latin trap|trap latin/,"Latin trap",/latin pop|pop latine/,"Latin pop",/tango/,"Tango",/bolero/,"Bolero",/rumba flamenca/,"Rumba flamenca",/rumba/,"Rumba",/mambo/,"Mambo",/cha-cha|chacha/,"Cha-cha-cha",/samba/,"Samba",/\bmpb\b/,"MPB",/forro/,"Forro",/norteno|norteño/,"Norteno",/mariachi/,"Mariachi",/banda /,"Banda",/flamenco/,"Flamenco",/afropop|afro pop/,"Afropop",/afrobeat|afro beat/,"Afrobeat",/amapiano|piano /,"Amapiano",/highlife|high life/,"Highlife",/juju/,"Juju",/fuji /,"Fuji",/coupe-decale|coupe decale/,"Coupe-decale",/ndombolo/,"Ndombolo",/soukous/,"Soukous",/kizomba/,"Kizomba",/kuduro/,"Kuduro",/mbalax/,"Mbalax",/gnawa|gnaoua/,"Gnawa",/desert blues|blues du desert/,"Desert blues",/ethio/,"Ethio-jazz",/chaabi/,"Chaabi",/gqom/,"Gqom",/rai /,"Rai",/j-rock|jrock/,"J-rock",/enka/,"Enka",/c-pop|cpop|mandopop/,"C-pop",/bollywood|playback indien/,"Bollywood playback",/qawwali/,"Qawwali",/sufi/,"Sufi",/maqam|makam/,"Arabic maqam",/anatolien|anadolu/,"Anatolian rock",/thai |thai pop|musique thai/,"Thai pop",/gamelan/,"Gamelan",/arab pop|pop arabe|musique arabe/,"Arabic pop",/baroque/,"Baroque",/romantique classique|musique romantique|romantic classical/,"Romantic classical",/impressionnisme|impressionist/,"Impressionist classical",/contemporary classical|classique contemporain/,"Contemporary classical",/chambre|chamber music/,"Chamber music",/piano solo|piano seul/,"Solo piano classical",/string orchestra|orchestre a cordes/,"String orchestra",/opera/,"Opera",/choral|chorale|choeur/,"Choral sacred",/requiem/,"Requiem",/ballet/,"Ballet",/marche militaire|military march/,"Military march",/valse|waltz/,"Waltz",/neo-class|neoclassical/,"Neo-classical",/minimalis/,"Minimalist classical",/film |score|bande originale|cinema|film score/,"Film score",/epic trailer|trailer epique|hybrid trailer/,"Epic hybrid trailer",/cinematic trailer|bande annonce/,"Cinematic trailer",/epic|cinematique|cinematic/,"Epic cinematic orchestral",/new age/,"New age",/meditation|relaxation/,"Relaxation meditation",/soundscape|field recording/,"Soundscape",/concrete|musique concrete/,"Musique concrete",/noise experimental|bruitiste/,"Noise experimental",/lofi chill|chill lofi|lo-fi chill/,"Lo-fi chill",/jeu video|video game|game music/,"Video game music",/cirque|circus|cabaret/,"Circus cabaret",/burlesque/,"Burlesque",/noel|christmas/,"Christmas song",/mariage|wedding/,"Wedding music",/hymne|anthem/,"National anthem",/cartoon/,"Cartoon playful",/fanfare/,"Fanfare brass",/italo disco/,"italo disco",/italo dance/,"italo dance",/eurodisco/,"eurodisco",/hi[\s-]*nrg/,"hi-NRG",/goa/,"goa trance",/eurotrance/,"eurotrance",/darkwave/,"darkwave",/cold wave/,"cold wave",/new beat/,"new beat",/outrun/,"outrun",/spacesynth/,"spacesynth",/darksynth/,"darksynth",/fado/,"fado",/klezmer/,"klezmer",/dungeon synth/,"dungeon synth",/spoken word/,"spoken word",/\btrot\b/,"trot",/enka/,"enka",/dansband/,"dansband",/dansktop/,"dansktop",/doo-wop|doo wop/,"doo-wop",/bhangra/,"bhangra",/\bsoca\b/,"soca",/merengue/,"merengue",/bachata/,"bachata",/samba/,"samba",/cumbia/,"cumbia",/cajun/,"cajun",/gnawa/,"gnawa",/highlife/,"highlife",/tango/,"tango nuevo",/lovers rock/,"lovers rock",/reggae.pop/,"reggae-pop",/newgrass/,"newgrass",/merseybeat|mersey/,"merseybeat",/madchester/,"madchester",/chillwave/,"chillwave",/chillout/,"chillout",/slowcore/,"slowcore",/footwork|\bjuke\b/,"footwork",/horrorcore/,"horrorcore",/psychobilly/,"psychobilly",/anatolian/,"anatolian psych",/spaghetti/,"spaghetti western",/alpine folk/,"alpine folk",/tavern folk/,"tavern folk",/protest folk/,"protest folk",/island folk/,"island folk",/andean folk/,"andean folk",/country folk/,"country folk",/celtic punk/,"celtic punk",/cowpunk/,"cowpunk",/hardcore punk/,"hardcore punk",/gospel choir/,"gospel choir",/gregorian/,"gregorian chant fusion",/alt rnb|alternative rnb/,"alt rnb",/classic rnb/,"classic rnb",/trap soul/,"trap soul",/r and b|\brnb\b/,"modern R and B",/melodic dubstep/,"melodic dubstep",/tropical house|tropical/,"tropical house",/vocal jazz/,"vocal jazz",/soul jazz/,"soul jazz",/folk acoustic/,"folk acoustic",/anti-folk|antifolk/,"anti-folk",/indie acoustic/,"indie acoustic",/lofi indie|lo-fi indie/,"lofi indie",/modern country/,"modern country",/folk country/,"folk country",/melodic rap/,"melodic rap",/lyrical rap/,"lyrical rap",/showstopper/,"animated-film musical showstopper",/wagnerian/,"wagnerian rock",/oktoberfest|oompah/,"oktoberfest oompah",/wiesn|schlager/,"wiesn schlager",/austropop/,"austropop",];
   for (var sg = 0; sg < SUBG.length; sg += 2) { if (SUBG[sg].test(n)) return SUBG[sg+1]; }
   if (/\bmetal\b|\bheavy\b/.test(n)) return "Classic heavy metal";
   if (/\brock\b/.test(n)) return "Driving electric rock";
@@ -1011,8 +1190,9 @@ function genreFromText(txt){
 }
 function answerSong(txt){
   var target = songTargetLang(txt);
-  var lang = (target && BANKS[target]) ? target : curLang();
+  var lang = songCodeOk(target) || curLang();
   try { if (target === "zh" && curLang() === "zh-CN") lang = "zh-CN"; } catch(eZh) {}
+  try { if (songCodeOk(target) && target !== curLang()) _songSel = target; } catch(eSS2) {}
   var pack = generatePack(lang, genreFromText(txt), txt);
   postSong(pack, pack.lang);
   try { var F0 = extractSongFacts(txt); var s0 = curSessionM(); if (s0 && F0 && F0.names && F0.names.length){ s0._lastSong = { names: F0.names.slice(0, 5), facts: F0.facts || "", genre: pack.genre }; } } catch(eLS) {} }
@@ -1053,8 +1233,8 @@ refreshLyrics: refreshLyrics, checker: checker, aiLyrics: aiLyrics, editLyrics: 
 setLyricMode: setLyricMode, renderThemeChips: renderThemeChips, composeSong: composeSong, publishSong: publishSong, coverGo: coverGo, coverPromptText: coverPromptText, mountGallery: mountGallery, renderListen: renderListen,
 saveHist: saveHist, loadHist: loadHistSel, delHist: delHist, renderHist: renderHist,
 genJourney: genJourney, drawGeo: function(){ drawGeo(); }, lang: curLang, voiceTag: function(){ return BK().meta.voice; },
-pack: generatePack, detectSong: isSongRequest, songLang: songTargetLang, answerSong: answerSong,
-openWith: function(pack){ App.Music.open(); try{ if (pack){ if (pack.title) setVal("mzTitre", pack.title); if (pack.lyrics){ setVal("mzCustom", pack.lyrics); App.Music.setLyricMode('mine', true); } if (pack.exclude != null) setVal("mzExclude", pack.exclude); App.Music.generate(); } }catch(e){ console.warn("[Music] openWith failed", e); } },
+pack: generatePack, detectSong: isSongRequest, songLang: songTargetLang, songChoice: songLang, uiLang: uiLang, setSongLang: function(l){ try{ _songSel = songCodeOk(l) || null; }catch(e){ _songSel = null; } }, answerSong: answerSong,
+openWith: function(pack){ try{ if (pack && pack.lang && songCodeOk(pack.lang) && pack.lang !== curLang()) _songSel = pack.lang; }catch(eSO){} App.Music.open(); try{ if (pack){ if (pack.title) setVal("mzTitre", pack.title); if (pack.lyrics){ setVal("mzCustom", pack.lyrics); App.Music.setLyricMode('mine', true); } if (pack.exclude != null) setVal("mzExclude", pack.exclude); App.Music.generate(); } }catch(e){ console.warn("[Music] openWith failed", e); } },
 _m: {}
 };
 try{ var ctn = document.getElementById('modeTogglesCtn'); if (ctn && !document.getElementById('musicToggleBtn')){ var b = document.createElement('button'); b.id = 'musicToggleBtn'; b.className = 'mode-toggle'; b.onclick = function(){ App.Music.toggle(); }; var sp = document.createElement('span'); sp.className = 'mode-toggle-icon'; sp.textContent = '\uD83C\uDFB5'; b.appendChild(sp); var lb = document.createElement('span'); lb.id = 'musicToggleLabel'; lb.className = 'mode-toggle-label'; lb.textContent = 'Musique'; b.appendChild(lb); ctn.appendChild(b); } }catch(e){}
