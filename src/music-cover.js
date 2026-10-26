@@ -99,8 +99,10 @@ function dedupe(str) {
 export function buildCoverPrompt(title, genreLabel, styleLabel) {
   var g = coverGenre(genreLabel);
   var s = COVER_STYLES[styleLabel] || COVER_STYLES['Cinematic'];
-  var t = String(title || 'Untitled').replace(/[\r\n]+/g, ' ').slice(0, 60);
-  var prompt = dedupe('single cover for "' + t + '", ' + g + ', ' + s + ', moody lighting, album cover art, professional artwork, high detail, sharp focus, balanced composition').slice(0, 900);
-  var negative = dedupe('blur, low quality, text artifacts, watermark, distorted, text, typography, letters, words, signature, logo').slice(0, 500);
+  // Volontairement : le titre n'est JAMAIS injecté dans le prompt visuel,
+  // sinon le modèle dessine du lettrage dans l'image. Aucun texte requis.
+  void title;
+  var prompt = dedupe('album cover art with no text, no typography, no letters, no words, no lettering, ' + g + ', ' + s + ', moody lighting, professional artwork, high detail, sharp focus, balanced composition, no text anywhere in the image').slice(0, 900);
+  var negative = dedupe('text, typography, letters, words, lettering, captions, titles, title card, watermark, logo, signature, label, subtitle, blur, low quality, distorted, text artifacts').slice(0, 500);
   return { prompt: prompt, negative: negative };
 }
