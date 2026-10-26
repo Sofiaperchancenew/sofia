@@ -1,0 +1,20 @@
+SOFIA - PACK GITHUB v803 (rondes 774-803)
+=====================================
+Contenu : 7 fichiers a deposer TELS QUELS dans Sofiaperchancenew/sofia.
+
+MARCHE A SUIVRE (comme d'habitude) :
+1. Dans l'editeur Perchance : ENREGISTRER (index.html v803 + remote.json actuels).
+   index.html ne va JAMAIS sur GitHub (editeur seul).
+2. Sur GitHub (web ou git) : deposer chaque fichier du zip a son chemin
+   exact (src/build.json -> src/build.json, etc.). music-rhythm.js est
+   NOUVEAU (absent de GH). Un seul commit pour tout.
+3. Me donner le SHA du nouveau commit : je re-epingle src/remote.json
+   dessus + ENREGISTRER.
+
+Contenu du pack :
+- v774 : selfcode-baked.json deja a jour sur GH (verifie byte-identique).
+- v778-v780 : musique (langue de chant independante, +92 styles puis
+  +17 genres/28 themes, 443 genres, 15 ambiances, music-rhythm.js nouveau).
+- v782-v784 : applang.js + languages-world.js deja a jour sur GH (verifie).
+- v785-v803 : index.html seul (editeur) + build.json v803 (dans ce pack).
+Apres ce push, GH sera complet au niveau build v803.
