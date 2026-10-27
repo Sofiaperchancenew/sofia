@@ -50,8 +50,15 @@ module `App.CatalogPush` dans index.html) :
   source HuggingFace `eltorio/french_first_names_insee_2024`, MIT) : pool de
   repli du casting (`App.Scene._fallbackCast` via `_poolNames`, base moderne ×4
   + INSEE, accents corrigés) ; le casting principal reste génératif.
-- Fiches mémos (v318) : `cuisine/cuisines-monde.json` (40 sections : hygiène,
-  cuissons, sauces, pain/pâtisserie, conservation, 16 plats du monde),
+- Fiches mémos (v318, cuisine étendue v824-v828) : `cuisine/cuisines-monde.json`
+  (432 sections v827 : hygiène, cuissons, plats du monde),
+  `cuisine/recettes-france-sale.json` (179 grands classiques salés v827 : entrées,
+  mijotés, rôtis, gratins, légumes, sauces, pains),
+  `cuisine/recettes-france-sucre.json` (119 v827 : pâtes et crèmes de base,
+  desserts, tartes, viennoiserie, confitures, confiseries),
+  `cuisine/themealdb.json` (791 recettes v828 : base mondiale importée de
+  l'API gratuite TheMealDB — ingrédients, préparations en anglais, liens vidéo ;
+  déclencheur anglais `recipe` ajouté à isCuisine),
   `physique/bases-physique.json` (41 : unités, mécanique, énergie, électricité,
   ondes, gravitation), `grammaire/grammaires-monde.json` (42 : français complet
   + 9 langues), `histoire-geo/monde-par-pays.json` (42 : méthode, 36 pays,
