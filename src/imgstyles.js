@@ -198,7 +198,8 @@ function positiveClean(p, decent) {
         if (/\bplus \d+ (?:men|man)\b/i.test(s)) {
           const mm = s.match(/plus (\d+) (?:men|man)/i);
           mN = mm ? (Number(mm[1]) || 1) : 1;
-        } else if (/\bnaked man\b|\bmale body\b|exactly one (?:adult )?man\b/i.test(s)) mN = 1;
+        } else if (/\bnaked man\b|\bmale body\b|exactly one (?:adult )?man\b|one single adult man alone/i.test(s)) mN = 1;
+        else if (/\b(man|men|male|homme|hommes|masculin)\b/i.test(s) && !/\b(woman|women|female|femme|femmes|fille|mistress|girl)\b/i.test(s) && /\b(solo|alone|single|one|portrait|face|visage|photo|photographie)\b/i.test(s)) mN = 1;
         if (/all-female/i.test(s)) mN = 0;
       }
       if (/ and no woman/i.test(s)) wN = 0;

@@ -700,6 +700,9 @@ export function attachVoice(App, deps = {}) {
       s = s.replace(/\[FICHE_STATE\][\s\S]*?\[END_FICHE_STATE\]/g, " ");
       s = s.replace(/\[FICHE_STATE\s*:[\s\S]*?\}\s*\]/g, " ");
       s = s.replace(/\[FICHE_STATE[^\]\n]*\]/g, " ");
+      s = s.replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/g, " ");
+      s = s.replace(/\[FICHE\][\s\S]*$/g, " ");
+      s = s.replace(/\[\/FICHE\]/g, " ");
       s = (function (t) {
         let out = "", i = 0;
         for (;;) {
@@ -726,6 +729,13 @@ export function attachVoice(App, deps = {}) {
       s = s.replace(/\[SOFIA_SCENE\][\s\S]*?(\[END_SOFIA_SCENE\]|$)/g, " ");
       s = s.replace(/\[MENTOR_STATE\][\s\S]*?(\[END_MENTOR_STATE\]|$)/g, " ");
       s = s.replace(/\[SOFIA_IMAGE\][^\n]*/g, " ");
+      s = s.split("\n").filter(function (ln) {
+        var l = ln.toLowerCase();
+        if (l.indexOf("photorealistic") === 0) return false;
+        if (l.indexOf("full body shot taken with") >= 0) return false;
+        if (l.indexOf("canon eos") >= 0 && (l.indexOf("svelte") >= 0 || l.indexOf("full body") >= 0 || l.indexOf("85mm") >= 0 || l.indexOf("shallow") >= 0 || l.indexOf("8k") >= 0 || l.indexOf("ultra") >= 0 || l.indexOf("hyper") >= 0 || l.indexOf("photograph") >= 0 || l.indexOf("portrait") >= 0 || l.indexOf("seed") >= 0)) return false;
+        return true;
+      }).join("\n");
       s = s.replace(/\[(?:SOFIA_(?:SCRIPT|LEARN|HELPER|VISION|FILEREAD|FACTCHECK|WEBIMG|EDIT|UPDATE|WORKSHOP|LOGO)|CHESS_(?:MOVE|STATE)|END_FICHE_STATE|END_SOFIA_SCENE|END_MENTOR_STATE)\][^\n]*/g, " ");
       s = s.replace(/\[Image generated[^\n\]]*\]?/gi, " ");
       s = s.replace(/```[\s\S]*?```/g, " ");
