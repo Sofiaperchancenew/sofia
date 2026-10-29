@@ -1,12 +1,12 @@
 {
-  "updated": "2026-10-28T20:37:15.263Z",
+  "updated": "2026-10-29T23:53:07.102Z",
   "wikipedia": {
     "title": "Intelligence artificielle",
     "extract": "L'intelligence artificielle (IA) est l'ensemble des systèmes informatiques capables d'effectuer des tâches typiquement associées à l'intelligence, telles que l'apprentissage, le raisonnement, la résolution de problèmes, la perception ou la prise de décision. L'intelligence artificielle est également le champ de recherche visant à développer de tels systèmes."
   },
   "meteo": {
-    "time": "2026-10-28T20:30",
+    "time": "2026-10-29T23:45",
     "interval": 900,
-    "temperature_2m": 13.1
+    "temperature_2m": 9.4
   }
 }
