@@ -1,0 +1,7 @@
+{
+  "at": "2026-11-04T00:34:16.697Z",
+  "fail": [
+    "src/anciennes/egyptien-hieroglyphes.json.gz : HTTP 500",
+    "src/dico/dictionnaires-panorama.json.gz : HTTP 500"
+  ]
+}
