@@ -106,18 +106,16 @@ const PHOTO_NEG = "cartoon, manga, anime, drawing, painting, illustration, sketc
 // ces negations du positif (elles restent dans le negatif) et on ajoute une
 // formulation affirmative : ce qui DOIT etre la, jamais ce qui ne doit pas etre.
 const ANATOMY_NEG_FIRST = "penis on a woman, male genitalia on a female body, futanari, shemale, dickgirl, duplicate person, identical women, two identical women, cloned woman, twins, same face twice, extra person, extra woman, fused bodies, conjoined bodies, extra genitalia, ambiguous genitalia, hermaphrodite";
-// Decence par defaut (demande utilisateur) : sauf nudite ou scenario sexuel
-// EXPLICITE dans le prompt, toute image generee montre des personnages habilles
-// de vetements ordinaires. Complementaire de imageSfwPrompt (index.html), qui
-// n'agit que quand le verrou global SFW est actif : ici la decence est forcee
-// par prompt, meme en mode NSFW global, sauf demande explicite.
-const DECENT_NEG_FIRST = "nude, naked, topless, bare breasts, exposed breasts, exposed chest, exposed genitalia, sheer clothing, see-through clothing, transparent clothes, sexualized, erotic, pornographic";
+// Decence par defaut (demande utilisateur, norme vie reelle) : toute image
+// generee montre des personnages habilles comme dans la vraie vie (habits,
+// pantalon, robe, jupe, polo, chemise, chemisier, T-shirt, pull, veste,
+// chaussures, maillot de bain modeste uniquement a la plage/piscine).
+// Complementaire de imageSfwPrompt (index.html). Sofia est SFW : la decence
+// est forcee par prompt, meme en mode NSFW global, sans exception.
+const DECENT_NEG_FIRST = "nude, naked, topless, bare breasts, exposed breasts, exposed chest, bare chest, shirtless, exposed genitalia, sheer clothing, see-through clothing, transparent clothes, wet clothes, undressed, undressing, striptease, sexualized, erotic, pornographic, suggestive pose, provocative, pin-up, boudoir, lingerie, underwear, nightwear, cleavage, deep neckline, bare midriff, bare shoulders, sleeveless, tank top, crop top, short shorts, miniskirt, low-cut top, buttocks, nipples, genitalia, pubic hair, cameltoe";
 function wantsExplicitNudity(text) {
-  try {
-    const s = String(text == null ? '' : text);
-    if (!s) return false;
-    return /(naked|nude|\bnues?\b|\bnu\b|\bnus\b|topless|d[eé]shabill[eé]|d[eé]v[eê]tu|sans v[eê]tement|wearing nothing|sans rien|birth suit|seins?\s+nus?|bare (breasts?|chest|chested)|poitrine (nue|d[eé]voil[eé]e)|vulv|pussy|chatte|p[eé]nis|dick|\bbite\b|testes|testicules|couilles|clitoris|\banus\b|\banal\b|e?rection|gland|e?jaculat|sperm|s[eé]mence|fellation|blowjob|cunnilingus|sodomie|masturbat|p[eé]n[eé]tration|orgie|orgy|bdsm|f[eé]tiche|fetish|kinky|hentai|porn|e?roti|making love|having sex|oiled|huile|lingerie|underwear|sous-v[eê]tement)/i.test(s);
-  } catch (e) { return false; }
+  // SFW-only (moderation 2026-10-28) : la nudite explicite n'est jamais voulue.
+  return false;
 }
 function decentClean(p) {
   try {
@@ -128,7 +126,30 @@ function decentClean(p) {
       /\bsensuel(le)?s?\b[^.,;]*/gi, /\b[eé]rotique\b[^.,;]*/gi, /\berotic\b[^.,;]*/gi,
       /\boiled\b[^.,;]*/gi, /\bhuil[eé](e)?s?\b[^.,;]*/gi,
       /\bsheer\b[^.,;]*/gi, /\bsee-through\b[^.,;]*/gi, /\btransparent(e)?s?\b[^.,;]*/gi,
-      /\bexplicit\b[^.,;]*/gi, /\bexplicite\b[^.,;]*/gi
+      /\bexplicit\b[^.,;]*/gi, /\bexplicite\b[^.,;]*/gi,
+      /\bsuggestive\b[^.,;]*/gi, /\bsuggestif\b[^.,;]*/gi, /\bprovocative\b[^.,;]*/gi,
+      /\bprovocant\b[^.,;]*/gi, /\bpin[\s-]?ups?\b[^.,;]*/gi, /\bboudoir\b[^.,;]*/gi,
+      /\bnaturis\w*\b[^.,;]*/gi, /\bau naturel\b[^.,;]*/gi, /\blife models?\b[^.,;]*/gi,
+      /\bmod[eè]le vivant\b[^.,;]*/gi, /\bacad[eé]mie\b[^.,;]*/gi, /\bfigure stud\w*\b[^.,;]*/gi,
+      /\bskin on skin\b[^.,;]*/gi, /\bpeau contre peau\b[^.,;]*/gi,
+      // SFW strict : aucun mot declencheur de nudite/anatomie dans le positif.
+      // Meme si l'utilisateur demande "nue/nude/naked", on retire le terme et
+      // la tenue habillée est imposee plus bas.
+      /\bnue?s?\b[^.,;]*/gi, /\bnus?\b[^.,;]*/gi, /\bnudit[eé][^.,;]*/gi,
+      /\bnude\b[^.,;]*/gi, /\bnaked\b[^.,;]*/gi, /\btopless\b[^.,;]*/gi,
+      /\bundressed\b[^.,;]*/gi, /\bshirtless\b[^.,;]*/gi,
+      /\bsans v[eê]tement[^.,;]*/gi, /\btoute nue\b[^.,;]*/gi, /\benti[eè]rement nu[^.,;]*/gi,
+      /\bd[eé]shabill\w*[^.,;]*/gi, /\bd[eé]nud\w*[^.,;]*/gi,
+      /\bpenis\b[^.,;]*/gi, /\btestes\b[^.,;]*/gi, /\btesticules\b[^.,;]*/gi,
+      /\bvulv[ae]\b[^.,;]*/gi, /\bvagin\w*\b[^.,;]*/gi, /\bclitoris\b[^.,;]*/gi,
+      /\bbite\b[^.,;]*/gi, /\bcouilles?\b[^.,;]*/gi, /\bchatte\b[^.,;]*/gi,
+      /\bseins?\s*nus?[^.,;]*/gi, /\bbare breasts?[^.,;]*/gi, /\bbare chest[^.,;]*/gi,
+      /\bgenitalia\b[^.,;]*/gi, /\bgenital\w*[^.,;]*/gi,
+      // SFW : vêtements intimes / décolleté hors du positif (négatif seul suffit).
+      /\blingerie\b[^.,;]*/gi, /\bunderwear\b[^.,;]*/gi, /\bnightwear\b[^.,;]*/gi,
+      /\bcleavage\b[^.,;]*/gi, /\bd[eé]collet\w*[^.,;]*/gi, /\bthong\b[^.,;]*/gi,
+      /\btanga\b[^.,;]*/gi, /\bpant(?:y|ies)\b[^.,;]*/gi, /\bculotte\b[^.,;]*/gi,
+      /\bsoutien-?gorge\b[^.,;]*/gi, /\bstring\b/gi
     ];
     for (const re of strips) s = s.replace(re, '');
     s = s.replace(/\s*,\s*,/g, ',').replace(/\s+,/g, ',').replace(/ {2,}/g, ' ').replace(/,\s*,/g, ',').trim();
@@ -235,14 +256,7 @@ function positiveClean(p, decent) {
   } catch (e) { return p; }
 }
 function bustFrag(text) {
-  const n = norm(text);
-  const has = (re) => re.test(n);
-  const bust = has(/\bsein|\bseins|\bpoitrine|\bboobs|\bbreast|\btits\b/);
-  if (!bust) return "";
-  if (has(/enorme|enormes|gigantesque|immense|demesure|huge|gigantic/)) return "huge natural breasts";
-  if (has(/gros|grosse|genereuse|genereuses|forte|fortes|opulente|volumineuse|large|larges|big|large/)) return "large natural pear-shaped breasts";
-  if (has(/petit|petite|petits|petites|menu|small|tiny/)) return "small natural breasts";
-  if (has(/moyen|moyenne|medium/)) return "medium natural breasts";
+  // SFW-only : jamais de descripteur de poitrine dans les prompts d'image.
   return "";
 }
 function detect(text) {
@@ -313,13 +327,16 @@ export function attachImgStyles(App) {
       try { s = positiveClean(s, !__wantNude); } catch (ePC) {}
       if (det && det.frag) s = s.replace(/\s+$/, "") + ", " + det.frag;
       try { const bf = bustFrag(String(prompt || "")); if (bf && s.toLowerCase().indexOf("breast") < 0) s = s.replace(/\s+$/, "") + ", " + bf; } catch (eB) {}
-      // Personnages habilles de vetements ordinaires (formulation affirmative
-      // uniquement : pas de "no nudity" dans le positif, chaque negation est
-      // un declencheur). Compatible avec le garde imageSfwPrompt d'index.html.
+      // Personnages habilles comme dans la vraie vie, homme comme femme
+      // (formulation affirmative uniquement : pas de "no nudity" dans le
+      // positif, chaque negation est un declencheur). Norme : habits,
+      // pantalon, robe, jupe, polo, chemise, chemisier, T-shirt, pull, veste,
+      // chaussures ; maillot de bain modeste uniquement plage/piscine.
+      // Compatible avec le garde imageSfwPrompt d'index.html.
       try {
-        if (!__wantNude && !/(fully clothed|habill[ée]e?s?|v[êe]tus?|dressed in|wearing (an? )?(jeans|shirt|dress|t-shirt|pull|sweater|jacket|manteau|robe\b|pantalon|jupe|uniforme|costume|clothes|habits|tenue))/i.test(s)) {
-          if (/(beach|plage|pool|piscine|sauna|swim|bain|bord de mer|seaside|hot tub|jacuzzi)/i.test(s)) s = s.replace(/\s+$/, "") + ", fully clothed in modest attire (decent modest swimwear appropriate for a beach or pool scene, tasteful and wholesome)";
-          else s = s.replace(/\s+$/, "") + ", fully clothed in modest everyday clothing (ordinary real-life outfit with jeans shirt or dress), decent wholesome family-friendly portrait";
+        if (!__wantNude && !/(fully clothed|habill[ée]e?s?|v[êe]tus?|dressed in|wearing (an? )?(jeans|shirt|polo|chemise|chemisier|dress|robe|jupe|skirt|pantalon|trousers|t-shirt|pull|sweater|jacket|veste|manteau|maillot|swimsuit|bikini|uniforme|costume|clothes|habits|tenue|chaussures|shoes))/i.test(s)) {
+          if (/(beach|plage|pool|piscine|sauna|swim|bain|bord de mer|seaside|hot tub|jacuzzi)/i.test(s)) s = s.replace(/\s+$/, "") + ", fully clothed in modest attire (modest one-piece swimsuit or modest swim shorts with T-shirt, tasteful wholesome beach portrait)";
+          else s = s.replace(/\s+$/, "") + ", fully clothed in modest everyday clothing (ordinary real-life outfit: trousers or jeans with shirt or polo shirt or chemise, or dress or skirt with chemisier and closed shoes), decent wholesome family-friendly portrait";
         }
       } catch (eDC1) {}
       let o = options || {};
@@ -464,7 +481,7 @@ export function attachImgStyles(App) {
       // Sofia...) recollent ancien buf + tour corrige via
       // `buf = keepRetryText(session, buf, newText)` => `base + '\n\n' + nw`.
       // Le test d'origine (`base.indexOf(nw) >= 0`) est EXACT : des
-      // micro-differences ("Max ?" vs "Max?", "…" vs "...", accents) le
+      // micro-differences ("Léo ?" vs "Léo?", "…" vs "...", accents) le
       // font echouer et la bulle affiche 2x le meme bloc (mobile comme PC,
       // c'est bien dans le script). Quand l'ancien et le nouveau sont
       // quasi identiques, le retry REMPLACE au lieu de CONCATENER.
@@ -503,8 +520,8 @@ export function attachImgStyles(App) {
         } catch (e) { return false; }
       };
       // Épissure anti-réécriture avec perte : quand le retry recommence au
-      // début en paraphrasant (ex. "Oh... tu abandonnes déjà, Max?" devenu
-      // "tu abandonnes déjà, Max?", yeux inventés), le REMPLACEMENT pur
+      // début en paraphrasant (ex. "Oh... tu abandonnes déjà, Léo ?" devenu
+      // "tu abandonnes déjà, Léo ?", yeux inventés), le REMPLACEMENT pur
       // perd le texte déjà vu par l'utilisateur. Ici on garde l'original
       // (rogné à sa dernière phrase complète, comme l'original) et on ne
       // rajoute que les phrases VRAIMENT inédites du retry.
@@ -621,7 +638,7 @@ export function attachImgStyles(App) {
       };
       // Anti-rappel de fiche : le personnage termine parfois sa bulle par un
       // pense-bete de fiche entre parentheses, ex :
-      // (Max: homme, 55 ans, ... / Emma: femme, ... / Lieu: appartement /
+      // (Léo: homme, 40 ans, ... / Emma: femme, ... / Lieu: appartement /
       // Les gardes ligne-a-ligne (ficheDumpCut / FL) ne le voient pas car
       // tout tient sur une seule parenthese finale. On coupe la parenthese
       // quand elle cumule : Nom: d'entree, 2+ separateurs "/", et 3+
@@ -651,7 +668,7 @@ export function attachImgStyles(App) {
         } catch (e) { return { text: String(s || ''), cut: -1, reason: '' }; }
       };
       // Variante SANS parentheses ni "/" : pense-bete fiche en ligne, ex :
-      // Emma: femme, svelte, yeux bruns-verts, ... Max: homme, 55 ans, ...
+      // Emma: femme, svelte, yeux verts, ... Léo: homme, 40 ans, ...
       // act: ... place: appartement.
       // On remonte la serie contigue d'entetes "Nom:" (sans dialogue, sans
       // question) et on coupe si ca cumule attributs virgules + marqueurs
@@ -831,9 +848,9 @@ export function attachImgStyles(App) {
       } catch (eVer2) {}
       // Anglais résiduel + question "couleur des yeux" déjà en fiche.
       // engRepair d'origine ne couvre que des mots isolés (et transforme
-      // même "creating" en "creant" !) : "how le seed de Max a coated her
+      // même "creating" en "creant" !) : "how le seed de Léo a coated her
       // skin..." passe tel quel. Et le modèle demande parfois la couleur
-      // des yeux de Max alors qu'elle est dans sa fiche. On étend engRepair
+      // des yeux de Léo alors qu'elle est dans sa fiche. On étend engRepair
       // (mots + locutions + "creant" réparé + mots collés), et on remplace
       // la question par une phrase qui utilise la fiche (cache synchrone
       // rempli au passage par getSheet, car les réparations sont sync).

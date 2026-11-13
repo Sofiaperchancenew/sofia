@@ -1,20 +1,27 @@
 /* ============================================================================
-   Sofia — FICHES DE PERSONNAGES : collecte, création, mise à jour au fil du scénario
+   Sofia — FICHES DE PERSONNAGES (SFW uniquement) : collecte, création,
+   mise à jour au fil du scénario.
    À poser juste avant </body> :   <script src="src/fiches.js"></script>
    Expose window.SofiaFiches  (+ App.Fiches dès que l'app est prête)
 
    Le modèle écrit, à la fin de sa réponse, un bloc par personnage :
-       [FICHE]{"nom":"Max","poids":"66 kg","action":"assis, torse nu"}[/FICHE]
+         [FICHE]{"nom":"Léa","poids":"62 kg","action":"assise au bureau"}[/FICHE]
 
    Règles du module :
-     - un personnage NOMMÉ existe -> fiche créée, même presque vide ;
-     - seuls les champs CHANGÉS sont transmis ;
-     - une valeur vide n'écrase jamais une valeur connue ;
-     - tout changement est journalisé (champ, avant, après, date).
+      - un personnage NOMMÉ existe -> fiche créée, même presque vide ;
+      - seuls les champs CHANGÉS sont transmis ;
+      - une valeur vide n'écrase jamais une valeur connue ;
+      - tout changement est journalisé (champ, avant, après, date).
+      - SFW UNIQUEMENT : aucun champ d'anatomie sexuelle, aucun orifice,
+        aucune description sexuelle. Les blocs entrants qui en contiennent
+        sont filtrés (champs supprimés, jamais affichés ni renvoyés).
    Stockage : les fiches existantes de l'app (App.Sheets) dès qu'elles sont
    prêtes — source unique, jamais de doublon. Repli IndexedDB + localStorage
    seulement si App.Sheets est indisponible. Les fiches moi/sofia ne sont
    jamais supprimées ni purgées.
+   NOTE TECHNIQUE (Perchance) : ne jamais utiliser `el.onclick = fnAvecClosure`
+   ici — le moteur ré-évalue le handler via fn.toString() et perd la closure
+   (ReferenceError: build is not defined). Toujours addEventListener.
    ========================================================================== */
 (function () {
   "use strict";
@@ -30,7 +37,15 @@
   /* ---------------- utilitaires ---------------- */
   function s(v) { return String(v == null ? "" : v).trim(); }
   function normName(v) { return s(v).replace(/\s+/g, " "); }
-  function keyOf(v) { return normName(v).toLowerCase(); }
+  // Ronde 924 : repli insensible casse + accents (Chloé === chloe). Une seule
+  // clé partout : deux fiches qui ne diffèrent que par casse/accents fusionnent,
+  // et la recherche par nom retrouve la fiche au lieu d'en recréer une.
+  function foldKey(v) {
+    try {
+      return normName(v).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    } catch (e) { return normName(v).toLowerCase(); }
+  }
+  function keyOf(v) { return foldKey(v); }
   function blank(v) { var t = s(v); return !t || t === "?" || t === "—" || t === "-" || t === "…"; }
   function copy(o) { try { return JSON.parse(JSON.stringify(o)); } catch (e) { return o; } }
 
@@ -40,13 +55,18 @@
       genre: "", age: "", taille: "", poids: "",
       yeux: "", cheveux: "", lieu: "", presence: "", action: "",
       tatouages: "aucun connu",
-      anatomie: {}, orifices: [], vetements: [], objets_portes: [],
+      vetements: [], objets_portes: [],
       cree: Date.now(), maj: Date.now(), vu: 0, source: "scenario", hist: []
     };
   }
   function sanitize(o) {
     var out = {};
-    Object.keys(o || {}).forEach(function (k) { if (META.indexOf(k) === -1) out[k] = o[k]; });
+    Object.keys(o || {}).forEach(function (k) {
+      if (META.indexOf(k) === -1) out[k] = o[k];
+    });
+    // SFW : on jette tout champ sexuel éventuellement envoyé par le modèle.
+    if ("anatomie" in out) delete out.anatomie;
+    if ("orifices" in out) delete out.orifices;
     return out;
   }
 
@@ -125,7 +145,12 @@
         });
       }).catch(function () { return Object.keys(lsAll()).map(function (k) { return lsAll()[k]; }); });
     },
-    get: function (cle) { return Store.all().then(function (l) { for (var i = 0; i < l.length; i++) if (l[i].cle === cle) return l[i]; return null; }); },
+    get: function (cle) { return Store.all().then(function (l) {
+      for (var i = 0; i < l.length; i++) if (l[i].cle === cle) return l[i];
+      // Ronde 924 : repli insensible casse/accents (ancien stock sans pliage).
+      for (var j = 0; j < l.length; j++) { try { if (foldKey(l[j].nom || l[j].cle) === foldKey(cle)) return l[j]; } catch (e) {} }
+      return null;
+    }); },
     put: function (rec) {
       lsPut(rec);
       return db().then(function (d) {
@@ -173,7 +198,12 @@
         }).catch(function () { return []; });
       };
       var get = function (cle) {
-        return all().then(function (l) { for (var i = 0; i < l.length; i++) if (l[i].cle === cle) return l[i]; return null; });
+        return all().then(function (l) {
+          for (var i = 0; i < l.length; i++) if (l[i].cle === cle) return l[i];
+          // Ronde 924 : repli insensible casse/accents.
+          for (var j = 0; j < l.length; j++) { try { if (foldKey(l[j].nom || l[j].cle) === foldKey(cle)) return l[j]; } catch (e) {} }
+          return null;
+        });
       };
       return {
         all: all,
@@ -228,7 +258,7 @@
   }
 
   // Filet de sécurité : si le modèle a oublié les blocs, on repère au moins
-  // « Prénom (masculin, 55 ans) », « 1,77 m », « 66 kg », « yeux : … ».
+  // « Prénom (masculin, 40 ans) », « 1,80 m », « 75 kg », « yeux : … ».
   function guess(text) {
     var t = String(text || ""), found = [];
     var re = /([A-ZÀ-Ý][\p{L}'\-]{1,20}(?:\s[A-ZÀ-Ý][\p{L}'\-]{1,20})?)\s*\(\s*(masculin|féminin|homme|femme|mâle|femelle)[^,)]*,\s*(\d{1,3})\s*ans/giu, m;
@@ -245,14 +275,22 @@
   }
 
   /* ---------------- cœur : écriture ---------------- */
+  // Ronde 912 : noms-bouchons (exemples recopiés par le modèle, vocatifs) ne
+  // créent jamais de fiche et sont purgés du stock. Le vrai « moi » (id/cle
+  // protégé) n'est jamais touché.
+  var PLACEHOLDER = { max: 1, moi: 1 };
   async function upsert(incoming, opts) {
     var nom = normName(incoming.nom || incoming.name || incoming.prenom);
     if (!nom) return null;
+    if (PLACEHOLDER[foldKey(nom)]) return null;
     var rec = await Store.get(keyOf(nom));
     var neuf = false;
     if (!rec) { rec = blankRec(nom); neuf = true; }
     var log = [];
     mergeInto(rec, sanitize(incoming), "", log);
+    // SFW : purge toute trace sexuelle d'anciennes fiches.
+    if (rec.anatomie) { delete rec.anatomie; }
+    if (rec.orifices) { delete rec.orifices; }
     if (blank(rec.nom)) rec.nom = nom;
     rec.maj = Date.now();
     rec.vu = (rec.vu || 0) + 1;
@@ -287,6 +325,20 @@
   }
 
   /* ---------------- purge de scène ---------------- */
+  // Ronde 912 : purge les fiches bouchons existantes (une fois au boot + API).
+  async function purgePlaceholders() {
+    var all = await Store.all(), n = 0;
+    for (var i = 0; i < all.length; i++) {
+      var r = all[i];
+      if (!r) continue;
+      if (r.id === "moi" || r.id === "sofia" || r.cle === "moi" || r.cle === "sofia") continue;
+      var k = "";
+      try { k = foldKey(r.nom || r.cle); } catch (e) {}
+      if (k && PLACEHOLDER[k]) { try { await Store.del(r.cle); n++; } catch (e2) {} }
+    }
+    if (n) { await refreshUI(); render(); }
+    return n;
+  }
   async function purgeScene(keep) {
     var all = await Store.all(), touched = 0;
     for (var i = 0; i < all.length; i++) {
@@ -304,23 +356,23 @@
 
   /* ---------------- ce qu'on donne au modèle ---------------- */
   var DIRECTIVE = [
-    "[FICHES — DIRECTIVE PERMANENTE]",
+    "[FICHES — DIRECTIVE PERMANENTE — SFW UNIQUEMENT]",
     "À la fin de CHAQUE réponse, tu tiens à jour les fiches des personnages.",
     "1. Dès qu'un personnage est NOMMÉ pour la première fois, il existe : tu émets un bloc pour lui, même si tu ne sais presque rien de lui.",
     "2. Un bloc par personnage, sur une seule ligne, en JSON compact, entre [FICHE] et [/FICHE].",
     "3. Tu n'écris QUE les champs qui ont changé dans ce tour. Un champ inconnu, tu l'omets (jamais de valeur vide).",
     "4. Tu n'inventes rien : ce que la scène ne dit pas reste inchangé.",
     "5. Les blocs vont tout à la fin, juste avant [GAME_STATE] s'il est présent. Le texte de la scène reste propre : rien d'autre ne change.",
+    "6. SFW STRICT : que du tout public. Aucune anatomie sexuelle, aucun orifice, aucune description sexuelle ou dénudée, aucun sous-vêtement. Si la scène dit autre chose, tu restes neutre et habillé.",
     "",
-    "Champs de premier niveau : nom, genre, age, taille, poids, yeux, cheveux, lieu, presence, action, tatouages.",
-    "anatomie : objet libre (silhouette, sexe, sexe_taille, circoncision, pilosite, frein, testicules, poitrine, poils, seins, hanches…).",
-    "orifices : tableau de {nom, contient, quantite_ml, objets[]}.",
-    "vetements : tableau de {nom, couleur, etat}.",
+    "Champs autorisés (SFW) : nom, genre, age, taille, poids, yeux, cheveux, lieu, presence, action, tatouages.",
+    "vetements : tableau de {nom, couleur, etat} — vêtements ordinaires et modestes uniquement.",
     "objets_portes : tableau de {objet, note}.",
+    "Champs INTERDITS (à ne jamais émettre) : anatomie, orifices, et tout détail sexuel.",
     "",
     "Exemples :",
-    '[FICHE]{"nom":"Max","genre":"masculin","age":"55","taille":"1,77 m","poids":"66 kg","yeux":"bruns-verts","cheveux":"crâne rasé"}[/FICHE]',
-    '[FICHE]{"nom":"Max","action":"assis au bord du lit, torse nu","vetements":[{"nom":"slip","couleur":"noir"}]}[/FICHE]',
+    '[FICHE]{"nom":"Léa","genre":"féminin","age":"29","taille":"1,68 m","poids":"62 kg","yeux":"verts","cheveux":"longs châtains"}[/FICHE]',
+    '[FICHE]{"nom":"Léa","action":"prépare le dîner","vetements":[{"nom":"tablier","couleur":"beige"}]}[/FICHE]',
     '[FICHE]{"nom":"Léa","genre":"féminin","age":"29","cheveux":"longs châtains","lieu":"la cuisine"}[/FICHE]'
   ].join("\n");
 
@@ -401,9 +453,9 @@
   var FIELDS = [["nom", "Nom"], ["genre", "Genre"], ["age", "Âge"], ["taille", "Taille"], ["poids", "Poids"],
                 ["yeux", "Yeux"], ["cheveux", "Cheveux"], ["lieu", "Lieu"], ["presence", "Présence"],
                 ["action", "Action"], ["tatouages", "Tatouages"]];
-  var SECS = [["anatomie", "Anatomie"], ["orifices", "Orifices"], ["vetements", "Vêtements"], ["objets_portes", "Objets portés"]];
+  var SECS = [["vetements", "Vêtements"], ["objets_portes", "Objets portés"]];
 
-  var panel = null, courant = null, filtre = "", caches = [];
+  var panel = null, courant = null, filtre = "", filtreRaw = "", caches = [];
 
   function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 
@@ -415,52 +467,59 @@
     return panel;
   }
 
+  function on(elm, evt, fn) {
+    // addEventListener uniquement : `elm.onclick = fn` perd la closure
+    // sous Perchance (handler ré-évalué via toString -> build not defined).
+    if (elm && elm.addEventListener) elm.addEventListener(evt, fn);
+    return elm;
+  }
+
   function render() {
     build();
     panel.textContent = "";
     var head = el("div", "sf-head");
     head.appendChild(el("div", "sf-title", courant ? courant.nom : "Fiches"));
-    if (courant) head.appendChild(el("button", "sf-btn", "‹ Retour")).onclick = function () { courant = null; render(); };
+    if (courant) { var backBtn = el("button", "sf-btn", "‹ Retour"); on(backBtn, "click", function () { courant = null; render(); }); head.appendChild(backBtn); }
     else {
       head.appendChild(el("span", "sf-count", caches.length + " fiche(s)"));
-      head.appendChild(el("button", "sf-btn p", "+ Nouvelle")).onclick = nouvelle;
-      head.appendChild(el("button", "sf-btn", "⇩")).onclick = exporter;
-      head.appendChild(el("button", "sf-btn", "✕")).onclick = fermer;
-    }
-    panel.appendChild(head);
-
-    if (!courant) {
-      var inp = el("input", "sf-search"); inp.placeholder = "Rechercher un personnage…"; inp.value = filtre;
-      inp.oninput = function () { filtre = inp.value.toLowerCase(); render(); };
-      panel.appendChild(inp);
-      var list = el("div", "sf-list");
-      var l = caches.filter(function (r) {
-        return !filtre || r.nom.toLowerCase().indexOf(filtre) !== -1;
-      }).sort(function (a, b) { return (b.maj || 0) - (a.maj || 0); });
-      if (!l.length) list.appendChild(el("div", "sf-empty", "Aucune fiche. Dès qu'un personnage est nommé dans la scène, il apparaîtra ici tout seul."));
+      var newBtn = el("button", "sf-btn p", "+ Nouvelle"); on(newBtn, "click", nouvelle); head.appendChild(newBtn);
+      var expBtn = el("button", "sf-btn", "⇩"); on(expBtn, "click", exporter); head.appendChild(expBtn);
+      var closeBtn = el("button", "sf-btn", "✕"); on(closeBtn, "click", fermer); head.appendChild(closeBtn);
+     }
+     panel.appendChild(head);
+ 
+     if (!courant) {
+      var inp = el("input", "sf-search"); inp.placeholder = "Rechercher un personnage…"; inp.value = filtreRaw;
+      on(inp, "input", function () { filtreRaw = inp.value; filtre = foldKey(inp.value); render(); });
+       panel.appendChild(inp);
+       var list = el("div", "sf-list");
+       var l = caches.filter(function (r) {
+         return !filtre || foldKey(r.nom).indexOf(filtre) !== -1;
+       }).sort(function (a, b) { return (b.maj || 0) - (a.maj || 0); });
+       if (!l.length) list.appendChild(el("div", "sf-empty", "Aucune fiche. Dès qu'un personnage est nommé dans la scène, il apparaîtra ici tout seul."));
       l.forEach(function (r) {
-        var c = el("div", "sf-card");
-        var av = el("div", "sf-av");
-        if (r.portrait) { var im = el("img"); im.src = r.portrait; av.appendChild(im); }
-        else av.textContent = (r.nom[0] || "?").toUpperCase();
-        c.appendChild(av);
-        var box = el("div");
-        box.appendChild(el("div", "sf-nm", r.nom));
-        var bits = [];
-        if (r.genre) bits.push(r.genre);
-        if (r.age) bits.push(r.age + " ans");
-        if (r.taille) bits.push(r.taille);
-        if (r.poids) bits.push(r.poids);
-        bits.push("vue " + (r.vu || 1) + "×");
-        if (r.source === "déduit") bits.push("déduite");
-        box.appendChild(el("div", "sf-sub", bits.join(" · ")));
-        c.appendChild(box);
-        c.onclick = function () { courant = r; render(); };
-        list.appendChild(c);
-      });
-      panel.appendChild(list);
-      return;
-    }
+         var c = el("div", "sf-card");
+         var av = el("div", "sf-av");
+         if (r.portrait) { var im = el("img"); im.src = r.portrait; av.appendChild(im); }
+         else av.textContent = (r.nom[0] || "?").toUpperCase();
+         c.appendChild(av);
+         var box = el("div");
+         box.appendChild(el("div", "sf-nm", r.nom));
+         var bits = [];
+         if (r.genre) bits.push(r.genre);
+         if (r.age) bits.push(r.age + " ans");
+         if (r.taille) bits.push(r.taille);
+         if (r.poids) bits.push(r.poids);
+         bits.push("vue " + (r.vu || 1) + "×");
+         if (r.source === "déduit") bits.push("déduite");
+         box.appendChild(el("div", "sf-sub", bits.join(" · ")));
+         c.appendChild(box);
+        (function (rec) { on(c, "click", function () { courant = rec; render(); }); })(r);
+         list.appendChild(c);
+       });
+       panel.appendChild(list);
+       return;
+     }
 
     var d = el("div", "sf-detail");
     FIELDS.forEach(function (f) {
@@ -485,7 +544,7 @@
         if (blank(val[k])) return;
         b.appendChild(el("div", "sf-item", k + " : " + val[k]));
       });
-      h.onclick = function () { b.hidden = !b.hidden; };
+      on(h, "click", function () { b.hidden = !b.hidden; });
       box.appendChild(b);
       d.appendChild(box);
     });
@@ -496,7 +555,7 @@
         hbd.appendChild(el("div", "sf-item", new Date(x.t).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
           + " · " + x.champ + " : " + (x.avant || "—") + " → " + x.apres));
       });
-      hh.onclick = function () { hbd.hidden = !hbd.hidden; };
+      on(hh, "click", function () { hbd.hidden = !hbd.hidden; });
       hb.appendChild(hh); hb.appendChild(hbd); d.appendChild(hb);
     }
     panel.appendChild(d);
@@ -523,14 +582,20 @@
     }
     panel.appendChild(act);
   }
-  function bouton(txt, fn, cls) { var b = el("button", "sf-btn" + (cls ? " " + cls : ""), txt); b.onclick = fn; return b; }
+  function bouton(txt, fn, cls) { var b = el("button", "sf-btn" + (cls ? " " + cls : ""), txt); on(b, "click", fn); return b; }
 
   function nouvelle() {
     var n = prompt("Nom du personnage :"); if (!n) return;
     upsert({ nom: n, source: "manuel" }).then(function (r) { refreshUI(); courant = r; render(); });
   }
   function exporter() {
-    var blob = new Blob([JSON.stringify(caches, null, 2)], { type: "application/json" });
+    var clean = (caches || []).map(function (r) {
+      var c = copy(r);
+      if (c.anatomie) delete c.anatomie;
+      if (c.orifices) delete c.orifices;
+      return c;
+    });
+    var blob = new Blob([JSON.stringify(clean, null, 2)], { type: "application/json" });
     var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = "fiches-" + new Date().toISOString().slice(0, 10) + ".json"; a.click();
   }
@@ -543,7 +608,12 @@
     if (document.getElementById("sfNavBtn") || !document.getElementById("docsBtn")) return;
     var ref = document.getElementById("docsBtn");
     var b = ref.cloneNode(true);
-    b.id = "sfNavBtn"; b.onclick = ouvrir;
+    b.id = "sfNavBtn";
+    // Le clone hérite de onclick="App.Documents.toggle()" : on le retire,
+    // sinon Perchance ré-évalue l'attribut et casse la closure (build not defined).
+    try { b.removeAttribute("onclick"); } catch (e) {}
+    b.onclick = null;
+    on(b, "click", ouvrir);
     var dup = b.querySelector("#txtDocs"); if (dup) dup.removeAttribute("id");
     var ico = b.querySelector(".sbn-icon use"); if (ico) ico.setAttribute("href", "#sf-user");
     var lbl = b.querySelector("span:not(.sbn-icon)"); if (lbl) lbl.textContent = "Fiches";
@@ -584,6 +654,18 @@
     rename: function (a, b) { return Store.get(keyOf(a)).then(function (r) { if (!r) return null; r.nom = normName(b); r.cle = keyOf(b); return Store.put(r); }); },
     remove: function (n) { return Store.del(keyOf(n)); },
     purgeScene: purgeScene,
+    purgePlaceholders: purgePlaceholders,
+    // Ronde 924 : recherche par nom insensible casse/accents (Chloé → chloe).
+    byName: function (n) {
+      var k = foldKey(n);
+      if (!k) return Promise.resolve(null);
+      return Store.all().then(function (l) {
+        for (var i = 0; i < l.length; i++) {
+          try { if (foldKey(l[i].nom || l[i].cle) === k) return l[i]; } catch (e) {}
+        }
+        return null;
+      });
+    },
     open: ouvrir,
     close: fermer,
     refresh: refreshUI,
@@ -610,6 +692,7 @@
     mo.observe(document.body, { childList: true, subtree: true });
     attachStore();
     refreshUI();
+    try { purgePlaceholders().catch(function () {}); } catch (e) {}
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

@@ -215,7 +215,7 @@
   var DIRECTIVE = [
     "[IMAGE — DIRECTIVE]",
     "Quand la scène mérite une image, ajoute à la fin, juste avant les blocs [FICHE] :",
-    '[IMAGE]{"personnages":["Max"],"action":"assis au bord du lit, torse nu","decor":"chambre d hôtel, petit matin","cadrage":"medium shot, waist up"}[/IMAGE]',
+    '[IMAGE]{"personnages":["Léa"],"action":"sourit à la caméra","decor":"cuisine lumineuse, matin","cadrage":"medium shot, waist up"}[/IMAGE]',
     "personnages : les noms présents sur l'image, 1 à 3, tels qu'écrits dans leurs fiches.",
     "cadrage : wide shot | full body shot | medium shot | close-up.",
     "Un seul bloc [IMAGE] par réponse, et seulement si une image apporte quelque chose."
