@@ -1,0 +1,190 @@
+{
+ "build": "sfw-strip-v2",
+ "target": "arbre strippé 100 % SFW (zéro string érotique générative) — preuve dans scratch/sfw-build/",
+ "note": "Neuter = corps remplacé par return '' (signature inchangée, appelants vérifiés falsy-safe le 2026-11-13 : listes _ta/_tc, if(b), try/catch, appels directs 11401/17981). dropLines = suppression de TOUTES les lignes contenant la sous-chaîne (appliqué APRÈS les neuters). replace = réécriture chirurgicale d'un commentaire devenu faux. Ordre d'application : neuters par start DÉCROISSANT (pas de décalage d'ancres), puis dropLines, puis replace.",
+ "neuter": [
+  {
+   "file": "src/app.js",
+   "fn": "soloIntimacyTail",
+   "start": 12965,
+   "reason": "bloc scène solo érotique"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "sexTalkBlock",
+   "start": 13012,
+   "reason": "bloc sexologue adulte (mode off par défaut)"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "forcedDrinkTail",
+   "start": 12588,
+   "reason": "scénario boisson forcée"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "muteRule",
+   "start": 12503,
+   "reason": "scénario bâillon"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "craftTail",
+   "start": 12799,
+   "reason": "art de la dominance"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "energyBlock",
+   "start": 12811,
+   "reason": "instructions sexuelles explicites"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "energyTail",
+   "start": 12825,
+   "reason": "idem (ACTION, APPETITE)"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "donjonTail",
+   "start": 12879,
+   "reason": "objets de donjon"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "castTail",
+   "start": 12908,
+   "reason": "jeu de scène multi-femmes"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "castTurnTail",
+   "start": 12578,
+   "reason": "CHAIN OF WOMEN"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "castIdentityTail",
+   "start": 12932,
+   "reason": "STAY THE WOMEN"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "soloNewcomerBlock",
+   "start": 12322,
+   "reason": "ouverture scène solo"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "castBlock",
+   "start": 12339,
+   "reason": "moteur de casting de scène"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "soloMistressBlock",
+   "start": 12744,
+   "reason": "maîtresse + chaise gynécologique"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "soloContinueBlock",
+   "start": 12763,
+   "reason": "suite scène solo"
+  },
+  {
+   "file": "src/app.js",
+   "fn": "dominanceBlock",
+   "start": 12775,
+   "reason": "bloc dominance"
+  }
+ ],
+ "dropLines": [
+  {
+   "file": "src/app.js",
+   "contains": "[CRAFT OF DOMINANCE] You have the gear",
+   "reason": "résumé conclusion (ronde 180) — craftTail/dominanceBlock déjà neutrés"
+  },
+  {
+   "file": "src/app.js",
+   "contains": "le pilori, la chaise gynécologique",
+   "reason": "résumé conclusion donjon (ronde 192), ultra-explicite"
+  },
+  {
+   "file": "src/app.js",
+   "contains": "He is asking, not playing: this reply explains",
+   "reason": "résumé conclusion sex-talk (ronde 193)"
+  },
+  {
+   "file": "src/app.js",
+   "contains": "Everything you describe in the FIRST person is YOUR body",
+   "reason": "résumé conclusion anatomie scène (MY BODY)"
+  },
+  {
+   "file": "src/app-b1.js",
+   "contains": "bdsm-art-de-dominer",
+   "reason": "entrée corpus domination + commentaire doc (2 lignes)"
+  }
+ ],
+ "replace": [
+  {
+   "file": "src/app.js",
+   "old": "      // dossier BDSM (src/sexo/bdsm-art-de-dominer.json) et le corpus de textes de\n      // sexologie.",
+   "new": "      // corpus de textes de\n      // sexologie.",
+   "reason": "commentaire ronde 212 devenu faux après retrait de l'entrée"
+  },
+  {
+   "file": "src/app.js",
+   "old": "            // Ronde 192 : « on a tout ça avec… » — l'utilisateur donne l'inventaire complet\n      // de son donjon : meubles, alcools, drogues et préparations,\n      // les liquides de remplissage, le catalogue de plugs avec de vraies mesures, les\n      // fermetures, les dilatateurs, vibromasseurs, la machine à traire et les\n      // fuck-machines. Le bloc connaît chaque objet avec nom, matériau,\n      // mesure et effet, pour qu'elle le nomme et l'utilise comme une artisane\n      // au lieu de rester vague. Il s'applique dans la même scène en cours",
+   "new": "      // (catalogue donjon retiré — registre SFW-STRIP)",
+   "reason": "commentaire doc fonction neutrée (donjonTail)"
+  }
+ ],
+ "keep": [
+  {
+   "unit": "herBodyBlock/herBodyRepair (strapon jouet, jamais anatomie)",
+   "reason": "garde anti-fusion (négatif)."
+  },
+  {
+   "unit": "tailBlock/CONTENT LIMIT + PEOPLE PRESENT",
+   "reason": "garde SFW elle-même (exemples = précision du refus, framing négatif)."
+  },
+  {
+   "unit": "SCENE_WORDS_RE/CAST_RE/BDSM_RE/poseNow/GAG/triggers",
+   "reason": "détection (déclenchent refus/gardes), jamais générées."
+  },
+  {
+   "unit": "forcedScene()",
+   "reason": "détecteur non-consentement → garde."
+  },
+  {
+   "unit": "stagingQuotes/stagingTail",
+   "reason": "ne citent que SES mots (cadrage), RE = détection."
+  },
+  {
+   "unit": "WEBCAM staging (plug/toy/buttocks)",
+   "reason": "prose de garde au négatif (never drawn/never inside/modeste)."
+  },
+  {
+   "unit": "MedMemo/anatomie/éducation",
+   "reason": "médical/éducatif, pas érotique."
+  },
+  {
+   "unit": "SFW clothing/négatifs modestes + imageSfwVerify",
+   "reason": "gardes image."
+  },
+  {
+   "unit": "SexoMemo (CERHES/CHU/UNF3S, gate sexoAllowed=false)",
+   "reason": "sexologie éducative ; fichiers explicites déjà retirés (rondes SFW)."
+  },
+  {
+   "unit": "castSheetTail/castMoveTail/tuTail/oocPause/sceneReactTail/dressingBlock(stub)",
+   "reason": "moteur de scène non-érotique."
+  },
+  {
+   "unit": "sexoAllowed()=false + sfw.js + sexTalkMode off",
+   "reason": "verrous runtime (masquage) — le strip supprime les strings en plus."
+  }
+ ]
+}
